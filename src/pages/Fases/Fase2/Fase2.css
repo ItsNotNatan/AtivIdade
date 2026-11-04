@@ -1,0 +1,36 @@
+/* src/pages/Fases/Fase2.css */
+/* O container e animações usam as mesmas regras da Fase 1, já globais no projeto. Adicionamos apenas o específico da tabela */
+.fase2-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.fase2-table th {
+    background-color: #f8fafc;
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.fase2-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.95rem;
+    color: #0f172a;
+    background: white;
+}
+
+.fase2-input-date {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.3rem;
+    font-family: inherit;
+}

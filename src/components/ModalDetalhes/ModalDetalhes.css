@@ -1,0 +1,205 @@
+/* ==========================================
+   FILE: src/components/ModalDetalhes/ModalDetalhes.css
+   ========================================== */
+
+/* 1. FUNDO ESCURO (OVERLAY) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInModal 0.2s ease-out forwards;
+}
+
+/* 2. CAIXA BRANCA CENTRAL (CONTENT) */
+.modal-content {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 1100px;
+    max-height: 90vh;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+/* 3. CABEÇALHO DO MODAL (ATUALIZADO) */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    gap: 1rem;
+}
+
+.modal-header-left {
+    flex: 1;
+}
+
+.modal-header-left h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.modal-meta {
+    color: #64748b;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
+/* 4. NOVA ÁREA: DATA PREVISTA E AUTOR */
+.modal-header-center {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 1rem;
+    padding-right: 1.5rem;
+    border-right: 1px solid #cbd5e1;
+}
+
+.data-prevista-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    border: 1px solid #bfdbfe;
+}
+
+.data-autor-info {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.4rem;
+    font-weight: 600;
+}
+
+/* 5. BOTÃO DE FECHAR (O "X") */
+.btn-fechar-modal {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-fechar-modal:hover {
+    background-color: #e2e8f0;
+    color: #ef4444;
+}
+
+/* 6. CORPO DO MODAL */
+.modal-body {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* 7. RASTREADOR VISUAL (LINHA DO TEMPO) */
+.tracker-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0 3rem 0;
+    position: relative;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tracker-linha-fundo {
+    position: absolute;
+    top: 1.25rem;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.tracker-passo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    width: 33%;
+}
+
+.tracker-bolinha {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.75rem;
+    transition: 0.3s;
+}
+
+.tracker-texto {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #64748b;
+    text-align: center;
+}
+
+/* 8. CORES DINÂMICAS DO RASTREADOR (ESTADOS) */
+.passo-concluido .tracker-bolinha {
+    background: #10b981;
+}
+
+.passo-concluido .tracker-texto {
+    color: #10b981;
+}
+
+.passo-ativo .tracker-bolinha {
+    background: #2563eb;
+    box-shadow: 0 0 0 4px #dbeafe;
+}
+
+.passo-ativo .tracker-texto {
+    color: #2563eb;
+}
+
+.passo-futuro .tracker-bolinha {
+    background: #cbd5e1;
+    border: 4px solid #f8fafc;
+}
+
+/* 9. ANIMAÇÕES */
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+
+    to {
+        opacity: 1;
+        backdrop-filter: blur(2px);
+    }
+}

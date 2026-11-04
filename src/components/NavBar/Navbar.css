@@ -1,0 +1,88 @@
+/* ==========================================
+   FILE: src/components/NavBar/Navbar.css
+   ========================================== */
+
+/* 1. A BARRA PRINCIPAL */
+.app-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 2rem;
+    height: 70px;
+    width: 100%;
+    /* ADICIONADO: Garante que vai de ponta a ponta */
+    box-sizing: border-box;
+    /* ADICIONADO: Mantém o padding seguro */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* O resto do teu código Navbar.css fica exatamente igual... */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.text-primary {
+    color: #2563eb;
+}
+
+.badge-role {
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    margin-left: 0.75rem;
+    font-weight: 700;
+    border: 1px solid #bfdbfe;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    height: 100%;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.95rem;
+    height: 100%;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    color: #2563eb;
+}
+
+.nav-item.active {
+    color: #2563eb;
+    border-bottom: 3px solid #2563eb;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    border-left: 1px solid #e2e8f0;
+}
+
+.user-info span {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}

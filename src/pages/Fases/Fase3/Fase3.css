@@ -1,0 +1,300 @@
+/* ==========================================
+   FILE: src/pages/Fases/Fase3.css
+   ========================================== */
+
+/* Estrutura Principal */
+.fase3-container {
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.fase3-header {
+    margin-bottom: 2rem;
+}
+
+.fase3-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #0f172a;
+    margin: 0;
+}
+
+.fase3-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+/* Cartões Base */
+.fase3-card {
+    background-color: #fff;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+/* Alinhamentos Interiores */
+.fase3-flex-between {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .fase3-flex-between {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.fase3-item-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #1e293b;
+    margin: 0;
+}
+
+.fase3-item-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+/* Emblemas de Estado (Badges) */
+.fase3-badge-emerald {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.fase3-badge-rose {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    background-color: #ffe4e6;
+    color: #9f1239;
+    border: 1px solid #fecdd3;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.fase3-pulse-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.4rem;
+    background-color: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Barra de Progresso Principal */
+.fase3-progress-container {
+    background-color: #f8fafc;
+    padding: 2rem 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #f1f5f9;
+    margin-top: 1.5rem;
+}
+
+.fase3-progress-bar-bg {
+    background-color: #e2e8f0;
+    height: 0.75rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+.fase3-progress-bar-fill {
+    background-color: #3b82f6;
+    height: 100%;
+    width: 45%;
+    border-radius: 9999px;
+    transition: width 1s ease-in-out;
+}
+
+/* Linha do Tempo (Timeline) */
+.fase3-timeline {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .fase3-timeline {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.fase3-step {
+    position: relative;
+}
+
+.fase3-step-connector {
+    display: none;
+    position: absolute;
+    top: 1.25rem;
+    left: -50%;
+    width: 100%;
+    height: 3px;
+    z-index: 0;
+}
+
+@media (min-width: 768px) {
+    .fase3-step-connector {
+        display: block;
+    }
+}
+
+.connector-emerald {
+    background-color: #a7f3d0;
+}
+
+.connector-slate {
+    background-color: #e2e8f0;
+}
+
+.fase3-step-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem auto;
+    position: relative;
+    z-index: 10;
+}
+
+.icon-done {
+    background-color: #d1fae5;
+    color: #059669;
+    border: 2px solid #34d399;
+}
+
+.icon-current {
+    background-color: #2563eb;
+    color: #fff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 4px solid #dbeafe;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.icon-pending {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border: 2px solid #e2e8f0;
+}
+
+.fase3-step-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.2rem;
+}
+
+.fase3-step-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.title-blue {
+    color: #1d4ed8;
+}
+
+.desc-blue {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+/* Cartão de Retrabalho Específico */
+.fase3-rework-card {
+    border-color: #fecdd3;
+    position: relative;
+    overflow: hidden;
+}
+
+.fase3-rework-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10rem;
+    height: 10rem;
+    background-color: #fff1f2;
+    border-bottom-left-radius: 100%;
+    z-index: 0;
+    opacity: 0.6;
+}
+
+.fase3-rework-content {
+    position: relative;
+    z-index: 10;
+}
+
+.fase3-rework-alert {
+    background-color: #fff1f2;
+    border: 1px solid #ffe4e6;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    color: #be123c;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.fase3-rework-alert p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.fase3-rework-alert strong {
+    color: #881337;
+}
+
+/* Animações Globais */
+.fade-in {
+    animation: fadeIn 0.4s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: .8;
+        transform: scale(1.05);
+    }
+}
