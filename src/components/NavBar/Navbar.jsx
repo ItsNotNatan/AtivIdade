@@ -1,7 +1,7 @@
 // src/components/NavBar/Navbar.jsx
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { HeartPulse, LayoutDashboard, User, FileText, LogOut } from 'lucide-react';
+import { HeartPulse, LayoutDashboard, User, FileText, Users, LogOut } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -25,6 +25,10 @@ export default function Navbar() {
 
                 <NavLink to="/relatorios" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
                     <FileText size={20} /> Relatórios
+                </NavLink>
+
+                <NavLink to="/turma" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                    <Users size={20} /> Minha Turma
                 </NavLink>
 
                 <NavLink to="/perfil" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
