@@ -1,17 +1,19 @@
+// src/pages/Exercicio/Exercicio.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, PhoneCall, PlayCircle, CheckCircle2, PauseCircle } from 'lucide-react';
+import { useAuthStore } from '../../contexts/authStore';
 import './Exercicio.css';
 
 export default function Exercicio() {
     const navigate = useNavigate();
+    const { adicionarAlerta } = useAuthStore();
     
-    // Fases: 0 (Preparo), 1 (Treino), 2 (Feedback), 3 (Conclusão)
     const [fase, setFase] = useState(0); 
-    const [tempo, setTempo] = useState(600); // 10 minutos em segundos
+    const [tempo, setTempo] = useState(600);
     const [pausado, setPausado] = useState(false);
 
-    const contatoEmergenciaTel = "11999999999";
+    const contatoEmergenciaTel = "11988888888";
 
     useEffect(() => {
         let intervalo;
@@ -29,9 +31,26 @@ export default function Exercicio() {
         return `${min}:${seg < 10 ? '0' : ''}${seg}`;
     };
 
+    const lidarComSos = () => {
+        adicionarAlerta('sos', 'Acionou o Botão de SOS durante o treino!');
+    };
+
+    const lidarComFeedback = (tipo) => {
+        if (tipo === 'dificil') {
+            adicionarAlerta('dificuldade', 'Relatou que o exercício foi muito difícil / sentiu desconforto.');
+        }
+        setFase(3);
+    };
+
     return (
         <div className="exercicio-layout fade-in">
-            <a href={`tel:${contatoEmergenciaTel}`} className="btn-sos" aria-label="Ligar para emergência">
+            {/* Botão de SOS que efetua a chamada e notifica os responsáveis */}
+            <a 
+                href={`tel:${contatoEmergenciaTel}`} 
+                onClick={lidarComSos}
+                className="btn-sos" 
+                aria-label="Ligar para emergência"
+            >
                 <PhoneCall size={32} className="icone-telefone" />
             </a>
 
@@ -92,13 +111,13 @@ export default function Exercicio() {
                     <div className="text-center fade-in">
                         <h2 className="pergunta-feedback">Como sentiu o exercício de hoje?</h2>
                         <div className="feedback-botoes">
-                            <button onClick={() => setFase(3)} className="btn-feedback btn-facil">
+                            <button onClick={() => lidarComFeedback('facil')} className="btn-feedback btn-facil">
                                 😃 Foi fácil
                             </button>
-                            <button onClick={() => setFase(3)} className="btn-feedback btn-bom">
+                            <button onClick={() => lidarComFeedback('bom')} className="btn-feedback btn-bom">
                                 🙂 Na medida certa
                             </button>
-                            <button onClick={() => setFase(3)} className="btn-feedback btn-dificil">
+                            <button onClick={() => lidarComFeedback('dificil')} className="btn-feedback btn-dificil">
                                 🥵 Muito difícil
                             </button>
                         </div>

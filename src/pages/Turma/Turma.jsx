@@ -1,8 +1,12 @@
+// src/pages/Turma/Turma.jsx
 import React from 'react';
-import { Users, CheckCircle2, AlertTriangle, Clock, Phone, HeartPulse } from 'lucide-react';
+import { Users, CheckCircle2, AlertTriangle, Clock, Phone, ShieldAlert, Check } from 'lucide-react';
+import { useAuthStore } from '../../contexts/authStore';
 import './Turma.css';
 
 export default function Turma() {
+    const { alertas, resolverAlerta } = useAuthStore();
+
     const profissional = {
         nome: 'Dra. Camila',
         especialidade: 'Fisioterapia Geriátrica',
@@ -28,7 +32,7 @@ export default function Turma() {
             idade: 78,
             mobilidade: 'Uso bengala',
             condicoes: ['Falta de Equilíbrio'],
-            status: 'Atenção: Dor relatada',
+            status: 'Atenção necessária',
             tipoStatus: 'atencao',
             ultimoFeedback: 'Muito difícil 🥵',
             contatoEmergenciaNome: 'Ana (Filha)',
@@ -42,15 +46,11 @@ export default function Turma() {
             condicoes: ['Problemas no Coração'],
             status: 'Não treinou hoje',
             tipoStatus: 'pendente',
-            ultimoFeedback: 'Sem registro recente',
+            ultimoFeedback: 'Sem registo recente',
             contatoEmergenciaNome: 'Carla (Esposa)',
             contatoEmergenciaTel: '11966666666'
         }
     ];
-
-    const totalAlunos = alunos.length;
-    const concluidosHoje = alunos.filter(a => a.tipoStatus === 'ok').length;
-    const alertas = alunos.filter(a => a.tipoStatus === 'atencao').length;
 
     return (
         <div className="turma-container fade-in">
@@ -63,6 +63,75 @@ export default function Turma() {
                 </div>
             </header>
 
+            {/* SECÇÃO DE ALERTAS ATIVOS (SOS OU QUEIXA) */}
+            {alertas.length > 0 && (
+                <div style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ fontSize: '1.25rem', color: '#b91c1c', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                        <ShieldAlert size={22} color="#dc2626" /> Alertas em Tempo Real ({alertas.length})
+                    </h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {alertas.map(alerta => (
+                            <div 
+                                key={alerta.id}
+                                style={{
+                                    backgroundColor: alerta.tipo === 'sos' ? '#fef2f2' : '#fffbeb',
+                                    border: `2px solid ${alerta.tipo === 'sos' ? '#f87171' : '#fcd34d'}`,
+                                    borderRadius: '1rem',
+                                    padding: '1.25rem',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    gap: '1rem'
+                                }}
+                            >
+                                <div>
+                                    <span style={{ 
+                                        fontWeight: '800', 
+                                        fontSize: '0.85rem', 
+                                        padding: '0.2rem 0.6rem', 
+                                        borderRadius: '0.4rem', 
+                                        backgroundColor: alerta.tipo === 'sos' ? '#dc2626' : '#d97706',
+                                        color: 'white',
+                                        marginRight: '0.5rem'
+                                    }}>
+                                        {alerta.tipo === 'sos' ? 'EMERGÊNCIA SOS' : 'QUEIXA DE ESFORÇO'}
+                                    </span>
+                                    <strong style={{ fontSize: '1.1rem', color: '#1f2937' }}>{alerta.alunoNome}</strong>
+                                    <span style={{ fontSize: '0.9rem', color: '#6b7280', marginLeft: '0.5rem' }}>às {alerta.hora}</span>
+                                    <p style={{ margin: '0.4rem 0 0 0', color: '#374151', fontSize: '1rem' }}>{alerta.mensagem}</p>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                    <a 
+                                        href={`tel:${alerta.contatoTel}`} 
+                                        style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                                            backgroundColor: '#ffffff', color: '#1f2937', padding: '0.6rem 1rem',
+                                            borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontWeight: 'bold',
+                                            textDecoration: 'none', fontSize: '0.95rem'
+                                        }}
+                                    >
+                                        <Phone size={16} color="#059669" /> Ligar Apoio
+                                    </a>
+                                    <button 
+                                        onClick={() => resolverAlerta(alerta.id)}
+                                        style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                                            backgroundColor: '#059669', color: 'white', padding: '0.6rem 1rem',
+                                            borderRadius: '0.5rem', border: 'none', fontWeight: 'bold',
+                                            cursor: 'pointer', fontSize: '0.95rem'
+                                        }}
+                                    >
+                                        <Check size={16} /> Marcar como Resolvido
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Painel de Indicadores */}
             <div className="turma-kpis">
                 <div className="kpi-turma-card">
@@ -71,7 +140,7 @@ export default function Turma() {
                     </div>
                     <div className="kpi-turma-info">
                         <h4>Total de Alunos</h4>
-                        <span>{totalAlunos}</span>
+                        <span>{alunos.length}</span>
                     </div>
                 </div>
 
@@ -81,7 +150,7 @@ export default function Turma() {
                     </div>
                     <div className="kpi-turma-info">
                         <h4>Concluíram Hoje</h4>
-                        <span>{concluidosHoje}</span>
+                        <span>{alunos.filter(a => a.tipoStatus === 'ok').length}</span>
                     </div>
                 </div>
 
@@ -90,13 +159,13 @@ export default function Turma() {
                         <AlertTriangle size={28} />
                     </div>
                     <div className="kpi-turma-info">
-                        <h4>Precisam de Atenção</h4>
-                        <span>{alertas}</span>
+                        <h4>Alertas Ativos</h4>
+                        <span>{alertas.length}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Grelha de Alunos */}
+            {/* Lista de Alunos */}
             <h2 className="turma-lista-titulo">Alunos da Turma</h2>
             <div className="alunos-grid">
                 {alunos.map(aluno => (
@@ -131,7 +200,7 @@ export default function Turma() {
                                 Retorno: <strong>{aluno.ultimoFeedback}</strong>
                             </span>
 
-                            <a href={`tel:${aluno.contatoEmergenciaTel}`} className="contato-rapido" title="Ligar para o contato de emergência">
+                            <a href={`tel:${aluno.contatoEmergenciaTel}`} className="contato-rapido" title="Ligar para o contacto de emergência">
                                 <Phone size={14} /> Apoio: {aluno.contatoEmergenciaNome}
                             </a>
                         </div>

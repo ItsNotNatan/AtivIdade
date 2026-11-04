@@ -109,3 +109,32 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Acessibilidade: Modo Letras Grandes */
+body.letras-grandes {
+    font-size: 22px;
+}
+
+body.letras-grandes h1 {
+    font-size: 3.5rem;
+}
+
+body.letras-grandes h2 {
+    font-size: 2.2rem;
+}
+
+body.letras-grandes h3 {
+    font-size: 1.75rem;
+}
+
+body.letras-grandes p,
+body.letras-grandes span,
+body.letras-grandes label {
+    font-size: 1.25rem;
+}
+
+body.letras-grandes .input-control,
+body.letras-grandes button {
+    font-size: 1.3rem;
+    padding: 1.1rem 1.4rem;
+}
