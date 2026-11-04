@@ -1,0 +1,241 @@
+/* src/pages/Perfil/Perfil.css */
+
+.perfil-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.perfil-header {
+    margin-bottom: 2rem;
+}
+
+.perfil-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.perfil-subtitle {
+    font-size: 1.25rem;
+    color: #4b5563;
+}
+
+.perfil-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.perfil-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #dcfce7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.avatar-circulo {
+    background-color: #d1fae5;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.usuario-nome {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.usuario-detalhe {
+    font-size: 1.15rem;
+    color: #4b5563;
+    margin-bottom: 0.25rem;
+}
+
+.btn-editar {
+    margin-top: 2rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-editar:hover {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+/* Configurações */
+.sessao-titulo {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    align-self: flex-start;
+}
+
+.config-lista {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.config-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.15rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Checkbox estilo Switch simples para acessibilidade */
+.toggle-switch {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    accent-color: #059669;
+}
+
+/* --- ADICIONE AO FINAL DO SEU Perfil.css --- */
+
+/* Ajuste do container visualização */
+.perfil-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.usuario-medidas {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #f3f4f6;
+    border-radius: 1rem;
+    color: #374151;
+    font-size: 1.1rem;
+}
+
+/* Formulário de Edição */
+.perfil-edit-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
+
+.perfil-edit-form .input-group label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.4rem;
+    display: block;
+}
+
+.perfil-edit-form .input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.perfil-edit-form .input-icon {
+    position: absolute;
+    left: 12px;
+    color: #9ca3af;
+}
+
+.perfil-edit-form .input-control {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    font-size: 1.05rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.perfil-edit-form .input-control:focus {
+    border-color: #059669;
+}
+
+.perfil-edit-form .input-row {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Botões do Formulário de Edição */
+.form-actions-perfil {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-cancelar,
+.btn-salvar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-cancelar {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.btn-cancelar:hover {
+    background-color: #e5e7eb;
+}
+
+.btn-salvar {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-salvar:hover {
+    background-color: #047857;
+}
+
+/* Animação suave para troca de telas */
+.fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
