@@ -1,0 +1,58 @@
+/* src/components/Layout/Layout.css */
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* Ocupa 100% da altura do ecrã */
+    background-color: #f3f4f6;
+}
+
+/* O header (navbar) que criámos */
+.app-header {
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    /* Impede que a navbar encolha */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Os links alinhados */
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #6b7280;
+    font-weight: 500;
+    padding: 0.5rem 0;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    color: #2563eb;
+}
+
+.nav-item.active {
+    border-bottom: 2px solid #2563eb;
+    font-weight: 700;
+}
+
+/* A área de conteúdo principal */
+.main-content {
+    flex: 1;
+    /* Ocupa o resto do espaço disponível abaixo da navbar */
+    overflow-y: auto;
+    /* Cria scroll apenas nesta área se a página for longa */
+    padding: 2rem;
+}

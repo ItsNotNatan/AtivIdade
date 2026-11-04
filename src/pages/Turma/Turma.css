@@ -1,0 +1,206 @@
+/* src/pages/Turma/Turma.css */
+
+.turma-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.turma-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.turma-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.turma-subtitle {
+    font-size: 1.15rem;
+    color: #4b5563;
+}
+
+/* Indicadores da Turma */
+.turma-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.kpi-turma-card {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-turma-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpi-turma-info h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.kpi-turma-info span {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+/* Lista de Alunos */
+.turma-lista-titulo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.25rem;
+}
+
+.alunos-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.aluno-card {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.aluno-card:hover {
+    border-color: #059669;
+    transform: translateY(-2px);
+}
+
+.aluno-card.alerta {
+    border-left: 6px solid #ef4444;
+}
+
+.aluno-perfil-bloco {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.aluno-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #d1fae5;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.aluno-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+    color: #1f2937;
+}
+
+.aluno-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.tag-mobilidade-pequena {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-weight: 600;
+}
+
+.tag-restricao-pequena {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-weight: 600;
+}
+
+/* Status do Treino */
+.aluno-status-bloco {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.status-treino {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+}
+
+.status-ok {
+    background-color: #ecfdf5;
+    color: #059669;
+}
+
+.status-atencao {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.status-pendente {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.contato-rapido {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #4b5563;
+    font-size: 0.9rem;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.contato-rapido:hover {
+    color: #059669;
+    text-decoration: underline;
+}
