@@ -1,15 +1,21 @@
 // src/components/NavBar/Navbar.jsx
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { HeartPulse, LayoutDashboard, User, FileText, Users, LogOut } from 'lucide-react';
+import { HeartPulse, LayoutDashboard, User, FileText, Users, LogOut, BarChart3 } from 'lucide-react';
+import { useAuthStore } from '../../contexts/authStore'; // <-- Importação do perfil
 import './Navbar.css';
 
 export default function Navbar() {
     const navigate = useNavigate();
+    const { usuario, logout } = useAuthStore();
 
     const handleLogout = () => {
+        logout();
         navigate('/login');
     };
+
+    // Fallback de segurança para 'idoso' caso algo falhe
+    const tipoPerfil = usuario?.tipo || 'idoso';
 
     return (
         <header className="app-header">
@@ -19,18 +25,43 @@ export default function Navbar() {
             </div>
 
             <nav className="nav-links">
-                <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <LayoutDashboard size={20} /> Início
-                </NavLink>
+                {/* MENU DO IDOSO */}
+                {tipoPerfil === 'idoso' && (
+                    <>
+                        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                            <LayoutDashboard size={20} /> Início
+                        </NavLink>
+                        <NavLink to="/relatorios" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                            <FileText size={20} /> Meus Relatórios
+                        </NavLink>
+                    </>
+                )}
 
-                <NavLink to="/relatorios" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <FileText size={20} /> Relatórios
-                </NavLink>
+                {/* MENU DO PROFISSIONAL (FISIOTERAPEUTA) */}
+                {tipoPerfil === 'profissional' && (
+                    <>
+                        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                            <LayoutDashboard size={20} /> Início
+                        </NavLink>
+                        <NavLink to="/turma" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                            <Users size={20} /> Minha Turma
+                        </NavLink>
+                    </>
+                )}
 
-                <NavLink to="/turma" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <Users size={20} /> Minha Turma
-                </NavLink>
+                {/* MENU DO GESTOR */}
+                {tipoPerfil === 'gestor' && (
+                    <>
+                        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                            <BarChart3 size={20} /> Visão Geral
+                        </NavLink>
+                        <NavLink to="/equipa" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                            <Users size={20} /> Profissionais
+                        </NavLink>
+                    </>
+                )}
 
+                {/* MENU COMUM A TODOS */}
                 <NavLink to="/perfil" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
                     <User size={20} /> Meu Perfil
                 </NavLink>
