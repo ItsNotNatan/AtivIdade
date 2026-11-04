@@ -1,9 +1,8 @@
 import React from 'react';
-import { FileText, Printer, CheckCircle2, HeartPulse, Clock } from 'lucide-react';
+import { FileText, Printer, HeartPulse } from 'lucide-react';
 import './Relatorios.css';
 
 export default function Relatorios() {
-    // Dados consolidados do perfil e restrições
     const perfil = {
         nome: 'Natan',
         idade: 72,
@@ -12,7 +11,6 @@ export default function Relatorios() {
         contatoEmergencia: 'João (Filho) - (11) 98888-8888'
     };
 
-    // Histórico de exercícios registados
     const historico = [
         {
             id: 1,
@@ -61,7 +59,6 @@ export default function Relatorios() {
                 </button>
             </header>
 
-            {/* Ficha Resumo do Aluno / Paciente */}
             <section className="resumo-medico-card">
                 <div className="resumo-medico-topo">
                     <HeartPulse size={26} strokeWidth={2.5} />
@@ -80,7 +77,6 @@ export default function Relatorios() {
                 </div>
             </section>
 
-            {/* Lista com Histórico das Atividades */}
             <h2 className="secao-historico-titulo">Histórico Recente</h2>
             <div className="lista-atividades">
                 {historico.map((item) => (

@@ -6,7 +6,9 @@ import Login from '../pages/Login/Login';
 import Cadastro from '../pages/Cadastro/Cadastro';
 import Dashboard from '../pages/Dashboard/Dashboard';
 import Perfil from '../pages/Perfil/Perfil';
-import Exercicio from '../pages/Exercicio/Exercicio'; // <-- IMPORTAÇÃO
+import Exercicio from '../pages/Exercicio/Exercicio';
+import Relatorios from '../pages/Relatorios/Relatorios';
+import Turma from '../pages/Turma/Turma'; // <-- Importação da Turma
 
 export const rotas = createBrowserRouter([
     {
@@ -22,7 +24,6 @@ export const rotas = createBrowserRouter([
         element: <Cadastro />
     },
     {
-        // Rota Isolada (Tela cheia, Foco total no exercício)
         path: '/exercicio',
         element: <Exercicio />
     },
@@ -40,6 +41,14 @@ export const rotas = createBrowserRouter([
             {
                 path: 'perfil',
                 element: <Perfil />
+            },
+            {
+                path: 'relatorios',
+                element: <Relatorios />
+            },
+            {
+                path: 'turma', // <-- Rota do profissional
+                element: <Turma />
             }
         ]
     }
