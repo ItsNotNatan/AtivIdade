@@ -1,114 +1,128 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    ArrowLeft, Play, CheckCircle2, ThumbsUp, Smile, AlertTriangle, Award
-} from 'lucide-react';
+import { ArrowLeft, PhoneCall, PlayCircle, CheckCircle2, PauseCircle } from 'lucide-react';
 import './Exercicio.css';
 
 export default function Exercicio() {
     const navigate = useNavigate();
+    
+    // Fases: 0 (Preparo), 1 (Treino), 2 (Feedback), 3 (Conclusão)
+    const [fase, setFase] = useState(0); 
+    const [tempo, setTempo] = useState(600); // 10 minutos em segundos
+    const [pausado, setPausado] = useState(false);
 
-    // Controla em qual fase do exercício estamos (0: Preparo, 1: Executando, 2: Feedback, 3: Fim)
-    const [fase, setFase] = useState(0);
+    const contatoEmergenciaTel = "11999999999";
 
-    const irParaInicio = () => {
-        navigate('/dashboard');
+    useEffect(() => {
+        let intervalo;
+        if (fase === 1 && !pausado && tempo > 0) {
+            intervalo = setInterval(() => setTempo((t) => t - 1), 1000);
+        } else if (tempo === 0 && fase === 1) {
+            setFase(2);
+        }
+        return () => clearInterval(intervalo);
+    }, [fase, pausado, tempo]);
+
+    const formatarTempo = (segundos) => {
+        const min = Math.floor(segundos / 60);
+        const seg = segundos % 60;
+        return `${min}:${seg < 10 ? '0' : ''}${seg}`;
     };
 
     return (
-        <div className="exercicio-layout">
+        <div className="exercicio-layout fade-in">
+            <a href={`tel:${contatoEmergenciaTel}`} className="btn-sos" aria-label="Ligar para emergência">
+                <PhoneCall size={32} className="icone-telefone" />
+            </a>
 
-            {/* FASE 0: PREPARAÇÃO */}
-            {fase === 0 && (
-                <div className="exercicio-card fade-in">
-                    <button onClick={irParaInicio} className="btn-voltar">
+            <div className="exercicio-card">
+                {fase < 3 && (
+                    <button onClick={() => navigate(-1)} className="btn-voltar">
                         <ArrowLeft size={24} /> Voltar
                     </button>
+                )}
 
-                    <h1 className="exercicio-titulo">Alongamento Matinal Suave</h1>
-                    <p className="exercicio-sub">Duração: ~10 minutos</p>
+                {fase === 0 && (
+                    <>
+                        <div className="text-center">
+                            <h1 className="exercicio-titulo">Alongamento Matinal</h1>
+                            <p className="exercicio-sub">10 minutos • Sentado</p>
+                        </div>
+                        <div className="preparo-box">
+                            <h3>O que vai precisar:</h3>
+                            <ul>
+                                <li>Uma cadeira firme</li>
+                                <li>Um copo de água por perto</li>
+                            </ul>
+                        </div>
+                        <button onClick={() => setFase(1)} className="btn-gigante btn-verde">
+                            <PlayCircle size={28} /> Iniciar Treino
+                        </button>
+                    </>
+                )}
 
-                    <div className="preparo-box">
-                        <h3>Antes de começar:</h3>
-                        <ul>
-                            <li>Pegue uma cadeira firme para apoiar.</li>
-                            <li>Deixe um copo de água por perto.</li>
-                            <li>Vista roupas confortáveis.</li>
-                        </ul>
-                    </div>
+                {fase === 1 && (
+                    <div className="text-center fade-in">
+                        <h2 className="exercicio-titulo">Rotação de Ombros</h2>
+                        <p className="exercicio-sub">Mantenha a respiração suave</p>
+                        
+                        <div className="video-placeholder">
+                            <div className="emoji-grande">🔄</div>
+                            <h2 style={{ fontSize: '3rem', margin: 0, color: '#1f2937' }}>
+                                {formatarTempo(tempo)}
+                            </h2>
+                        </div>
 
-                    <button onClick={() => setFase(1)} className="btn-gigante btn-verde">
-                        <Play size={28} /> Estou Pronto! Começar
-                    </button>
-                </div>
-            )}
-
-            {/* FASE 1: EXECUÇÃO (O "Vídeo") */}
-            {fase === 1 && (
-                <div className="exercicio-card fade-in">
-                    <h2 className="exercicio-titulo">Esticando os braços</h2>
-                    <p className="exercicio-sub">Série 1 de 3 • 10 Repetições</p>
-
-                    {/* Espaço onde ficaria o vídeo do instrutor */}
-                    <div className="video-placeholder">
-                        <span className="emoji-grande">🧘‍♀️</span>
-                        <p>Simulação do Vídeo rolando...</p>
-                    </div>
-
-                    <div className="controles-exercicio">
-                        <button onClick={() => setFase(2)} className="btn-gigante btn-verde">
-                            <CheckCircle2 size={28} /> Concluir Exercício
+                        <button 
+                            onClick={() => setPausado(!pausado)} 
+                            className="btn-gigante"
+                            style={{ backgroundColor: pausado ? '#059669' : '#d97706', color: 'white', marginBottom: '1rem' }}
+                        >
+                            {pausado ? <PlayCircle size={28} /> : <PauseCircle size={28} />}
+                            {pausado ? 'Retomar' : 'Pausar'}
+                        </button>
+                        
+                        <button onClick={() => setFase(2)} className="btn-voltar" style={{ width: '100%', justifyContent: 'center' }}>
+                            Terminar mais cedo
                         </button>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* FASE 2: FEEDBACK DE ESFORÇO */}
-            {fase === 2 && (
-                <div className="exercicio-card fade-in text-center">
-                    <h2 className="exercicio-titulo">Muito bem!</h2>
-                    <p className="pergunta-feedback">Como você se sentiu fazendo este exercício?</p>
+                {fase === 2 && (
+                    <div className="text-center fade-in">
+                        <h2 className="pergunta-feedback">Como sentiu o exercício de hoje?</h2>
+                        <div className="feedback-botoes">
+                            <button onClick={() => setFase(3)} className="btn-feedback btn-facil">
+                                😃 Foi fácil
+                            </button>
+                            <button onClick={() => setFase(3)} className="btn-feedback btn-bom">
+                                🙂 Na medida certa
+                            </button>
+                            <button onClick={() => setFase(3)} className="btn-feedback btn-dificil">
+                                🥵 Muito difícil
+                            </button>
+                        </div>
+                    </div>
+                )}
 
-                    <div className="feedback-botoes">
-                        <button onClick={() => setFase(3)} className="btn-feedback btn-facil">
-                            <Smile size={32} />
-                            <span>Foi Fácil</span>
-                        </button>
+                {fase === 3 && (
+                    <div className="text-center fade-in">
+                        <div className="icone-sucesso">
+                            <CheckCircle2 size={64} color="#059669" />
+                        </div>
+                        <h1 className="exercicio-titulo">Parabéns!</h1>
+                        <p className="exercicio-sub">Concluiu o seu treino de hoje.</p>
+                        
+                        <div className="stats-recompensa">
+                            +10 Minutos de Movimento
+                        </div>
 
-                        <button onClick={() => setFase(3)} className="btn-feedback btn-bom">
-                            <ThumbsUp size={32} />
-                            <span>Cansou um pouco, mas foi bom</span>
-                        </button>
-
-                        <button onClick={() => setFase(3)} className="btn-feedback btn-dificil">
-                            <AlertTriangle size={32} />
-                            <span>Muito difícil / Senti dor</span>
+                        <button onClick={() => navigate('/dashboard')} className="btn-gigante btn-verde" style={{ marginTop: '2rem' }}>
+                            Voltar ao Início
                         </button>
                     </div>
-                </div>
-            )}
-
-            {/* FASE 3: RECOMPENSA E FIM */}
-            {fase === 3 && (
-                <div className="exercicio-card fade-in text-center">
-                    <div className="icone-sucesso">
-                        <Award size={64} color="#059669" />
-                    </div>
-                    <h1 className="exercicio-titulo">Parabéns, Natan!</h1>
-                    <p className="exercicio-sub" style={{ fontSize: '1.2rem', margin: '1rem 0' }}>
-                        Você completou sua atividade de hoje. Continuar se movimentando é o segredo para uma vida saudável!
-                    </p>
-
-                    <div className="stats-recompensa">
-                        <p>🔥 <strong>4 Dias Seguidos!</strong></p>
-                    </div>
-
-                    <button onClick={irParaInicio} className="btn-gigante btn-verde" style={{ marginTop: '2rem' }}>
-                        Voltar ao Início
-                    </button>
-                </div>
-            )}
-
+                )}
+            </div>
         </div>
     );
 }

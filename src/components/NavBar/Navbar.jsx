@@ -1,52 +1,40 @@
 // src/components/NavBar/Navbar.jsx
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Truck, FileText, LayoutDashboard, LogOut, FileSearch, CalendarCheck, Factory } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { HeartPulse, LayoutDashboard, User, LogOut } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        navigate('/login');
+    };
+
     return (
         <header className="app-header">
             {/* Logotipo / Nome do App */}
-            <div className="logo-container">
-                <Truck className="text-primary" size={28} />
-                <span>Nexus<span className="text-primary">Log</span></span>
-                <span className="badge-role">Cliente</span>
+            <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#059669', fontWeight: 'bold', fontSize: '1.25rem' }}>
+                <HeartPulse size={32} strokeWidth={2.5} />
+                <span>AtivIdade</span>
             </div>
 
             {/* Links de Navegação */}
             <nav className="nav-links">
-                <NavLink to="/acompanhamento" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <LayoutDashboard size={18} /> Acompanhamento
+                <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                    <LayoutDashboard size={20} /> Início
                 </NavLink>
 
-                <NavLink to="/formulario" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <FileText size={18} /> Nova Solicitação
-                </NavLink>
-
-                {/* Novos links para as Fases do Processo */}
-                <NavLink to="/fase1" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <FileSearch size={18} /> Fase 1
-                </NavLink>
-
-                <NavLink to="/fase2" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <CalendarCheck size={18} /> Fase 2
-                </NavLink>
-
-                <NavLink to="/fase3" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    <Factory size={18} /> Fase 3
+                <NavLink to="/perfil" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                    <User size={20} /> Meu Perfil
                 </NavLink>
             </nav>
 
-            {/* Perfil do Utilizador */}
+            {/* Botão de Sair */}
             <div className="user-profile">
-                <div className="user-info">
-                    <span>Programador (SCL)</span>
-                    <button className="btn-logout">
-                        <LogOut size={16} /> Sair
-                    </button>
-                </div>
-                <div className="avatar">P</div>
+                <button onClick={handleLogout} className="btn-logout" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem' }}>
+                    <LogOut size={20} /> Sair
+                </button>
             </div>
         </header>
     );

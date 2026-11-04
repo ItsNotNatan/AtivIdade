@@ -2,42 +2,44 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '../components/Layout/Layout';
-import Formulario from '../pages/Formulario/Formulario';
-import Acompanhamento from '../pages/Acompanhamento/Acompanhamento';
-
-// Importa as tuas novas Fases do Cliente!
-import Fase1 from '../pages/Fases/Fase1/Fase1';
-import Fase2 from '../pages/Fases/Fase2/Fase2';
-import Fase3 from '../pages/Fases/Fase3/Fase3';
+import Login from '../pages/Login/Login';
+import Cadastro from '../pages/Cadastro/Cadastro';
+import Dashboard from '../pages/Dashboard/Dashboard';
+import Perfil from '../pages/Perfil/Perfil';
+import Exercicio from '../pages/Exercicio/Exercicio'; // <-- IMPORTAÇÃO
 
 export const rotas = createBrowserRouter([
     {
         path: '/',
+        element: <Navigate to="/login" replace />
+    },
+    {
+        path: '/login',
+        element: <Login />
+    },
+    {
+        path: '/cadastro',
+        element: <Cadastro />
+    },
+    {
+        // Rota Isolada (Tela cheia, Foco total no exercício)
+        path: '/exercicio',
+        element: <Exercicio />
+    },
+    {
         element: <Layout />,
         children: [
             {
                 index: true,
-                element: <Navigate to="/formulario" replace />
+                element: <Navigate to="/dashboard" replace />
             },
             {
-                path: 'formulario',
-                element: <Formulario />
+                path: 'dashboard',
+                element: <Dashboard />
             },
             {
-                path: 'acompanhamento',
-                element: <Acompanhamento />
-            },
-            {
-                path: 'fase1',
-                element: <Fase1 />
-            },
-            {
-                path: 'fase2',
-                element: <Fase2 />
-            },
-            {
-                path: 'fase3',
-                element: <Fase3 />
+                path: 'perfil',
+                element: <Perfil />
             }
         ]
     }

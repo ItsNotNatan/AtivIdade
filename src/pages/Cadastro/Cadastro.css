@@ -1,5 +1,4 @@
 /* src/pages/Cadastro/Cadastro.css */
-
 .cadastro-container {
     display: flex;
     justify-content: center;
@@ -12,7 +11,7 @@
 .cadastro-card {
     background: white;
     width: 100%;
-    max-width: 500px;
+    max-width: 550px;
     padding: 2.5rem;
     border-radius: 1.5rem;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -81,7 +80,7 @@
     color: #059669;
 }
 
-/* Campos */
+/* Campos e Botões de Seleção */
 .step-content {
     display: flex;
     flex-direction: column;
@@ -97,31 +96,73 @@
     flex: 1;
 }
 
-.section-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.25rem;
-    color: #1f2937;
-    margin: 1rem 0 0.25rem;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1.5rem;
+.input-group label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
-.help-text {
-    font-size: 1rem;
-    color: #6b7280;
-    margin-bottom: 1rem;
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    color: #9ca3af;
+}
+
+.input-control {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    font-size: 1.15rem;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.input-control:focus {
+    border-color: #059669;
 }
 
 .input-control.no-icon {
     padding-left: 1rem;
-    /* Sem ícone do lado esquerdo */
 }
 
-.text-area {
-    resize: vertical;
-    font-family: inherit;
+/* Grelhas de Seleção Rápida */
+.grid-selecao {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.btn-selecao {
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.btn-selecao:hover {
+    background-color: #e5e7eb;
+}
+
+.btn-selecao.ativo {
+    background-color: #059669;
+    color: white;
+    border-color: #059669;
 }
 
 /* Botões do Rodapé */
@@ -135,12 +176,12 @@
 }
 
 .btn-secondary,
-.btn-primary,
-.btn-text {
+.btn-primary {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    padding: 0.85rem 1.5rem;
+    padding: 1rem 1.5rem;
     font-size: 1.15rem;
     font-weight: 700;
     border-radius: 0.75rem;
@@ -152,19 +193,8 @@
 .btn-primary {
     background-color: #059669;
     color: white;
-}
-
-.btn-primary:hover {
-    background-color: #047857;
-}
-
-.btn-success {
-    background-color: #0284c7;
-}
-
-/* Cor diferente pro botão final */
-.btn-success:hover {
-    background-color: #0369a1;
+    flex: 1;
+    margin-left: 1rem;
 }
 
 .btn-secondary {
@@ -172,14 +202,8 @@
     color: #4b5563;
 }
 
-.btn-secondary:hover {
-    background-color: #e5e7eb;
-}
-
-.btn-text {
-    background: transparent;
-    color: #059669;
-    text-decoration: underline;
+.btn-success {
+    background-color: #0284c7;
 }
 
 .toggle-mode {
@@ -187,12 +211,6 @@
     text-align: center;
     border-top: 1px solid #e5e7eb;
     padding-top: 1.5rem;
-}
-
-.toggle-mode p {
-    color: #6b7280;
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
 }
 
 .btn-toggle {
@@ -203,9 +221,4 @@
     font-weight: 700;
     cursor: pointer;
     text-decoration: underline;
-    transition: color 0.2s;
-}
-
-.btn-toggle:hover {
-    color: #047857;
 }

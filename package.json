@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "siteparaidoso",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -21,8 +21,7 @@
     "react-router-dom": "^7.18.3",
     "react-select": "^5.10.2",
     "socket.io-client": "^4.8.3",
-    "zod": "^4.6.5",
-    "zustand": "^5.0.15"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
