@@ -14,22 +14,43 @@ export default function Login() {
     const navigate = useNavigate();
     const { login } = useAuthStore();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setErro('');
         setCarregando(true);
 
-        const sucesso = login(telemovel, pin);
+        // Comunica com o backend real (agora esperando também os dados do utilizador)
+        try {
+            const resposta = await fetch('http://localhost:3001/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ telemovel, pin })
+            });
 
-        if (sucesso) {
-            navigate('/dashboard');
-        } else {
-            setErro('PIN inválido. Verifique os números digitados.');
+            if (resposta.ok) {
+                const dados = await resposta.json();
+                
+                // Força o login no AuthStore
+                await login(telemovel, pin);
+
+                // Redireciona com base no tipo de perfil
+                if (dados.usuario.tipo === 'profissional') {
+                    navigate('/dashboard-profissional');
+                } else if (dados.usuario.tipo === 'gestor') {
+                    navigate('/dashboard-gestor');
+                } else {
+                    navigate('/dashboard'); // Idoso
+                }
+            } else {
+                setErro('Credenciais inválidas. Verifique os números digitados.');
+            }
+        } catch (error) {
+            setErro('Erro ao ligar ao servidor.');
+        } finally {
             setCarregando(false);
         }
     };
 
-    // Atalhos para testar rapidamente os 3 perfis durante a apresentação
     const preencherPerfil = (telDemo, pinDemo) => {
         setTelemovel(telDemo);
         setPin(pinDemo);
@@ -50,11 +71,7 @@ export default function Login() {
                 </div>
 
                 {erro && (
-                    <div style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        backgroundColor: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca',
-                        padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.95rem'
-                    }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1rem', fontSize: '0.95rem' }}>
                         <AlertCircle size={20} />
                         <span>{erro}</span>
                     </div>
@@ -65,14 +82,7 @@ export default function Login() {
                         <label>O seu Telemóvel</label>
                         <div className="input-with-icon">
                             <Phone size={22} className="input-icon" />
-                            <input
-                                type="tel"
-                                value={telemovel}
-                                onChange={(e) => setTelemovel(e.target.value)}
-                                placeholder="(00) 00000-0000"
-                                required
-                                className="input-control"
-                            />
+                            <input type="tel" value={telemovel} onChange={(e) => setTelemovel(e.target.value)} placeholder="(00) 00000-0000" required className="input-control" />
                         </div>
                     </div>
 
@@ -80,69 +90,27 @@ export default function Login() {
                         <label>PIN de 4 Números</label>
                         <div className="input-with-icon">
                             <Lock size={22} className="input-icon" />
-                            <input
-                                type="password"
-                                maxLength="4"
-                                value={pin}
-                                onChange={(e) => setPin(e.target.value)}
-                                placeholder="****"
-                                required
-                                className="input-control"
-                            />
+                            <input type="password" maxLength="4" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="****" required className="input-control" />
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        className="btn btn-primary btn-block"
-                        disabled={carregando}
-                    >
-                        {carregando ? 'A aceder...' : (
-                            <>
-                                <LogIn size={22} /> Entrar
-                            </>
-                        )}
+                    <button type="submit" className="btn btn-primary btn-block" disabled={carregando}>
+                        {carregando ? 'A aceder...' : <><LogIn size={22} /> Entrar</>}
                     </button>
                 </form>
 
-                {/* Caixa auxiliar para alternar perfis no protótipo */}
-                <div style={{
-                    marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8fafc',
-                    border: '1px dashed #cbd5e1', borderRadius: '0.75rem', textAlign: 'center'
-                }}>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold' }}>
-                        Testar perfis de acesso:
-                    </p>
+                <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '0.75rem', textAlign: 'center' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold' }}>Testar perfis de acesso:</p>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
-                            type="button"
-                            onClick={() => preencherPerfil('11999991111', '1111')}
-                            style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', borderRadius: '0.4rem', border: '1px solid #cbd5e1', cursor: 'pointer', background: 'white' }}
-                        >
-                            👵 Idoso (1111)
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => preencherPerfil('11999992222', '2222')}
-                            style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', borderRadius: '0.4rem', border: '1px solid #cbd5e1', cursor: 'pointer', background: 'white' }}
-                        >
-                            🩺 Fisioterapeuta (2222)
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => preencherPerfil('11999993333', '3333')}
-                            style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', borderRadius: '0.4rem', border: '1px solid #cbd5e1', cursor: 'pointer', background: 'white' }}
-                        >
-                            📊 Gestor (3333)
-                        </button>
+                        <button type="button" onClick={() => preencherPerfil('11999991111', '1111')} style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', borderRadius: '0.4rem', border: '1px solid #cbd5e1', cursor: 'pointer', background: 'white' }}>👵 Idoso</button>
+                        <button type="button" onClick={() => preencherPerfil('11999992222', '2222')} style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', borderRadius: '0.4rem', border: '1px solid #cbd5e1', cursor: 'pointer', background: 'white' }}>🩺 Fisioterapeuta</button>
+                        <button type="button" onClick={() => preencherPerfil('11999993333', '3333')} style={{ padding: '0.35rem 0.6rem', fontSize: '0.8rem', borderRadius: '0.4rem', border: '1px solid #cbd5e1', cursor: 'pointer', background: 'white' }}>📊 Gestor</button>
                     </div>
                 </div>
 
                 <div className="toggle-mode">
                     <p>Ainda não tem conta criada?</p>
-                    <button type="button" onClick={() => navigate('/cadastro')} className="btn-toggle">
-                        Criar a minha conta
-                    </button>
+                    <button type="button" onClick={() => navigate('/cadastro')} className="btn-toggle">Criar a minha conta</button>
                 </div>
             </div>
         </div>

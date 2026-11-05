@@ -1,3 +1,4 @@
+// src/pages/Cadastro/Cadastro.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeartPulse, User, Phone, Lock, Calendar, AlertCircle, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
@@ -59,13 +60,31 @@ export default function Cadastro() {
     const avancar = () => setEtapa(prev => prev + 1);
     const voltar = () => setEtapa(prev => prev - 1);
 
-    const finalizar = (e) => {
+    // Função atualizada para enviar os dados para a API
+    const finalizar = async (e) => {
         e.preventDefault();
         setCarregando(true);
-        setTimeout(() => {
+
+        try {
+            const resposta = await fetch('http://localhost:3001/api/auth/registo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (resposta.ok) {
+                alert('Conta criada com sucesso! Por favor, faça login.');
+                navigate('/login');
+            } else {
+                const erroData = await resposta.json();
+                alert(erroData.erro || 'Erro ao criar conta.');
+            }
+        } catch (erro) {
+            console.error("Erro no cadastro:", erro);
+            alert('Falha na comunicação com o servidor.');
+        } finally {
             setCarregando(false);
-            navigate('/dashboard');
-        }, 1000);
+        }
     };
 
     return (

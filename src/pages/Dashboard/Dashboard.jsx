@@ -1,184 +1,239 @@
 // src/pages/Dashboard/Dashboard.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    Sun, PlayCircle, Activity, Award, FileText, 
-    Users, AlertTriangle, CheckCircle2, ShieldAlert
-} from 'lucide-react';
 import { useAuthStore } from '../../contexts/authStore';
+import { Activity, Clock, ThumbsUp, LogOut, CheckCircle, AlertTriangle } from 'lucide-react';
 import './Dashboard.css';
 
 export default function Dashboard() {
+    const { usuario, logout } = useAuthStore();
     const navigate = useNavigate();
-    const { usuario, alertas } = useAuthStore(); // <-- Consome alertas globais
+    
+    const [historico, setHistorico] = useState([]);
+    const [carregando, setCarregando] = useState(false);
+    const [enviandoSOS, setEnviandoSOS] = useState(false);
 
-    const tipoPerfil = usuario?.tipo || 'idoso';
-    const totalAlertas = alertas?.length || 0;
+    const [novoTreino, setNovoTreino] = useState({
+        titulo: 'Caminhada',
+        duracao: 15,
+        feedback: 'bom'
+    });
 
-    // 1. VISÃO DO GESTOR INSTITUCIONAL
-    if (tipoPerfil === 'gestor') {
-        return (
-            <div className="dashboard-container fade-in">
-                <header className="dash-header">
-                    <div>
-                        <h1 className="dash-title">Painel de Coordenação Geral 🏛️</h1>
-                        <p className="dash-subtitle">
-                            Instituição: <strong>{usuario.instituicao}</strong> • Responsável: {usuario.nome}
-                        </p>
-                    </div>
-                </header>
+    useEffect(() => {
+        if (!usuario) {
+            navigate('/login');
+        } else {
+            buscarHistorico();
+        }
+    }, [usuario, navigate]);
 
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-icon-bg" style={{ backgroundColor: '#eff6ff', color: '#2563eb' }}>
-                            <Users size={28} />
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">48</span>
-                            <span className="stat-label">Idosos inscritos</span>
-                        </div>
-                    </div>
+    const buscarHistorico = async () => {
+        try {
+            const resposta = await fetch(`http://localhost:3001/api/atividades/${usuario.id}`);
+            if (resposta.ok) {
+                const dados = await resposta.json();
+                setHistorico(dados);
+            }
+        } catch (erro) {
+            console.error("Erro ao buscar histórico:", erro);
+        }
+    };
 
-                    <div className="stat-card">
-                        <div className="stat-icon-bg" style={{ backgroundColor: '#ecfdf5', color: '#059669' }}>
-                            <CheckCircle2 size={28} />
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">84%</span>
-                            <span className="stat-label">Taxa de assiduidade</span>
-                        </div>
-                    </div>
+    const registarTreino = async (e) => {
+        e.preventDefault();
+        setCarregando(true);
 
-                    <div className="stat-card" style={{ borderColor: totalAlertas > 0 ? '#fca5a5' : '#dcfce7', backgroundColor: totalAlertas > 0 ? '#fef2f2' : '#ffffff' }}>
-                        <div className="stat-icon-bg" style={{ backgroundColor: totalAlertas > 0 ? '#fee2e2' : '#d1fae5', color: totalAlertas > 0 ? '#dc2626' : '#059669' }}>
-                            <ShieldAlert size={28} />
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value" style={{ color: totalAlertas > 0 ? '#dc2626' : '#059669' }}>{totalAlertas}</span>
-                            <span className="stat-label" style={{ color: totalAlertas > 0 ? '#991b1b' : '#047857' }}>Alertas de queixa</span>
-                        </div>
-                    </div>
-                </div>
+        try {
+            const resposta = await fetch('http://localhost:3001/api/atividades', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    usuarioId: usuario.id,
+                    titulo: novoTreino.titulo,
+                    duracaoSegundos: novoTreino.duracao * 60,
+                    feedback: novoTreino.feedback
+                })
+            });
 
-                <h3 className="section-title">Turmas em Andamento</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-                    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '1rem', padding: '1.5rem' }}>
-                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: '#1f2937' }}>Turma Cadeira & Alongamento</h4>
-                        <p style={{ margin: 0, color: '#6b7280', fontSize: '0.95rem' }}>Profissional: Dra. Camila</p>
-                        <p style={{ margin: '0.25rem 0 1rem 0', color: '#6b7280', fontSize: '0.95rem' }}>16 Participantes • {totalAlertas} Alerta(s)</p>
-                        <button onClick={() => navigate('/turma')} className="btn-editar" style={{ margin: 0 }}>
-                            Auditar Turma
-                        </button>
-                    </div>
+            if (resposta.ok) {
+                alert('Exercício registado com sucesso!');
+                buscarHistorico(); 
+                setNovoTreino({ titulo: 'Caminhada', duracao: 15, feedback: 'bom' }); 
+            } else {
+                alert('Erro ao registar o treino.');
+            }
+        } catch (erro) {
+            console.error("Erro ao registar:", erro);
+            alert('Falha na comunicação com o servidor.');
+        } finally {
+            setCarregando(false);
+        }
+    };
 
-                    <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '1rem', padding: '1.5rem' }}>
-                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: '#1f2937' }}>Turma Caminhada & Equilíbrio</h4>
-                        <p style={{ margin: 0, color: '#6b7280', fontSize: '0.95rem' }}>Profissional: Dr. Marcos</p>
-                        <p style={{ margin: '0.25rem 0 1rem 0', color: '#6b7280', fontSize: '0.95rem' }}>18 Participantes • Todos em dia</p>
-                        <button onClick={() => navigate('/turma')} className="btn-editar" style={{ margin: 0 }}>
-                            Auditar Turma
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    // Nova função para enviar Alerta SOS
+    const enviarSOS = async () => {
+        if (!window.confirm('Tem a certeza que precisa de ajuda de emergência?')) return;
+        
+        setEnviandoSOS(true);
+        try {
+            const resposta = await fetch('http://localhost:3001/api/alertas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    usuarioId: usuario.id,
+                    tipo: 'sos',
+                    mensagem: 'O utente acionou o botão de emergência!'
+                })
+            });
 
-    // 2. VISÃO DO PROFISSIONAL (FISIOTERAPEUTA)
-    if (tipoPerfil === 'profissional') {
-        return (
-            <div className="dashboard-container fade-in">
-                <header className="dash-header">
-                    <div>
-                        <h1 className="dash-title">Olá, {usuario.nome}! 🩺</h1>
-                        <p className="dash-subtitle">
-                            Área: {usuario.especialidade} • Supervisão diária dos alunos.
-                        </p>
-                    </div>
-                </header>
+            if (resposta.ok) {
+                alert('🚨 Alerta enviado! Um profissional ou familiar será avisado.');
+            } else {
+                alert('Erro ao enviar alerta.');
+            }
+        } catch (erro) {
+            console.error("Erro ao enviar SOS:", erro);
+            alert('Falha na comunicação com o servidor.');
+        } finally {
+            setEnviandoSOS(false);
+        }
+    };
 
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-icon-bg"><Award size={28} color="#059669" /></div>
-                        <div className="stat-info">
-                            <span className="stat-value">12</span>
-                            <span className="stat-label">Concluíram hoje</span>
-                        </div>
-                    </div>
-                    <div className="stat-card" style={{ borderColor: totalAlertas > 0 ? '#fca5a5' : '#dcfce7' }}>
-                        <div className="stat-icon-bg" style={{ backgroundColor: totalAlertas > 0 ? '#fee2e2' : '#d1fae5' }}>
-                            <AlertTriangle size={28} color={totalAlertas > 0 ? '#dc2626' : '#059669'} />
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value" style={{ color: totalAlertas > 0 ? '#dc2626' : '#059669' }}>{totalAlertas}</span>
-                            <span className="stat-label" style={{ color: totalAlertas > 0 ? '#991b1b' : '#047857' }}>Relataram dificuldade</span>
-                        </div>
-                    </div>
-                </div>
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
-                <section className="daily-highlight" style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' }}>
-                    <div className="daily-content">
-                        <h2 className="daily-title">Acompanhar Minha Turma</h2>
-                        <p className="daily-desc">Consulte a assiduidade, contactos de emergência e histórico de treinos dos seus alunos.</p>
-                        <button onClick={() => navigate('/turma')} className="btn-start" style={{ color: '#1d4ed8' }}>
-                            <Users size={24} /> Abrir Lista de Alunos
-                        </button>
-                    </div>
-                </section>
-            </div>
-        );
-    }
+    if (!usuario) return null;
 
-    // 3. VISÃO DO IDOSO (PADRÃO)
     return (
-        <div className="dashboard-container fade-in">
-            <header className="dash-header">
+        <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
+            {/* CABEÇALHO */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '12px' }}>
                 <div>
-                    <h1 className="dash-title">Olá, {usuario?.nome || 'Natan'}! 👋</h1>
-                    <p className="dash-subtitle">Pronto para o movimento de hoje?</p>
+                    <h1 style={{ margin: 0, color: '#166534' }}>Olá, {usuario.nome}!</h1>
+                    <p style={{ margin: 0, color: '#15803d' }}>O seu painel de atividades</p>
                 </div>
-            </header>
-
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <div className="stat-icon-bg"><Award size={28} color="#059669" /></div>
-                    <div className="stat-info">
-                        <span className="stat-value">3</span>
-                        <span className="stat-label">Dias seguidos</span>
-                    </div>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-icon-bg"><Activity size={28} color="#059669" /></div>
-                    <div className="stat-info">
-                        <span className="stat-value">45</span>
-                        <span className="stat-label">Minutos na semana</span>
-                    </div>
-                </div>
-                <div className="stat-card" onClick={() => navigate('/relatorios')} style={{ cursor: 'pointer', borderColor: '#3b82f6', backgroundColor: '#eff6ff' }}>
-                    <div className="stat-icon-bg" style={{ backgroundColor: '#bfdbfe' }}><FileText size={28} color="#1d4ed8" /></div>
-                    <div className="stat-info">
-                        <span className="stat-value" style={{ color: '#1d4ed8' }}>12</span>
-                        <span className="stat-label" style={{ color: '#1e40af' }}>Ver Relatório</span>
-                    </div>
-                </div>
+                <button 
+                    onClick={handleLogout} 
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', backgroundColor: '#fee2e2', color: '#991b1b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                    <LogOut size={20} /> Sair
+                </button>
             </div>
 
-            <section className="daily-highlight">
-                <div className="daily-content">
-                    <div className="daily-badge">
-                        <Sun size={18} /> Sugestão de Hoje (Cadeira)
-                    </div>
-                    <h2 className="daily-title">Alongamento Matinal Suave</h2>
-                    <p className="daily-desc">10 minutos para soltar as articulações. Totalmente sentado e sem impacto nos joelhos.</p>
+            {/* BOTÃO SOS */}
+            <button 
+                onClick={enviarSOS}
+                disabled={enviandoSOS}
+                style={{ width: '100%', padding: '1.5rem', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.25rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', boxShadow: '0 4px 6px rgba(239, 68, 68, 0.3)' }}
+            >
+                <AlertTriangle size={32} /> 
+                {enviandoSOS ? 'A ENVIAR ALERTA...' : 'PRECISO DE AJUDA (SOS)'}
+            </button>
 
-                    <button onClick={() => navigate('/exercicio')} className="btn-start">
-                        <PlayCircle size={24} /> Começar Exercício
+            {/* ZONA DE REGISTO DE NOVO TREINO */}
+            <div style={{ backgroundColor: '#ffffff', padding: '1.5rem', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '2rem', border: '1px solid #e2e8f0' }}>
+                <h2 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0f172a' }}>
+                    <Activity size={24} color="#059669" /> Registar Novo Exercício
+                </h2>
+                
+                <form onSubmit={registarTreino} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ fontWeight: 'bold' }}>O que fez hoje?</label>
+                        <select 
+                            value={novoTreino.titulo} 
+                            onChange={(e) => setNovoTreino({...novoTreino, titulo: e.target.value})}
+                            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem' }}
+                        >
+                            <option value="Caminhada">Caminhada</option>
+                            <option value="Alongamentos">Alongamentos</option>
+                            <option value="Bicicleta Ergométrica">Bicicleta Ergométrica</option>
+                            <option value="Exercícios de Força">Exercícios de Força</option>
+                            <option value="Hidroginástica">Hidroginástica</option>
+                        </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ fontWeight: 'bold' }}>Tempo (em minutos)</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Clock size={20} color="#64748b" />
+                            <input 
+                                type="number" 
+                                min="1"
+                                value={novoTreino.duracao}
+                                onChange={(e) => setNovoTreino({...novoTreino, duracao: Number(e.target.value)})}
+                                style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', width: '100px' }}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ fontWeight: 'bold' }}>Como se sentiu?</label>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <button type="button" onClick={() => setNovoTreino({...novoTreino, feedback: 'facil'})} style={{ flex: 1, padding: '1rem', borderRadius: '8px', border: novoTreino.feedback === 'facil' ? '2px solid #22c55e' : '1px solid #cbd5e1', backgroundColor: novoTreino.feedback === 'facil' ? '#dcfce7' : '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>
+                                😊 Fácil
+                            </button>
+                            <button type="button" onClick={() => setNovoTreino({...novoTreino, feedback: 'bom'})} style={{ flex: 1, padding: '1rem', borderRadius: '8px', border: novoTreino.feedback === 'bom' ? '2px solid #eab308' : '1px solid #cbd5e1', backgroundColor: novoTreino.feedback === 'bom' ? '#fef9c3' : '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>
+                                😌 Bom
+                            </button>
+                            <button type="button" onClick={() => setNovoTreino({...novoTreino, feedback: 'dificil'})} style={{ flex: 1, padding: '1rem', borderRadius: '8px', border: novoTreino.feedback === 'dificil' ? '2px solid #ef4444' : '1px solid #cbd5e1', backgroundColor: novoTreino.feedback === 'dificil' ? '#fee2e2' : '#f8fafc', cursor: 'pointer', fontWeight: 'bold' }}>
+                                🥵 Difícil
+                            </button>
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={carregando}
+                        style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#059669', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                        {carregando ? 'A guardar...' : <><CheckCircle size={24} /> Guardar Treino</>}
                     </button>
-                </div>
-                <div className="daily-image">
-                    <div className="image-placeholder">🧘‍♀️</div>
-                </div>
-            </section>
+                </form>
+            </div>
+
+            {/* HISTÓRICO DE TREINOS */}
+            <div>
+                <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0f172a' }}>
+                    <ThumbsUp size={24} color="#0284c7" /> O Meu Histórico
+                </h2>
+                
+                {historico.length === 0 ? (
+                    <p style={{ color: '#64748b', fontStyle: 'italic', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '8px' }}>
+                        Ainda não fez nenhum treino. Registe o seu primeiro exercício acima!
+                    </p>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {historico.map((treino) => (
+                            <div key={treino.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                                <div>
+                                    <h3 style={{ margin: '0 0 0.25rem 0', color: '#1e293b' }}>{treino.titulo}</h3>
+                                    <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+                                        {new Date(treino.dataCriacao).toLocaleDateString('pt-PT')} às {new Date(treino.dataCriacao).toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}
+                                    </p>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <p style={{ margin: '0 0 0.25rem 0', fontWeight: 'bold', color: '#334155' }}>
+                                        {treino.duracaoSegundos / 60} min
+                                    </p>
+                                    <span style={{ 
+                                        padding: '0.25rem 0.5rem', 
+                                        borderRadius: '4px', 
+                                        fontSize: '0.8rem', 
+                                        fontWeight: 'bold',
+                                        backgroundColor: treino.feedback === 'facil' ? '#dcfce7' : treino.feedback === 'bom' ? '#fef9c3' : '#fee2e2',
+                                        color: treino.feedback === 'facil' ? '#166534' : treino.feedback === 'bom' ? '#854d0e' : '#991b1b'
+                                    }}>
+                                        {treino.feedback.toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

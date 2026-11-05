@@ -1,48 +1,48 @@
-// src/contexts/authStore.js
+// src/contexts/authStore.jsx
 import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [usuario, setUsuario] = useState({ nome: 'Natan Silva', tipo: 'idoso', id: 1 });
-    
-    // Lista global de alertas da instituição
-    const [alertas, setAlertas] = useState([
-        { 
-            id: 1, 
-            alunoNome: 'Dona Maria Oliveira', 
-            tipo: 'dificuldade', 
-            mensagem: 'Relatou dor / esforço excessivo no treino.', 
-            hora: '10:15',
-            contatoTel: '11977777777'
-        }
-    ]);
+    const [usuario, setUsuario] = useState(null);
+    const [alertas, setAlertas] = useState([]);
 
-    const login = (telemovel, pin) => {
-        if (pin === '1111') {
-            setUsuario({ nome: 'Natan Silva', tipo: 'idoso', id: 1 });
-            return true;
-        } 
-        if (pin === '2222') {
-            setUsuario({ nome: 'Dra. Camila', tipo: 'profissional', especialidade: 'Fisioterapia' });
-            return true;
-        } 
-        if (pin === '3333') {
-            setUsuario({ nome: 'Diretor Carlos', tipo: 'gestor', instituicao: 'Centro Sénior Viver Bem' });
-            return true;
+    const login = async (telemovel, pin) => {
+        try {
+            const resposta = await fetch('http://localhost:3001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ telemovel, pin })
+            });
+
+            if (resposta.ok) {
+                const dados = await resposta.json();
+                
+                // Guarda o token e os dados reais vindos da base de dados (SQLite)
+                localStorage.setItem('token', dados.token);
+                setUsuario(dados.usuario);
+                return true; 
+            } else {
+                return false; 
+            }
+        } catch (erro) {
+            console.error("Erro ao comunicar com o servidor:", erro);
+            return false;
         }
-        return false;
     };
 
     const logout = () => {
         setUsuario(null);
+        localStorage.removeItem('token');
     };
 
     const adicionarAlerta = (tipo, mensagem) => {
         const novo = {
             id: Date.now(),
-            alunoNome: usuario?.nome || 'Natan Silva',
-            tipo, // 'sos' ou 'dificuldade'
+            alunoNome: usuario?.nome || 'Utilizador',
+            tipo,
             mensagem,
             hora: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
             contatoTel: '11988888888'
@@ -54,10 +54,10 @@ export function AuthProvider({ children }) {
         setAlertas(prev => prev.filter(alerta => alerta.id !== id));
     };
 
-    return React.createElement(
-        AuthContext.Provider,
-        { value: { usuario, login, logout, alertas, adicionarAlerta, resolverAlerta } },
-        children
+    return (
+        <AuthContext.Provider value={{ usuario, login, logout, alertas, adicionarAlerta, resolverAlerta }}>
+            {children}
+        </AuthContext.Provider>
     );
 }
 
