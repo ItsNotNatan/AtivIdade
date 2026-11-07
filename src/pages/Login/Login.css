@@ -5,18 +5,18 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-page, #f3f4f6);
+    background-color: #f0fdf4;
     padding: 1rem;
 }
 
 .login-card {
     background: white;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     padding: 2.5rem 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #dcfce7;
 }
 
 .login-header {
@@ -27,25 +27,21 @@
 .login-header .logo-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 0.5rem;
-    color: var(--primary, #2563eb);
+    margin-bottom: 0.75rem;
+    color: #059669; /* Logo em Verde */
 }
 
 .login-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 800;
-    color: var(--text-dark, #1f2937);
+    color: #059669; /* Título em Verde */
     margin-bottom: 0.25rem;
     letter-spacing: -0.025em;
 }
 
-.text-primary {
-    color: var(--primary, #2563eb);
-}
-
 .login-subtitle {
-    color: var(--text-muted, #6b7280);
-    font-size: 0.95rem;
+    color: #6b7280;
+    font-size: 1rem;
 }
 
 .login-form {
@@ -62,24 +58,60 @@
 
 .input-icon {
     position: absolute;
-    left: 12px;
+    left: 14px;
     color: #9ca3af;
 }
 
-.input-with-icon .input-control {
-    padding-left: 2.5rem;
-    /* Abre espaço para o ícone */
+/* Campos de entrada: fundo totalmente branco e borda preta */
+.input-control {
+    background-color: #ffffff; /* Fundo branco */
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #000000; /* Borda Preta */
+    border-radius: 0.75rem;
+    font-size: 1.1rem;
+    color: #1f2937;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+}
+
+.input-control:focus {
+    border-color: #059669; /* Fica com a borda verde ao clicar pra digitar */
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.input-control::placeholder {
+    color: #9ca3af;
 }
 
 .btn-block {
     width: 100%;
+    display: flex;
     justify-content: center;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    font-size: 1rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    background-color: #059669;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-/* Adicionar no final do Login.css */
+.btn-block:hover {
+    background-color: #047857;
+}
+
+.btn-block:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
 .toggle-mode {
     margin-top: 2rem;
     text-align: center;

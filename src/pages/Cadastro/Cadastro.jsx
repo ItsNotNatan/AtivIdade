@@ -36,9 +36,46 @@ export default function Cadastro() {
         "Nenhuma destas"
     ];
 
+    const aplicarMascaraTelefone = (valor) => {
+        let v = valor.replace(/\D/g, ""); // Remove tudo o que não for número
+        if (v.length > 11) v = v.substring(0, 11); // Limita a 11 dígitos
+        
+        // Aplica a máscara (XX) XXXXX-XXXX
+        if (v.length <= 10) {
+            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+            v = v.replace(/(\d{4})(\d)/, "$1-$2");
+        } else {
+            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+            v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        }
+        return v;
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setDados(prev => ({ ...prev, [name]: value }));
+        let novoValor = value;
+
+        // Validação de Nomes (apenas letras, acentos e espaços)
+        if (name === 'nome' || name === 'contatoEmergenciaNome') {
+            novoValor = novoValor.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]/g, '');
+        }
+        // Validação da Idade (apenas números, limite 120)
+        else if (name === 'idade') {
+            novoValor = novoValor.replace(/\D/g, '');
+            if (novoValor !== '' && parseInt(novoValor, 10) > 120) {
+                novoValor = '120';
+            }
+        } 
+        // Máscara e bloqueio de letras para Telefones
+        else if (name === 'telemovel' || name === 'contatoEmergenciaTel') {
+            novoValor = aplicarMascaraTelefone(novoValor);
+        }
+        // Bloqueio de letras para o PIN
+        else if (name === 'pin') {
+            novoValor = novoValor.replace(/\D/g, '');
+        }
+
+        setDados(prev => ({ ...prev, [name]: novoValor }));
     };
 
     const handleToggleCondicao = (condicao) => {
@@ -60,7 +97,6 @@ export default function Cadastro() {
     const avancar = () => setEtapa(prev => prev + 1);
     const voltar = () => setEtapa(prev => prev - 1);
 
-    // Função atualizada para enviar os dados para a API
     const finalizar = async (e) => {
         e.preventDefault();
         setCarregando(true);
@@ -125,12 +161,12 @@ export default function Cadastro() {
                                     <label>A sua Idade</label>
                                     <div className="input-with-icon">
                                         <Calendar size={22} className="input-icon" />
-                                        <input type="number" name="idade" value={dados.idade} onChange={handleChange} placeholder="Ex: 75" required className="input-control" />
+                                        <input type="text" inputMode="numeric" name="idade" value={dados.idade} onChange={handleChange} placeholder="Ex: 75" required className="input-control" />
                                     </div>
                                 </div>
                             </div>
                             <div className="input-group">
-                                <label>Seu Telemóvel (Será o seu login)</label>
+                                <label>Seu Celular (Será o seu login)</label>
                                 <div className="input-with-icon">
                                     <Phone size={22} className="input-icon" />
                                     <input type="tel" name="telemovel" value={dados.telemovel} onChange={handleChange} placeholder="(00) 00000-0000" required className="input-control" />
@@ -140,7 +176,7 @@ export default function Cadastro() {
                                 <label>Crie um PIN (4 números fáceis)</label>
                                 <div className="input-with-icon">
                                     <Lock size={22} className="input-icon" />
-                                    <input type="tel" maxLength="4" name="pin" value={dados.pin} onChange={handleChange} placeholder="****" required className="input-control" />
+                                    <input type="text" inputMode="numeric" maxLength="4" name="pin" value={dados.pin} onChange={handleChange} placeholder="****" required className="input-control" />
                                 </div>
                             </div>
                         </div>
@@ -161,7 +197,7 @@ export default function Cadastro() {
                                 <input type="text" name="contatoEmergenciaNome" value={dados.contatoEmergenciaNome} onChange={handleChange} placeholder="Ex: João (Filho)" required className="input-control no-icon" />
                             </div>
                             <div className="input-group">
-                                <label>Telemóvel do Familiar/Amigo</label>
+                                <label>Celular do Familiar/Amigo</label>
                                 <input type="tel" name="contatoEmergenciaTel" value={dados.contatoEmergenciaTel} onChange={handleChange} placeholder="(00) 00000-0000" required className="input-control no-icon" />
                             </div>
                         </div>
