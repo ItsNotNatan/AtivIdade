@@ -4,11 +4,32 @@ import { Users, Clock, CalendarDays, Plus, Trash2, X } from 'lucide-react';
 
 export default function CardsTurmas({ turmas, turmaSelecionada, onSelecionarTurma, onCriarTurma, onDeletarTurma }) {
     const [criando, setCriando] = useState(false);
-    const [novaTurma, setNovaTurma] = useState({ nome: '', horario: '', cor: '#059669' });
+    
+    const [novaTurma, setNovaTurma] = useState({ 
+        nome: '', 
+        horarioInicio: '08:00', 
+        horarioFim: '09:00', 
+        cor: '#059669' 
+    });
+    
     const [diasSelecionados, setDiasSelecionados] = useState(['Seg', 'Qua']);
 
     const diasOpcoes = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     const cores = ['#059669', '#2563eb', '#7c3aed', '#ea580c', '#db2777'];
+
+    // GERA A LISTA DE HORÁRIOS A CADA 15 MINUTOS (Garante formato 24h)
+    const gerarHorarios = () => {
+        const horarios = [];
+        for (let h = 6; h <= 22; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                const horaStr = h.toString().padStart(2, '0');
+                const minStr = m.toString().padStart(2, '0');
+                horarios.push(`${horaStr}:${minStr}`);
+            }
+        }
+        return horarios;
+    };
+    const opcoesDeHorario = gerarHorarios();
 
     const toggleDia = (dia) => {
         setDiasSelecionados(prev => prev.includes(dia) ? prev.filter(d => d !== dia) : [...prev, dia]);
@@ -18,9 +39,17 @@ export default function CardsTurmas({ turmas, turmaSelecionada, onSelecionarTurm
         e.preventDefault();
         if (diasSelecionados.length === 0) return alert('Selecione pelo menos um dia.');
         
-        onCriarTurma({ ...novaTurma, dias: diasSelecionados.join(', ') });
+        const horarioFormatado = `${novaTurma.horarioInicio} - ${novaTurma.horarioFim}`;
+        
+        onCriarTurma({ 
+            nome: novaTurma.nome, 
+            horario: horarioFormatado, 
+            cor: novaTurma.cor, 
+            dias: diasSelecionados.join(', ') 
+        });
+        
         setCriando(false);
-        setNovaTurma({ nome: '', horario: '', cor: '#059669' });
+        setNovaTurma({ nome: '', horarioInicio: '08:00', horarioFim: '09:00', cor: '#059669' });
         setDiasSelecionados(['Seg', 'Qua']);
     };
 
@@ -44,9 +73,31 @@ export default function CardsTurmas({ turmas, turmaSelecionada, onSelecionarTurm
                             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Nome da Turma</label>
                             <input type="text" placeholder="Ex: Turma Equilíbrio" value={novaTurma.nome} onChange={e=>setNovaTurma({...novaTurma, nome: e.target.value})} required style={{ width: '100%', padding: '0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
                         </div>
-                        <div style={{ flex: 1, minWidth: '150px' }}>
-                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Horário</label>
-                            <input type="text" placeholder="Ex: 08:30 - 09:30" value={novaTurma.horario} onChange={e=>setNovaTurma({...novaTurma, horario: e.target.value})} required style={{ width: '100%', padding: '0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                        
+                        {/* SELETORES DE HORA EM DROPDOWN (FORÇA 24H E PERMITE CLIQUES) */}
+                        <div style={{ display: 'flex', gap: '0.75rem', flex: 1, minWidth: '220px' }}>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Início</label>
+                                <select 
+                                    value={novaTurma.horarioInicio} 
+                                    onChange={e=>setNovaTurma({...novaTurma, horarioInicio: e.target.value})} 
+                                    required 
+                                    style={{ width: '100%', padding: '0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: 'white', cursor: 'pointer', fontSize: '1rem' }}
+                                >
+                                    {opcoesDeHorario.map(h => <option key={`ini-${h}`} value={h}>{h}</option>)}
+                                </select>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Fim</label>
+                                <select 
+                                    value={novaTurma.horarioFim} 
+                                    onChange={e=>setNovaTurma({...novaTurma, horarioFim: e.target.value})} 
+                                    required 
+                                    style={{ width: '100%', padding: '0.65rem', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: 'white', cursor: 'pointer', fontSize: '1rem' }}
+                                >
+                                    {opcoesDeHorario.map(h => <option key={`fim-${h}`} value={h}>{h}</option>)}
+                                </select>
+                            </div>
                         </div>
                     </div>
 

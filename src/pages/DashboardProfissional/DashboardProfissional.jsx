@@ -70,7 +70,6 @@ export default function DashboardProfissional() {
         } catch (err) { showAlert('Erro ao apagar turma.', 'erro'); }
     };
 
-    // ADICIONAR ALUNO (NÃO substitui turma antiga)
     const handleAdicionarAlunoTurma = async (idAluno) => {
         try {
             const res = await fetch(`http://localhost:3001/api/turmas/${turmaSelecionada.id}/alunos`, { 
@@ -83,7 +82,6 @@ export default function DashboardProfissional() {
         } catch (err) { showAlert('Erro ao adicionar.', 'erro'); }
     };
 
-    // REMOVER ALUNO DESTA TURMA ESPECÍFICA
     const handleRemoverAlunoTurma = async (idAluno, nomeAluno) => {
         if (!await showConfirm(`Remover ${nomeAluno} da turma ${turmaSelecionada.nome}?`)) return;
         try {
@@ -102,7 +100,6 @@ export default function DashboardProfissional() {
         } catch (err) { console.error(err); }
     };
 
-    // Filtra os que não estão NESTA turma
     const utentesDisponiveis = utentesTotais.filter(u => !u.turmasIds?.includes(turmaSelecionada?.id));
 
     if (!usuario) return null;
@@ -144,16 +141,28 @@ export default function DashboardProfissional() {
             {alunoSelecionado && (
                 <FichaIndividualAluno 
                     aluno={alunoSelecionado} 
-                    onAbrirPrescricaoIndividual={() => setModalAlvo({ tipo: 'paciente', dados: alunoSelecionado })} 
+                    onAbrirPrescricaoIndividual={(nomeGrupo) => setModalAlvo({ tipo: 'paciente', dados: alunoSelecionado, grupoPreDefinido: typeof nomeGrupo === 'string' ? nomeGrupo : '' })} 
                     onAbrirAcervoParaAluno={() => setModalAcervoAberto({ tipo: 'paciente', dados: alunoSelecionado })} 
                     onEditarPrescricao={(treino) => setModalAlvo({ tipo: 'paciente', dados: alunoSelecionado, treinoEditando: treino })}
                 />
             )}
 
             {modalAcervoAberto && <ModalAcervo alvoPrescricao={modalAcervoAberto} onClose={() => { setModalAcervoAberto(false); carregarDados(); }} />}
-            {modalAlvo && <FormPrescricaoModal alvo={modalAlvo} onClose={() => setModalAlvo(null)} onSucesso={() => carregarDados()} />}
             
-            {/* NOVO MODAL DE ADICIONAR ALUNO À TURMA (Múltiplas turmas suportadas) */}
+            {/* O SEGREDO ESTÁ AQUI: FORÇAR A ATUALIZAÇÃO DO ALUNO APÓS SALVAR */}
+            {modalAlvo && (
+                <FormPrescricaoModal 
+                    alvo={modalAlvo} 
+                    onClose={() => setModalAlvo(null)} 
+                    onSucesso={() => {
+                        carregarDados();
+                        if (alunoSelecionado) {
+                            setAlunoSelecionado({ ...alunoSelecionado });
+                        }
+                    }} 
+                />
+            )}
+            
             {modalAddAlunoAberto && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
                     <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '14px', width: '100%', maxWidth: '500px', padding: '2rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>

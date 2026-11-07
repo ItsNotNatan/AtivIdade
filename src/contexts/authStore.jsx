@@ -1,27 +1,35 @@
 // src/contexts/authStore.jsx
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [usuario, setUsuario] = useState(null);
+    // 1. Recupera o utilizador do armazenamento local ao recarregar a página
+    const [usuario, setUsuario] = useState(() => {
+        try {
+            const usuarioSalvo = localStorage.getItem('usuario');
+            return usuarioSalvo ? JSON.parse(usuarioSalvo) : null;
+        } catch {
+            return null;
+        }
+    });
+
     const [alertas, setAlertas] = useState([]);
 
     const login = async (telemovel, pin) => {
         try {
             const resposta = await fetch('http://localhost:3001/api/auth/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ telemovel, pin })
             });
 
             if (resposta.ok) {
                 const dados = await resposta.json();
                 
-                // Guarda o token e os dados reais vindos da base de dados (SQLite)
+                // 2. Guarda o token e o perfil completo no navegador
                 localStorage.setItem('token', dados.token);
+                localStorage.setItem('usuario', JSON.stringify(dados.usuario));
                 setUsuario(dados.usuario);
                 return true; 
             } else {
@@ -36,6 +44,15 @@ export function AuthProvider({ children }) {
     const logout = () => {
         setUsuario(null);
         localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+    };
+
+    const atualizarUsuario = (novosDados) => {
+        setUsuario(prev => {
+            const atualizado = { ...prev, ...novosDados };
+            localStorage.setItem('usuario', JSON.stringify(atualizado));
+            return atualizado;
+        });
     };
 
     const adicionarAlerta = (tipo, mensagem) => {
@@ -44,7 +61,7 @@ export function AuthProvider({ children }) {
             alunoNome: usuario?.nome || 'Utilizador',
             tipo,
             mensagem,
-            hora: new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+            hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             contatoTel: '11988888888'
         };
         setAlertas(prev => [novo, ...prev]);
@@ -55,7 +72,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ usuario, login, logout, alertas, adicionarAlerta, resolverAlerta }}>
+        <AuthContext.Provider value={{ usuario, login, logout, atualizarUsuario, alertas, adicionarAlerta, resolverAlerta }}>
             {children}
         </AuthContext.Provider>
     );

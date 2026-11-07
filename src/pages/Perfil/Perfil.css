@@ -1,241 +1,316 @@
 /* src/pages/Perfil/Perfil.css */
 
-.perfil-container {
-    max-width: 900px;
+.perfil-layout {
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 1rem;
+    padding: 1.5rem 1rem;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
-.perfil-header {
-    margin-bottom: 2rem;
-}
-
-.perfil-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-}
-
-.perfil-subtitle {
-    font-size: 1.25rem;
-    color: #4b5563;
-}
-
-.perfil-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.perfil-card {
-    background: white;
-    border-radius: 1.5rem;
-    padding: 2.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #dcfce7;
+/* =========================================
+   ESTILO PROFISSIONAL (FISIOTERAPEUTA)
+   ========================================= */
+.perfil-prof-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 1.5rem;
 }
 
-.avatar-circulo {
-    background-color: #d1fae5;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
+/* HERO CARD */
+.prof-hero-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-bottom: 1.5rem;
+    gap: 1.75rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
+    position: relative;
 }
 
-.usuario-nome {
-    font-size: 2rem;
+.prof-avatar-badge {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    font-size: 2.25rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+    flex-shrink: 0;
+}
+
+.prof-hero-info {
+    flex: 1;
+    min-width: 260px;
+}
+
+.prof-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+}
+
+.prof-title-row h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.badge-registro {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
 }
 
-.usuario-detalhe {
-    font-size: 1.15rem;
-    color: #4b5563;
-    margin-bottom: 0.25rem;
-}
-
-.btn-editar {
-    margin-top: 2rem;
-    background-color: #f3f4f6;
-    color: #374151;
-    border: 2px solid #e5e7eb;
-    padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
+.prof-especialidade-sub {
+    margin: 0 0 0.75rem 0;
+    color: #475569;
+    font-size: 1.05rem;
     font-weight: 600;
-    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.prof-contact-pills {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.prof-contact-pills span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: #64748b;
+    background-color: #f8fafc;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-edit-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s;
-    width: 100%;
-}
-
-.btn-editar:hover {
-    background-color: #e5e7eb;
-    border-color: #d1d5db;
-}
-
-/* Configurações */
-.sessao-titulo {
-    font-size: 1.5rem;
-    color: #1f2937;
-    margin-bottom: 1.5rem;
     align-self: flex-start;
 }
 
-.config-lista {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+.btn-edit-toggle:hover {
+    background-color: #e2e8f0;
 }
 
-.config-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #f3f4f6;
+/* MÉTRICAS */
+.prof-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
 }
 
-.config-info {
+.stat-box {
+    background: white;
+    border-radius: 14px;
+    padding: 1.25rem;
+    border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    font-size: 1.15rem;
-    color: #374151;
-    font-weight: 500;
+    gap: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
-/* Checkbox estilo Switch simples para acessibilidade */
-.toggle-switch {
-    width: 1.5rem;
-    height: 1.5rem;
-    cursor: pointer;
-    accent-color: #059669;
-}
-
-/* --- ADICIONE AO FINAL DO SEU Perfil.css --- */
-
-/* Ajuste do container visualização */
-.perfil-view {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-.usuario-medidas {
-    display: flex;
-    gap: 1.5rem;
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #f3f4f6;
-    border-radius: 1rem;
-    color: #374151;
-    font-size: 1.1rem;
-}
-
-/* Formulário de Edição */
-.perfil-edit-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 1rem;
-}
-
-.perfil-edit-form .input-group label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.4rem;
-    display: block;
-}
-
-.perfil-edit-form .input-with-icon {
-    position: relative;
+.stat-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-}
-
-.perfil-edit-form .input-icon {
-    position: absolute;
-    left: 12px;
-    color: #9ca3af;
-}
-
-.perfil-edit-form .input-control {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 0.75rem;
-    font-size: 1.05rem;
-    outline: none;
-    transition: all 0.2s;
-}
-
-.perfil-edit-form .input-control:focus {
-    border-color: #059669;
-}
-
-.perfil-edit-form .input-row {
-    display: flex;
-    gap: 1rem;
-}
-
-/* Botões do Formulário de Edição */
-.form-actions-perfil {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.btn-cancelar,
-.btn-salvar {
-    flex: 1;
-    display: flex;
     justify-content: center;
+}
+
+.stat-box h3 {
+    margin: 0;
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.stat-box p {
+    margin: 0.35rem 0 0 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+/* SEÇÕES DE DETALHES */
+.prof-details-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.prof-section-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.prof-section-card h2 {
+    margin: 0 0 0.85rem 0;
+    font-size: 1.2rem;
+    color: #1e293b;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.85rem;
-    font-size: 1.1rem;
+}
+
+.section-content-text {
+    margin: 0;
+    color: #475569;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* FORMULÁRIO DE EDIÇÃO */
+.prof-edit-form {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 2px solid #2563eb;
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.prof-edit-form h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.4rem;
+    color: #1e293b;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
     font-weight: 700;
-    border-radius: 0.75rem;
+    color: #334155;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-actions-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-cancel {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    border-radius: 8px;
     cursor: pointer;
+}
+
+.btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
     border: none;
-    transition: all 0.2s;
-}
-
-.btn-cancelar {
-    background-color: #f3f4f6;
-    color: #4b5563;
-}
-
-.btn-cancelar:hover {
-    background-color: #e5e7eb;
-}
-
-.btn-salvar {
-    background-color: #059669;
+    background-color: #2563eb;
     color: white;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-.btn-salvar:hover {
-    background-color: #047857;
+.btn-save:hover {
+    background-color: #1d4ed8;
 }
 
-/* Animação suave para troca de telas */
-.fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
+/* =========================================
+   PERFIL DO IDOSO (CONTAINER SIMPLIFICADO)
+   ========================================= */
+.perfil-idoso-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.idoso-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }

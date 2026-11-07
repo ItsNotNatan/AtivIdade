@@ -130,3 +130,17 @@
     background-color: #f8fafc;
     border-color: #94a3b8;
 }
+
+/* src/pages/Equipa/Equipa.css */
+
+.profissional-bio {
+    font-size: 0.9rem;
+    color: #475569;
+    font-style: italic;
+    background-color: #f8fafc;
+    padding: 0.85rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.25rem;
+    border-left: 3px solid #059669;
+    line-height: 1.4;
+}
