@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import {
     User, Settings, Bell, Award, Phone, Activity, 
-    Ruler, Save, X, Building, ShieldCheck, Stethoscope
+    Ruler, Save, X, Building, Stethoscope, HeartHandshake, ShieldCheck
 } from 'lucide-react';
 import { useAuthStore } from '../../contexts/authStore';
+import { formatarTelefone } from '../../utils/formatadores';
 import './Perfil.css';
 
 export default function Perfil() {
@@ -12,7 +13,31 @@ export default function Perfil() {
     const [isEditing, setIsEditing] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
-    // Estado do tamanho de texto sincronizado com o localStorage
+    const secoesCondicoes = [
+        {
+            titulo: "Articulações & Coluna",
+            opcoes: [
+                "Dor nos Joelhos", "Dor nos Ombros", "Coluna / Hérnia de Disco", 
+                "Osteoporose / Osteopenia", "Prótese ou Pino (Quadril/Joelho/Ombro)", 
+                "Cirurgia nos últimos 12 meses"
+            ]
+        },
+        {
+            titulo: "Saúde & Coração",
+            opcoes: [
+                "Pressão Alta (Hipertensão)", "Diabetes", "Problemas Cardíacos (Arritmia/Infarto)", 
+                "Uso de Marca-passo", "Labirintite / Tontura frequente"
+            ]
+        },
+        {
+            titulo: "Segurança & Medicamentos",
+            opcoes: [
+                "Caí nos últimos 6 meses", "Tomo remédio para o coração/pressão", 
+                "Tomo anticoagulante", "Prefiro exercícios sentado(a)"
+            ]
+        }
+    ];
+
     const [letrasGrandes, setLetrasGrandes] = useState(() => {
         return localStorage.getItem('letrasGrandes') === 'true';
     });
@@ -31,7 +56,6 @@ export default function Perfil() {
         localStorage.setItem('letrasGrandes', novoValor.toString());
     };
 
-    // Dados dinâmicos baseados no perfil logado
     const [dados, setDados] = useState(() => {
         if (usuario?.tipo === 'profissional') {
             return {
@@ -56,13 +80,34 @@ export default function Perfil() {
             peso: '70',
             altura: '165',
             contatoEmergenciaNome: 'João (Filho)',
-            contatoEmergenciaTel: '(11) 98888-8888'
+            contatoEmergenciaTel: '(11) 98888-8888',
+            condicoes: ['Pressão Alta (Hipertensão)', 'Dor nos Joelhos', 'Caí nos últimos 6 meses']
         };
     });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setDados(prev => ({ ...prev, [name]: value }));
+        let novoValor = value;
+
+        if (name === 'nome') {
+            novoValor = novoValor.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]/g, '');
+        } else if (name === 'celular') {
+            novoValor = formatarTelefone(novoValor);
+        } else if (name === 'peso' || name === 'altura') {
+            novoValor = novoValor.replace(/\D/g, '');
+        }
+
+        setDados(prev => ({ ...prev, [name]: novoValor }));
+    };
+
+    const toggleCondicao = (condicao) => {
+        setDados(prev => {
+            const lista = prev.condicoes || [];
+            const novas = lista.includes(condicao)
+                ? lista.filter(c => c !== condicao)
+                : [...lista, condicao];
+            return { ...prev, condicoes: novas };
+        });
     };
 
     const handleSalvar = (e) => {
@@ -71,7 +116,7 @@ export default function Perfil() {
         setTimeout(() => {
             setCarregando(false);
             setIsEditing(false);
-        }, 800);
+        }, 600);
     };
 
     const tipoPerfil = usuario?.tipo || 'idoso';
@@ -80,11 +125,10 @@ export default function Perfil() {
         <div className="perfil-container fade-in">
             <header className="perfil-header">
                 <h1 className="perfil-title">O Meu Perfil</h1>
-                <p className="perfil-subtitle">Consulte e ajuste as preferências da sua conta.</p>
+                <p className="perfil-subtitle">Consulte e ajuste as preferências e condições de saúde.</p>
             </header>
 
             <div className="perfil-grid">
-                {/* CARTÃO DE DADOS */}
                 <section className="perfil-card">
                     {!isEditing ? (
                         <div className="perfil-view fade-in">
@@ -102,7 +146,6 @@ export default function Perfil() {
                             </p>
                             <p className="usuario-detalhe">{dados.celular}</p>
 
-                            {/* Detalhes específicos de idoso */}
                             {tipoPerfil === 'idoso' && (
                                 <>
                                     <div className="usuario-medidas">
@@ -111,27 +154,43 @@ export default function Perfil() {
                                         <span><strong>Altura:</strong> {dados.altura} cm</span>
                                     </div>
 
-                                    <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '1rem', color: '#6b7280' }}>
-                                        Contacto SOS: <strong>{dados.contatoEmergenciaNome}</strong> ({dados.contatoEmergenciaTel})
+                                    <div style={{ marginTop: '1.25rem', width: '100%' }}>
+                                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', color: '#166534', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                            <HeartHandshake size={18} /> Condições & Cuidados Físicos
+                                        </h4>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', justifyContent: 'flex-start' }}>
+                                            {dados.condicoes && dados.condicoes.length > 0 ? (
+                                                dados.condicoes.map((c, i) => (
+                                                    <span key={i} style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '0.8rem', padding: '0.25rem 0.5rem', borderRadius: '1rem', fontWeight: '500' }}>
+                                                        {c}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span style={{ fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>Nenhuma restrição registrada.</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.95rem', color: '#6b7280' }}>
+                                        Contato SOS: <strong>{dados.contatoEmergenciaNome}</strong> ({dados.contatoEmergenciaTel})
                                     </div>
                                 </>
                             )}
 
-                            {/* Detalhes de profissional */}
                             {tipoPerfil === 'profissional' && (
                                 <div className="usuario-medidas" style={{ backgroundColor: '#eff6ff', color: '#1e40af' }}>
-                                    <span><strong>Registo:</strong> {dados.registoProfissional}</span>
+                                    <span><strong>Registro:</strong> {dados.registoProfissional}</span>
                                 </div>
                             )}
 
                             <button onClick={() => setIsEditing(true)} className="btn-editar">
-                                Editar Informações
+                                Editar Informações & Saúde
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleSalvar} className="perfil-edit-form fade-in">
+                        <form onSubmit={handleSalvar} className="perfil-edit-form fade-in" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
                             <h3 className="sessao-titulo" style={{ alignSelf: 'center', margin: '0 0 1rem 0' }}>
-                                Atualizar Informações
+                                Atualizar Perfil e Saúde
                             </h3>
 
                             <div className="input-group">
@@ -143,30 +202,69 @@ export default function Perfil() {
                             </div>
 
                             <div className="input-group">
-                                <label>Telemóvel</label>
+                                <label>Celular</label>
                                 <div className="input-with-icon">
                                     <Phone size={20} className="input-icon" />
-                                    <input type="tel" name="celular" value={dados.celular} onChange={handleChange} className="input-control" required />
+                                    <input type="tel" inputMode="numeric" name="celular" value={dados.celular} onChange={handleChange} className="input-control" required />
                                 </div>
                             </div>
 
                             {tipoPerfil === 'idoso' && (
-                                <div className="input-row">
-                                    <div className="input-group">
-                                        <label>Peso (kg)</label>
-                                        <div className="input-with-icon">
-                                            <Activity size={20} className="input-icon" />
-                                            <input type="number" name="peso" value={dados.peso} onChange={handleChange} className="input-control" />
+                                <>
+                                    <div className="input-row">
+                                        <div className="input-group">
+                                            <label>Peso (kg)</label>
+                                            <div className="input-with-icon">
+                                                <Activity size={20} className="input-icon" />
+                                                <input type="text" inputMode="numeric" name="peso" value={dados.peso} onChange={handleChange} className="input-control" />
+                                            </div>
+                                        </div>
+                                        <div className="input-group">
+                                            <label>Altura (cm)</label>
+                                            <div className="input-with-icon">
+                                                <Ruler size={20} className="input-icon" />
+                                                <input type="text" inputMode="numeric" name="altura" value={dados.altura} onChange={handleChange} className="input-control" />
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="input-group">
-                                        <label>Altura (cm)</label>
-                                        <div className="input-with-icon">
-                                            <Ruler size={20} className="input-icon" />
-                                            <input type="number" name="altura" value={dados.altura} onChange={handleChange} className="input-control" />
-                                        </div>
+
+                                    <div style={{ marginTop: '1rem' }}>
+                                        <label style={{ fontSize: '1rem', fontWeight: 'bold', color: '#166534', display: 'block', marginBottom: '0.5rem' }}>
+                                            Condições de Saúde e Limitações
+                                        </label>
+                                        {secoesCondicoes.map(sec => (
+                                            <div key={sec.titulo} style={{ marginBottom: '1rem' }}>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563', display: 'block', marginBottom: '0.35rem' }}>
+                                                    {sec.titulo}
+                                                </span>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                                                    {sec.opcoes.map(opcao => {
+                                                        const ativo = dados.condicoes?.includes(opcao);
+                                                        return (
+                                                            <button 
+                                                                type="button" 
+                                                                key={opcao}
+                                                                onClick={() => toggleCondicao(opcao)}
+                                                                style={{
+                                                                    padding: '0.35rem 0.65rem',
+                                                                    borderRadius: '8px',
+                                                                    border: `1px solid ${ativo ? '#059669' : '#cbd5e1'}`,
+                                                                    backgroundColor: ativo ? '#059669' : '#f8fafc',
+                                                                    color: ativo ? 'white' : '#334155',
+                                                                    fontSize: '0.8rem',
+                                                                    fontWeight: '600',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                {opcao}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
+                                </>
                             )}
 
                             <div className="form-actions-perfil">
@@ -174,14 +272,13 @@ export default function Perfil() {
                                     <X size={20} /> Cancelar
                                 </button>
                                 <button type="submit" className="btn-salvar" disabled={carregando}>
-                                    {carregando ? 'A guardar...' : <><Save size={20} /> Guardar</>}
+                                    {carregando ? 'Salvando...' : <><Save size={20} /> Salvar</>}
                                 </button>
                             </div>
                         </form>
                     )}
                 </section>
 
-                {/* CARTÃO DE CONFIGURAÇÕES E ACESSIBILIDADE */}
                 <section className="perfil-card">
                     <h3 className="sessao-titulo">Configurações e Acessibilidade</h3>
                     <ul className="config-lista">
@@ -190,17 +287,16 @@ export default function Perfil() {
                                 <Settings size={24} color="#059669" />
                                 <div>
                                     <span style={{ display: 'block', fontWeight: 'bold' }}>Letras Grandes</span>
-                                    <small style={{ color: '#6b7280' }}>Aumenta o tamanho de todo o texto no ecrã</small>
+                                    <small style={{ color: '#6b7280' }}>Aumenta o tamanho de todo o texto na tela</small>
                                 </div>
                             </div>
                             <input 
                                 type="checkbox" 
                                 className="toggle-switch" 
-                                checked={letrasGrandes}
-                                onChange={alternarLetrasGrandes}
+                                checked={letrasGrandes} 
+                                onChange={alternarLetrasGrandes} 
                             />
                         </li>
-
                         <li className="config-item">
                             <div className="config-info">
                                 <Bell size={24} color="#4b5563" />
@@ -208,7 +304,6 @@ export default function Perfil() {
                             </div>
                             <input type="checkbox" className="toggle-switch" defaultChecked />
                         </li>
-
                         <li className="config-item">
                             <div className="config-info">
                                 <Award size={24} color="#4b5563" />
