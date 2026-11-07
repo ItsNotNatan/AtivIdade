@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../../components/AlertContext/AlertContext';
 import { PlayCircle, ThumbsUp, AlertTriangle, ClipboardList, CalendarDays, RefreshCw } from 'lucide-react';
-import { traduzirMusculo } from '../../components/Profissional/MapaMuscular';
+import { traduzirMusculo } from '../../components/MapaMuscular/MapaMuscular';
 import './Dashboard.css';
 
 export default function Dashboard() {

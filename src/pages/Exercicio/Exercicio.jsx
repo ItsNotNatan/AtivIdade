@@ -10,6 +10,7 @@ export default function Exercicio() {
     const location = useLocation();
     const { usuario } = useAuthStore();
     
+    // Recebe o treino selecionado pelo utilizador, ou um padrão de teste
     const treinoPrescrito = location.state?.treino || { 
         titulo: 'Movimento Livre', tipo: 'tempo', duracaoMinutos: 5 
     };
@@ -20,19 +21,19 @@ export default function Exercicio() {
     const [tempo, setTempo] = useState(treinoPrescrito.duracaoMinutos ? treinoPrescrito.duracaoMinutos * 60 : 0);
     const [pausado, setPausado] = useState(false);
     
-    // Controlador para treinos de Série/Repetição
     const [serieAtual, setSerieAtual] = useState(1);
 
     const contatoEmergenciaTel = "11988888888";
 
+    // Lógica do Cronómetro
     useEffect(() => {
         let intervalo;
         if (fase === 1 && isTempo && !pausado && tempo > 0) {
             intervalo = setInterval(() => setTempo((t) => t - 1), 1000);
         } else if (fase === 1 && isTempo && tempo === 0 && treinoPrescrito.tipo === 'tempo') {
-            setFase(2);
+            setFase(2); // Terminou o tempo total
         } else if (fase === 1 && isTempo && tempo === 0 && treinoPrescrito.tipo === 'isometria') {
-            concluirSerie(); // Para isometria, o tempo acabar significa fim de 1 série
+            concluirSerie(); // Terminou uma sustentação
         }
         return () => clearInterval(intervalo);
     }, [fase, pausado, tempo, isTempo]);
@@ -44,9 +45,9 @@ export default function Exercicio() {
     };
 
     const concluirSerie = () => {
-        if (serieAtual < treinoPrescrito.series) {
+        if (serieAtual < (treinoPrescrito.series || 1)) {
             setSerieAtual(s => s + 1);
-            if (treinoPrescrito.tipo === 'isometria') setTempo(treinoPrescrito.duracaoMinutos); // Reseta o relógio para a próx série
+            if (treinoPrescrito.tipo === 'isometria') setTempo(treinoPrescrito.duracaoMinutos); 
         } else {
             setFase(2); // Terminou todas as séries
         }
@@ -78,13 +79,10 @@ export default function Exercicio() {
         }
 
         try {
-            // Mandamos o objeto do treino inteiro, adicionando apenas o feedback do paciente
             const payload = { ...treinoPrescrito, feedback: tipoFeedback };
             
             await fetch('http://localhost:3001/api/atividades', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
             
             if (treinoPrescrito.id) {
@@ -106,11 +104,13 @@ export default function Exercicio() {
 
     return (
         <div className="exercicio-layout fade-in">
+            {/* Botão de Emergência SOS Fixo no topo direito */}
             <a href={`tel:${contatoEmergenciaTel}`} onClick={lidarComSos} className="btn-sos" aria-label="Ligar para emergência">
                 <PhoneCall size={32} className="icone-telefone" />
             </a>
 
             <div className="exercicio-card">
+                {/* Permite cancelar se ainda não terminou */}
                 {fase < 3 && (
                     <button onClick={() => navigate(-1)} className="btn-voltar">
                         <ArrowLeft size={24} /> Cancelar Treino
@@ -126,10 +126,7 @@ export default function Exercicio() {
                         </div>
                         <div className="preparo-box">
                             <h3>Lembrete do Profissional:</h3>
-                            <ul>
-                                <li>Faça no seu ritmo</li>
-                                <li>Pare se sentir qualquer dor</li>
-                            </ul>
+                            <ul><li>Faça no seu ritmo</li><li>Pare se sentir qualquer dor</li></ul>
                         </div>
                         <button onClick={() => setFase(1)} className="btn-gigante btn-verde">
                             <PlayCircle size={28} /> Iniciar Agora
@@ -142,43 +139,61 @@ export default function Exercicio() {
                     <div className="text-center fade-in">
                         <h2 className="exercicio-titulo">{treinoPrescrito.titulo}</h2>
                         
-                        {/* Se for Tempo ou Isometria (Cronômetro) */}
+                        {/* EXIBIÇÃO INTELIGENTE DO VÍDEO/GIF AQUI */}
+                        {treinoPrescrito.gifUrl ? (
+                            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '1rem', padding: '1rem', border: '1px solid #e2e8f0' }}>
+                                {/* Verifica se é um vídeo MP4/WEBM ou DataURL de vídeo (Gravado manualmente ou linkado) */}
+                                {treinoPrescrito.gifUrl.includes('data:video') || treinoPrescrito.gifUrl.match(/\.(mp4|webm)$/i) ? (
+                                    <video 
+                                        src={treinoPrescrito.gifUrl} 
+                                        autoPlay 
+                                        loop 
+                                        muted 
+                                        playsInline 
+                                        style={{ width: '100%', maxWidth: '320px', borderRadius: '8px' }} 
+                                    />
+                                ) : (
+                                    /* Caso contrário, é um GIF ou Imagem (Vindo da API Wger ou link de imagem) */
+                                    <img 
+                                        src={treinoPrescrito.gifUrl} 
+                                        alt={treinoPrescrito.titulo} 
+                                        style={{ width: '100%', maxWidth: '320px', borderRadius: '8px', objectFit: 'contain' }} 
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <div className="video-placeholder">
+                                <div className="emoji-grande">{isTempo ? '⏳' : '🔄'}</div>
+                            </div>
+                        )}
+                        
+                        {/* Controlos para Exercícios com Tempo */}
                         {isTempo && (
                             <>
                                 <p className="exercicio-sub">{treinoPrescrito.tipo === 'isometria' ? `Série ${serieAtual} de ${treinoPrescrito.series}` : 'Mantenha o ritmo suave'}</p>
-                                <div className="video-placeholder">
-                                    <div className="emoji-grande">⏳</div>
-                                    <h2 style={{ fontSize: '4rem', margin: 0, color: '#1f2937' }}>{formatarTempo(tempo)}</h2>
-                                </div>
+                                <h2 style={{ fontSize: '4rem', margin: '0 0 1rem 0', color: '#1f2937' }}>{formatarTempo(tempo)}</h2>
                                 <button onClick={() => setPausado(!pausado)} className="btn-gigante" style={{ backgroundColor: pausado ? '#059669' : '#d97706', color: 'white', marginBottom: '1rem' }}>
                                     {pausado ? <PlayCircle size={28} /> : <PauseCircle size={28} />} {pausado ? 'Retomar' : 'Pausar'}
                                 </button>
                             </>
                         )}
 
-                        {/* Se for Repetição ou Carga (Contador Manual) */}
+                        {/* Controlos para Exercícios Baseados em Séries e Repetições */}
                         {(treinoPrescrito.tipo === 'repeticao' || treinoPrescrito.tipo === 'carga') && (
                             <>
                                 <p className="exercicio-sub">Faça {treinoPrescrito.repeticoes} repetições com calma.</p>
-                                <div className="video-placeholder">
-                                    <div className="emoji-grande">🔄</div>
-                                    <h2 style={{ fontSize: '3rem', margin: 0, color: '#1f2937' }}>Série {serieAtual} de {treinoPrescrito.series}</h2>
-                                    {treinoPrescrito.carga && <p style={{ fontWeight: 'bold', color: '#059669' }}>Usando: {treinoPrescrito.carga}</p>}
-                                </div>
+                                <h2 style={{ fontSize: '2.5rem', margin: '0 0 1rem 0', color: '#1f2937' }}>Série {serieAtual} de {treinoPrescrito.series}</h2>
+                                {treinoPrescrito.carga && <p style={{ fontWeight: 'bold', color: '#059669', marginBottom: '1rem' }}>Usando: {treinoPrescrito.carga}</p>}
                                 <button onClick={concluirSerie} className="btn-gigante btn-verde" style={{ marginBottom: '1rem' }}>
                                     <CheckSquare size={28} /> Completei a Série {serieAtual}
                                 </button>
                             </>
                         )}
 
-                        {/* Se for Meta (Apenas Check) */}
+                        {/* Controlos para Meta Livre */}
                         {treinoPrescrito.tipo === 'meta' && (
                             <>
                                 <p className="exercicio-sub">Objetivo: {treinoPrescrito.meta}</p>
-                                <div className="video-placeholder" style={{ backgroundColor: '#f0fdf4', border: '2px dashed #059669' }}>
-                                    <div className="emoji-grande">🚶</div>
-                                    <h2 style={{ fontSize: '2rem', margin: 0, color: '#166534', padding: '0 1rem' }}>Ao terminar a meta, clique no botão abaixo.</h2>
-                                </div>
                                 <button onClick={() => setFase(2)} className="btn-gigante btn-verde" style={{ marginBottom: '1rem' }}>
                                     <CheckCircle2 size={28} /> Concluí a Tarefa
                                 </button>
@@ -193,7 +208,7 @@ export default function Exercicio() {
                     </div>
                 )}
 
-                {/* FASE 2: FEEDBACK */}
+                {/* FASE 2: FEEDBACK DA DOR / DIFICULDADE */}
                 {fase === 2 && (
                     <div className="text-center fade-in">
                         <h2 className="pergunta-feedback">Como sentiu o exercício?</h2>
@@ -208,9 +223,7 @@ export default function Exercicio() {
                 {/* FASE 3: SUCESSO */}
                 {fase === 3 && (
                     <div className="text-center fade-in">
-                        <div className="icone-sucesso">
-                            <CheckCircle2 size={64} color="#059669" />
-                        </div>
+                        <div className="icone-sucesso"><CheckCircle2 size={64} color="#059669" /></div>
                         <h1 className="exercicio-titulo">Muito Bem!</h1>
                         <p className="exercicio-sub">Prescrição concluída e enviada ao profissional.</p>
                         <button onClick={() => navigate('/dashboard')} className="btn-gigante btn-verde" style={{ marginTop: '2rem' }}>
