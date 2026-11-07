@@ -1,4 +1,3 @@
-// src/components/NavBar/Navbar.jsx
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { HeartPulse, LayoutDashboard, User, FileText, Users, LogOut, BarChart3 } from 'lucide-react';
@@ -14,18 +13,16 @@ export default function Navbar() {
         navigate('/login');
     };
 
-    // Fallback de segurança
     const tipoPerfil = usuario?.tipo || 'idoso';
 
     return (
-        <header className="app-header">
+        <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', backgroundColor: 'white', borderBottom: '1px solid #e5e7eb' }}>
             <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#059669', fontWeight: 'bold', fontSize: '1.25rem' }}>
                 <HeartPulse size={32} strokeWidth={2.5} />
                 <span>AtivIdade</span>
             </div>
 
-            <nav className="nav-links">
-                {/* MENU DO IDOSO */}
+            <nav className="nav-links" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                 {tipoPerfil === 'idoso' && (
                     <>
                         <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
@@ -37,16 +34,12 @@ export default function Navbar() {
                     </>
                 )}
 
-                {/* MENU DO PROFISSIONAL (FISIOTERAPEUTA) - CORRIGIDO */}
                 {tipoPerfil === 'profissional' && (
-                    <>
-                        <NavLink to="/dashboard-profissional" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                            <LayoutDashboard size={20} /> Gestão de Turmas
-                        </NavLink>
-                    </>
+                    <NavLink to="/dashboard-profissional" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                        <LayoutDashboard size={20} /> Gestão de Turmas
+                    </NavLink>
                 )}
 
-                {/* MENU DO GESTOR */}
                 {tipoPerfil === 'gestor' && (
                     <>
                         <NavLink to="/dashboard-gestor" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
@@ -58,17 +51,14 @@ export default function Navbar() {
                     </>
                 )}
 
-                {/* MENU COMUM A TODOS */}
                 <NavLink to="/perfil" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
                     <User size={20} /> Meu Perfil
                 </NavLink>
             </nav>
 
-            <div className="user-profile">
-                <button onClick={handleLogout} className="btn-logout" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem' }}>
-                    <LogOut size={20} /> Sair
-                </button>
-            </div>
+            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem' }}>
+                <LogOut size={20} /> Sair
+            </button>
         </header>
     );
 }

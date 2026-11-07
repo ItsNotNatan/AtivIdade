@@ -16,6 +16,7 @@
     "lucide-react": "^1.46.0",
     "pocketbase": "^0.28.1",
     "react": "^19.2.8",
+    "react-body-highlighter": "^2.0.5",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.88.0",
     "react-router-dom": "^7.18.3",
