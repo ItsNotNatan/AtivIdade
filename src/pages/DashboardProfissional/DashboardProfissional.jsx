@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../contexts/authStore';
 import { AlertTriangle, CheckCircle, X, UserPlus, Library } from 'lucide-react';
 import { useAlert } from '../../components/AlertContext/AlertContext';
-import { API_URL } from '../../config'; // <-- ADICIONADO AQUI
+import { API_URL } from '../../config';
 
 import CardsTurmas from '../../components/Profissional/CardsTurmas';
 import ListaAlunosTurma from '../../components/Profissional/ListaAlunosTurma';
@@ -38,9 +38,9 @@ export default function DashboardProfissional() {
     const carregarDados = async () => {
         try {
             const [resTurmas, resAlertas, resUtentes] = await Promise.all([
-                fetch(`${API_URL}/api/turmas`), // <-- CORRIGIDO AQUI
-                fetch(`${API_URL}/api/alertas/pendentes`), // <-- CORRIGIDO AQUI
-                fetch(`${API_URL}/api/utentes`) // <-- CORRIGIDO AQUI
+                fetch(`${API_URL}/api/turmas`), 
+                fetch(`${API_URL}/api/alertas/pendentes`), 
+                fetch(`${API_URL}/api/utentes`) 
             ]);
             
             if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
@@ -57,10 +57,11 @@ export default function DashboardProfissional() {
 
     const handleCriarTurma = async (novaTurma) => {
         try {
-            const res = await fetch(`${API_URL}/api/turmas`, { // <-- CORRIGIDO AQUI
+            const payload = { ...novaTurma, profissionalId: usuario.id }; // <-- INCLUI O ID DO PROFISSIONAL
+            const res = await fetch(`${API_URL}/api/turmas`, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(novaTurma) 
+                body: JSON.stringify(payload) 
             });
             if (res.ok) { showAlert('Turma criada com sucesso!', 'sucesso'); carregarDados(); }
         } catch (err) { showAlert('Erro de comunicação.', 'erro'); }
@@ -69,7 +70,7 @@ export default function DashboardProfissional() {
     const handleDeletarTurma = async (idTurma, nomeTurma) => {
         if (!await showConfirm(`Apagar a turma "${nomeTurma}"? Os alunos não serão apagados.`)) return;
         try {
-            const res = await fetch(`${API_URL}/api/turmas/${idTurma}`, { method: 'DELETE' }); // <-- CORRIGIDO AQUI
+            const res = await fetch(`${API_URL}/api/turmas/${idTurma}`, { method: 'DELETE' }); 
             if (res.ok) {
                 if (turmaSelecionada?.id === idTurma) setTurmaSelecionada(null);
                 showAlert('Turma apagada.', 'info');
@@ -80,7 +81,7 @@ export default function DashboardProfissional() {
 
     const handleAdicionarAlunoTurma = async (idAluno) => {
         try {
-            const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos`, { // <-- CORRIGIDO AQUI
+            const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos`, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({ usuarioId: idAluno }) 
@@ -95,7 +96,7 @@ export default function DashboardProfissional() {
     const handleRemoverAlunoTurma = async (idAluno, nomeAluno) => {
         if (!await showConfirm(`Remover ${nomeAluno} da turma ${turmaSelecionada.nome}?`)) return;
         try {
-            const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos/${idAluno}`, { method: 'DELETE' }); // <-- CORRIGIDO AQUI
+            const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos/${idAluno}`, { method: 'DELETE' }); 
             if (res.ok) {
                 showAlert('Paciente removido da turma.', 'sucesso');
                 carregarDados();
@@ -105,7 +106,7 @@ export default function DashboardProfissional() {
 
     const resolverAlerta = async (id) => {
         try {
-            const res = await fetch(`${API_URL}/api/alertas/${id}/resolver`, { method: 'PUT' }); // <-- CORRIGIDO AQUI
+            const res = await fetch(`${API_URL}/api/alertas/${id}/resolver`, { method: 'PUT' }); 
             if (res.ok) { showAlert('Alerta resolvido!', 'sucesso'); carregarDados(); }
         } catch (err) { console.error(err); }
     };
