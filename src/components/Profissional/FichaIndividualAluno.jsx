@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { HeartHandshake, PlusCircle, Trash2, Edit2, Activity, ClipboardList, Library, FolderPlus } from 'lucide-react';
 import { useAlert } from '../AlertContext/AlertContext';
+import { API_URL } from '../../config';
 
 export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividual, onAbrirAcervoParaAluno, onEditarPrescricao }) {
     const { showConfirm, showAlert } = useAlert();
@@ -18,7 +19,10 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
 
     const carregarDadosAluno = async () => {
         try {
-            const [resP, resH] = await Promise.all([ fetch(`http://localhost:3001/api/prescricoes/${aluno.id}`), fetch(`http://localhost:3001/api/atividades/${aluno.id}`) ]);
+            const [resP, resH] = await Promise.all([ 
+                fetch(`${API_URL}/api/prescricoes/${aluno.id}`), 
+                fetch(`${API_URL}/api/atividades/${aluno.id}`) 
+            ]);
             if (resP.ok) {
                 setPrescricoes(await resP.json());
                 setGruposVazios([]); 
@@ -30,7 +34,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
     const deletarPrescricao = async (id) => {
         if (!await showConfirm('Excluir exercício da agenda do aluno?')) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/prescricoes/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/api/prescricoes/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setPrescricoes(prev => prev.filter(p => p.id !== id));
                 showAlert('Exercício excluído!', 'sucesso');

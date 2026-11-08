@@ -5,6 +5,7 @@ import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../../components/AlertContext/AlertContext';
 import { PlayCircle, AlertTriangle, ClipboardList, CalendarDays, RefreshCw } from 'lucide-react';
 import { traduzirMusculo } from '../../components/MapaMuscular/MapaMuscular';
+import { API_URL } from '../../config';
 import './Dashboard.css';
 
 export default function Dashboard() {
@@ -30,8 +31,8 @@ export default function Dashboard() {
         setCarregando(true);
         try {
             const [resHist, resPresc] = await Promise.all([
-                fetch(`http://localhost:3001/api/atividades/${usuario.id}`),
-                fetch(`http://localhost:3001/api/prescricoes/${usuario.id}`)
+                fetch(`${API_URL}/api/atividades/${usuario.id}`),
+                fetch(`${API_URL}/api/prescricoes/${usuario.id}`)
             ]);
             if (resHist.ok) setHistorico(await resHist.json());
             if (resPresc.ok) setPrescricoes(await resPresc.json());
@@ -43,7 +44,7 @@ export default function Dashboard() {
         if (!await showConfirm('Tem certeza que precisa de ajuda de emergência?')) return;
         setEnviandoSOS(true);
         try {
-            await fetch('http://localhost:3001/api/alertas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuarioId: usuario.id, tipo: 'sos', mensagem: 'O paciente acionou o botão de emergência!' }) });
+            await fetch(`${API_URL}/api/alertas`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuarioId: usuario.id, tipo: 'sos', mensagem: 'O paciente acionou o botão de emergência!' }) });
             showAlert('Alerta enviado com sucesso! Aguarde o contato.', 'sucesso');
         } catch (erro) { showAlert('Erro ao enviar alerta.', 'erro'); } finally { setEnviandoSOS(false); }
     };

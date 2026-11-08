@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { UserPlus, Phone, Briefcase, Trash2, X, Stethoscope, FileText, BadgeInfo } from 'lucide-react';
 import { formatarTelefone } from '../../utils/formatadores';
 import { useAlert } from '../../components/AlertContext/AlertContext'; 
+import { API_URL } from '../../config';
 import './Equipa.css';
 
 export default function Equipa() {
@@ -17,7 +18,7 @@ export default function Equipa() {
 
     const carregarEquipe = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/profissionais');
+            const res = await fetch(`${API_URL}/api/profissionais`);
             if (res.ok) setProfissionais(await res.json());
         } catch (error) { console.error(error); }
     };
@@ -26,7 +27,7 @@ export default function Equipa() {
         e.preventDefault();
         setCarregando(true);
         try {
-            const res = await fetch('http://localhost:3001/api/profissionais', {
+            const res = await fetch(`${API_URL}/api/profissionais`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
             });
 
@@ -47,7 +48,7 @@ export default function Equipa() {
         if (!await showConfirm(`Tem certeza que deseja revogar o acesso de ${nome}?`)) return;
         
         try {
-            const res = await fetch(`http://localhost:3001/api/profissionais/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/api/profissionais/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 showAlert('Profissional removido com sucesso!', 'sucesso');
                 carregarEquipe();

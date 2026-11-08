@@ -4,6 +4,7 @@ import { X, PlusCircle, Trash2, Library, Edit2, Send, FolderPlus } from 'lucide-
 import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../AlertContext/AlertContext';
 import FormPrescricaoModal from './FormPrescricaoModal';
+import { API_URL } from '../../config';
 
 export default function ModalAcervo({ alvoPrescricao, onClose }) {
     const { usuario } = useAuthStore();
@@ -23,7 +24,7 @@ export default function ModalAcervo({ alvoPrescricao, onClose }) {
 
     const carregarAcervo = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/api/acervo/${usuario.id}`);
+            const res = await fetch(`${API_URL}/api/acervo/${usuario.id}`);
             if (res.ok) {
                 setAcervo(await res.json());
                 setGruposVazios([]); // Limpa grupos vazios temporários após recarregar
@@ -34,7 +35,7 @@ export default function ModalAcervo({ alvoPrescricao, onClose }) {
     const deletarModelo = async (id) => {
         if (!await showConfirm("Remover este exercício do seu acervo?")) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/acervo/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/api/acervo/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 showAlert('Removido do acervo.', 'sucesso');
                 carregarAcervo();
@@ -64,7 +65,7 @@ export default function ModalAcervo({ alvoPrescricao, onClose }) {
                 diasDaSemana: diasLote.join(',')
             };
 
-            const res = await fetch('http://localhost:3001/api/prescricoes/lote', {
+            const res = await fetch(`${API_URL}/api/prescricoes/lote`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
 

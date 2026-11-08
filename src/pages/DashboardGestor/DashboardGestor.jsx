@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../contexts/authStore';
 import { BarChart3, Users, Activity, AlertTriangle, LogOut } from 'lucide-react';
+import { API_URL } from '../../config';
 
 export default function DashboardGestor() {
     const { usuario, logout } = useAuthStore();
@@ -19,7 +20,7 @@ export default function DashboardGestor() {
 
     const carregarEstatisticas = async () => {
         try {
-            const resposta = await fetch('http://localhost:3001/api/estatisticas');
+            const resposta = await fetch(`${API_URL}/api/estatisticas`);
             if (resposta.ok) {
                 const dados = await resposta.json();
                 setEstatisticas(dados);

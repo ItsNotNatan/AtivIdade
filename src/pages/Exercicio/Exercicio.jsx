@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, PhoneCall, PlayCircle, CheckCircle2, PauseCircle, CheckSquare } from 'lucide-react';
 import { useAuthStore } from '../../contexts/authStore';
+import { API_URL } from '../../config';
 import './Exercicio.css';
 
 export default function Exercicio() {
@@ -55,7 +56,7 @@ export default function Exercicio() {
     const lidarComSos = async () => {
         if (!usuario) return;
         try {
-            await fetch('http://localhost:3001/api/alertas', {
+            await fetch(`${API_URL}/api/alertas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -75,7 +76,7 @@ export default function Exercicio() {
 
         if (tipoFeedback === 'dificil') {
             try {
-                await fetch('http://localhost:3001/api/alertas', {
+                await fetch(`${API_URL}/api/alertas`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -97,14 +98,14 @@ export default function Exercicio() {
                 feedback: tipoFeedback 
             };
             
-            await fetch('http://localhost:3001/api/atividades', {
+            await fetch(`${API_URL}/api/atividades`, {
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(payload)
             });
             
             if (treinoPrescrito.id) {
-                await fetch(`http://localhost:3001/api/prescricoes/${treinoPrescrito.id}`, { method: 'DELETE' });
+                await fetch(`${API_URL}/api/prescricoes/${treinoPrescrito.id}`, { method: 'DELETE' });
             }
         } catch (error) { 
             console.error("Erro ao registrar atividade:", error); 

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Printer, HeartPulse, Activity } from 'lucide-react';
 import { useAuthStore } from '../../contexts/authStore';
+import { API_URL } from '../../config';
 import './Relatorios.css';
 
 export default function Relatorios() {
@@ -19,7 +20,7 @@ export default function Relatorios() {
     const buscarHistorico = async () => {
         setCarregando(true);
         try {
-            const resposta = await fetch(`http://localhost:3001/api/atividades/${usuario.id}`);
+            const resposta = await fetch(`${API_URL}/api/atividades/${usuario.id}`);
             if (resposta.ok) {
                 const dados = await resposta.json();
                 setHistorico(dados);

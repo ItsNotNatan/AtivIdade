@@ -5,6 +5,7 @@ import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../AlertContext/AlertContext';
 import MapaMuscular from '../MapaMuscular/MapaMuscular';
 import { buscarExerciciosAPI } from '../../services/apiExercicios';
+import { API_URL } from '../../config';
 
 export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
     const { usuario } = useAuthStore();
@@ -46,7 +47,7 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
 
     useEffect(() => {
         if (!isAcervo && !isEdit) {
-            fetch(`http://localhost:3001/api/acervo/${usuario.id}`).then(res => res.json()).then(setMeuAcervo).catch(console.error);
+            fetch(`${API_URL}/api/acervo/${usuario.id}`).then(res => res.json()).then(setMeuAcervo).catch(console.error);
         }
     }, [isAcervo, isEdit, usuario.id]);
 
@@ -110,7 +111,7 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
 
         setSalvando(true);
         try {
-            const endpointBase = isAcervo ? 'http://localhost:3001/api/acervo' : 'http://localhost:3001/api/prescricoes';
+            const endpointBase = isAcervo ? `${API_URL}/api/acervo` : `${API_URL}/api/prescricoes`;
             const url = isEdit ? `${endpointBase}/${alvo.treinoEditando.id}` : endpointBase;
             
             const payload = {

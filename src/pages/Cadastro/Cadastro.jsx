@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeartPulse, User, Phone, Lock, Calendar, AlertCircle, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useAlert } from '../../components/AlertContext/AlertContext';
+import { API_URL } from '../../config'; // <-- ADICIONADO AQUI
 import './Cadastro.css';
 
 export default function Cadastro() {
@@ -64,7 +65,7 @@ export default function Cadastro() {
         e.preventDefault();
         setCarregando(true);
         try {
-            const resposta = await fetch('http://localhost:3001/api/auth/registo', {
+            const resposta = await fetch(`${API_URL}/api/auth/registo`, { // <-- CORRIGIDO AQUI
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados)
             });
             if (resposta.ok) {

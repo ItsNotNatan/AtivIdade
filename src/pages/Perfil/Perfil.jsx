@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../../components/AlertContext/AlertContext';
 import { formatarTelefone } from '../../utils/formatadores';
+import { API_URL } from '../../config';
 import './Perfil.css';
 
 export default function Perfil() {
@@ -85,8 +86,8 @@ export default function Perfil() {
     const carregarMetricasProfissional = async (idProf) => {
         try {
             const [resTurmas, resAcervo] = await Promise.all([
-                fetch('http://localhost:3001/api/turmas'),
-                fetch(`http://localhost:3001/api/acervo/${idProf}`)
+                fetch(`${API_URL}/api/turmas`),
+                fetch(`${API_URL}/api/acervo/${idProf}`)
             ]);
 
             let turmasCount = 0;
@@ -149,7 +150,7 @@ export default function Perfil() {
                 condicoes: form.condicoes.join(', ')
             };
 
-            const res = await fetch(`http://localhost:3001/api/usuarios/${usuario.id}`, {
+            const res = await fetch(`${API_URL}/api/usuarios/${usuario.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
