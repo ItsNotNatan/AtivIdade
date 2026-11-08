@@ -35,25 +35,32 @@ export default function DashboardProfissional() {
         }
     }, [usuario, navigate]);
 
-    const carregarDados = async () => {
-        try {
-            const [resTurmas, resAlertas, resUtentes] = await Promise.all([
-                fetch(`${API_URL}/api/turmas`), 
-                fetch(`${API_URL}/api/alertas/pendentes`), 
-                fetch(`${API_URL}/api/utentes`) 
-            ]);
-            
-            if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
-            if (resAlertas.ok) setAlertas(await resAlertas.json());
-            
-            if (resTurmas.ok) {
-                const dados = await resTurmas.json();
-                setTurmas(dados);
-                if (dados.length > 0 && !turmaSelecionada) setTurmaSelecionada(dados[0]);
-                else if (turmaSelecionada) setTurmaSelecionada(dados.find(t => t.id === turmaSelecionada.id) || dados[0]);
+const carregarDados = async () => {
+    try {
+        const [resTurmas, resAlertas, resUtentes] = await Promise.all([
+            fetch(`${API_URL}/api/turmas`), 
+            fetch(`${API_URL}/api/alertas/pendentes`), 
+            fetch(`${API_URL}/api/utentes`) 
+        ]);
+
+        if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
+        if (resAlertas.ok) setAlertas(await resAlertas.json());
+
+        if (resTurmas.ok) {
+            const dados = await resTurmas.json();
+
+            // ATENÇÃO AQUI: As turmas estão a chegar perfeitamente.
+            // Como há turmas, o if vai entrar e setar a turma selecionada.
+            setTurmas(dados);
+
+            if (dados.length > 0 && !turmaSelecionada) {
+                setTurmaSelecionada(dados[0]);
+            } else if (turmaSelecionada) {
+                setTurmaSelecionada(dados.find(t => t.id === turmaSelecionada.id) || dados[0]);
             }
-        } catch (err) { console.error(err); }
-    };
+        }
+    } catch (err) { console.error(err); }
+};
 
     const handleCriarTurma = async (novaTurma) => {
         try {
