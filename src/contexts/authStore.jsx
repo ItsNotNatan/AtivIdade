@@ -1,5 +1,6 @@
 // src/contexts/authStore.jsx
 import React, { createContext, useContext, useState } from 'react';
+import { API_URL } from '../config';
 
 const AuthContext = createContext();
 
@@ -16,8 +17,8 @@ export function AuthProvider({ children }) {
 
     const login = async (celular, pin) => {
         try {
-            // Chamada direta à sua API no Render
-            const resposta = await fetch('https://atividade-backend-h5p3.onrender.com/api/auth/login', {
+            // A URL alterna automaticamente conforme o ambiente
+            const resposta = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ celular, pin })
