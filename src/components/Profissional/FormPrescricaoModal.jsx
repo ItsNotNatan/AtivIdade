@@ -51,8 +51,15 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
         }
     }, [isAcervo, isEdit, usuario.id]);
 
-    const handleSelecionarExercicioApi = (exApi) => {
-        const nomeFormatado = exApi.name.charAt(0).toUpperCase() + exApi.name.slice(1);
+    const handleSelecionarExercicioApi = (e, exApi) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        // Proteção contra exercícios que vêm sem nome da API
+        const nomeDaApi = exApi.name || 'Exercício';
+        const nomeFormatado = nomeDaApi.charAt(0).toUpperCase() + nomeDaApi.slice(1);
+        
         setForm(prev => ({ 
             ...prev, 
             titulo: prev.titulo ? prev.titulo : nomeFormatado, 
@@ -147,29 +154,29 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
     };
 
     return (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1.5rem' }}>
-            <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '16px', width: '100%', maxWidth: '880px', padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxHeight: '92vh', overflowY: 'auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-                    <div>
-                        <h2 style={{ margin: 0, fontSize: '1.4rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1.5rem', boxSizing: 'border-box' }}>
+            <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '16px', width: '100%', maxWidth: '880px', padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', maxHeight: '92vh', overflowY: 'auto', boxSizing: 'border-box' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ flex: 1, minWidth: '250px' }}>
+                        <h2 style={{ margin: 0, fontSize: '1.4rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                             {isEdit ? <Edit2 size={24} color="#2563eb" /> : null} {isEdit ? 'Editar Exercício' : isAcervo ? `Novo Exercício em "${form.grupo}"` : `Prescrever Exercício para "${form.grupo}"`}
                         </h2>
                         <span style={{ fontSize: '0.9rem', color: '#64748b' }}>{isAcervo ? 'Adicionar à sua Biblioteca' : `Destino: ${alvo.dados.nome}`}</span>
                     </div>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={24} /></button>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '0.25rem' }}><X size={24} /></button>
                 </div>
 
                 {!isAcervo && !isEdit && meuAcervo.length > 0 && (
-                    <div style={{ backgroundColor: '#f0fdf4', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid #bbf7d0', marginBottom: '1.5rem' }}>
+                    <div style={{ backgroundColor: '#f0fdf4', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid #bbf7d0', marginBottom: '1.5rem', boxSizing: 'border-box' }}>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold', color: '#166534', marginBottom: '0.5rem' }}><Download size={18} /> Preencher a partir do Acervo:</label>
-                        <select onChange={handleCarregarModelo} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: 'white' }}>
+                        <select onChange={handleCarregarModelo} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: 'white', boxSizing: 'border-box' }}>
                             <option value="">-- Selecione um modelo gravado --</option>
                             {meuAcervo.map(m => <option key={m.id} value={m.id}>{m.titulo} (Grupo: {m.grupo})</option>)}
                         </select>
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', boxSizing: 'border-box' }}>
                     
                     <div>
                         <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#334155' }}>Músculos Alvo <span style={{color: 'red'}}>*</span></label>
@@ -178,43 +185,45 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
 
                     {/* GALERIA DE EXERCÍCIOS COM SELEÇÃO VISÍVEL */}
                     {form.focoMuscular && (
-                        <div style={{ backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', padding: '1rem', borderRadius: '12px' }}>
-                            <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 'bold', color: '#059669', marginBottom: '0.75rem' }}>
+                        <div style={{ backgroundColor: '#f8fafc', border: '1px dashed #cbd5e1', padding: '1rem', borderRadius: '12px', boxSizing: 'border-box' }}>
+                            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: 'bold', color: '#059669', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                                 <span>Demonstrações Sugeridas (Clique sobre a imagem para escolher):</span>
                                 {carregandoApi && <Loader2 size={16} className="girar" />}
                             </label>
                             
-                            <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', paddingBottom: '0.5rem' }}>
+                            <div style={{ display: 'flex', overflowX: 'auto', gap: '1rem', paddingBottom: '0.75rem', paddingTop: '0.25rem' }}>
                                 {exerciciosApi.map((ex) => {
                                     const selecionado = form.gifUrl === ex.gifUrl;
                                     return (
-                                        <div 
+                                        <button 
+                                            type="button"
                                             key={ex.id} 
-                                            onClick={() => handleSelecionarExercicioApi(ex)} 
+                                            onClick={(e) => handleSelecionarExercicioApi(e, ex)} 
                                             style={{ 
-                                                minWidth: '150px', maxWidth: '150px', cursor: 'pointer', borderRadius: '10px', padding: '0.5rem', 
-                                                border: `3px solid ${selecionado ? '#059669' : '#e2e8f0'}`, 
+                                                minWidth: '160px', maxWidth: '160px', cursor: 'pointer', borderRadius: '10px', padding: '0.5rem', 
+                                                border: `4px solid ${selecionado ? '#059669' : '#e2e8f0'}`, 
                                                 backgroundColor: selecionado ? '#ecfdf5' : 'white', 
-                                                boxShadow: selecionado ? '0 4px 12px rgba(5,150,105,0.25)' : '0 2px 4px rgba(0,0,0,0.05)', 
-                                                transition: 'all 0.2s', position: 'relative'
+                                                boxShadow: selecionado ? '0 8px 16px rgba(5,150,105,0.3)' : '0 2px 4px rgba(0,0,0,0.05)', 
+                                                transition: 'all 0.2s ease', position: 'relative', boxSizing: 'border-box',
+                                                display: 'flex', flexDirection: 'column', alignItems: 'center'
                                             }}
                                         >
                                             {selecionado && (
-                                                <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: '#059669', color: 'white', borderRadius: '50%', padding: '2px', display: 'flex' }}>
-                                                    <CheckCircle2 size={16} />
+                                                <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: '#059669', color: 'white', borderRadius: '50%', padding: '4px', display: 'flex', zIndex: 2 }}>
+                                                    <CheckCircle2 size={20} strokeWidth={3} />
                                                 </div>
                                             )}
                                             <img 
                                                 src={ex.gifUrl} 
-                                                alt={ex.name} 
+                                                alt={ex.name || 'Exercício'} 
                                                 referrerPolicy="no-referrer"
-                                                style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '6px', backgroundColor: '#fff' }} 
+                                                style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '6px', backgroundColor: '#fff', opacity: selecionado ? 1 : 0.8 }} 
                                                 loading="lazy" 
                                             />
-                                            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', textAlign: 'center', fontWeight: 'bold', color: selecionado ? '#059669' : '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={ex.name}>
-                                                {ex.name}
+                                            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', textAlign: 'center', fontWeight: 'bold', color: selecionado ? '#059669' : '#334155', width: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={ex.name || 'Exercício'}>
+                                                {ex.name || 'Exercício'}
                                             </p>
-                                        </div>
+                                        </button>
                                     );
                                 })}
                             </div>
@@ -223,30 +232,30 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
 
                     {/* PRÉVIA AO VIVO DA IMAGEM / VÍDEO SELECIONADO */}
                     {form.gifUrl && (
-                        <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                            <div style={{ width: '90px', height: '90px', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'white', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ backgroundColor: '#f0fdf4', border: '2px solid #bbf7d0', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem', boxSizing: 'border-box' }}>
+                            <div style={{ width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', backgroundColor: 'white', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {form.gifUrl.includes('data:video') || form.gifUrl.match(/\.(mp4|webm)$/i) ? (
                                     <video src={form.gifUrl} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
                                     <img src={form.gifUrl} alt="Prévia" referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 )}
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#166534', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <Film size={16} /> Demonstração visual selecionada:
+                            <div style={{ flex: 1, minWidth: '150px' }}>
+                                <span style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#166534', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                    <Film size={18} /> Demonstração selecionada com sucesso!
                                 </span>
                                 <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: '#64748b', wordBreak: 'break-all' }}>
-                                    {form.gifUrl.startsWith('data:') ? 'Arquivo de vídeo/imagem carregado localmente.' : form.gifUrl}
+                                    {form.gifUrl.startsWith('data:') ? 'Arquivo carregado localmente.' : 'Link da galeria associado ao treino.'}
                                 </p>
                             </div>
-                            <button type="button" onClick={() => setForm({ ...form, gifUrl: '' })} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 'bold', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
+                            <button type="button" onClick={() => setForm({ ...form, gifUrl: '' })} style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', padding: '0.5rem 1rem', borderRadius: '6px' }}>
                                 Remover
                             </button>
                         </div>
                     )}
 
                     {/* OPÇÃO MANUAL: LINK OU UPLOAD */}
-                    <div style={{ backgroundColor: '#f1f5f9', padding: '1rem', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                    <div style={{ backgroundColor: '#f1f5f9', padding: '1rem', borderRadius: '12px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
                         <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#334155' }}>Ou envie um vídeo próprio (Cole o link ou suba um arquivo):</label>
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                             <div style={{ flex: 1, position: 'relative', minWidth: '200px' }}>
@@ -254,35 +263,35 @@ export default function FormPrescricaoModal({ alvo, onClose, onSucesso }) {
                                 <input type="text" value={form.gifUrl || ''} onChange={e => setForm({ ...form, gifUrl: e.target.value })} placeholder="Ex: https://meusite.com/video.mp4" style={{ width: '100%', padding: '0.7rem 0.7rem 0.7rem 2.2rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
                             </div>
                             <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold' }}>OU</span>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', padding: '0.7rem 1.2rem', backgroundColor: 'white', color: '#334155', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem', border: '1px solid #cbd5e1', transition: 'background 0.2s' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', padding: '0.7rem 1.2rem', backgroundColor: 'white', color: '#334155', borderRadius: '8px', fontWeight: 'bold', fontSize: '0.85rem', border: '1px solid #cbd5e1', transition: 'background 0.2s', boxSizing: 'border-box' }}>
                                 <UploadCloud size={18} color="#2563eb" /> Subir Arquivo
                                 <input type="file" accept="image/gif, video/mp4, video/webm, image/jpeg, image/png" style={{ display: 'none' }} onChange={handleFileUpload} />
                             </label>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1rem' }}>
-                        <div><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Tipo de Exercício</label><select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: 'white' }}><option value="repeticao">Repetições</option><option value="tempo">Tempo Contínuo</option><option value="isometria">Isometria</option><option value="carga">Com Carga</option><option value="meta">Meta Livre</option></select></div>
-                        <div><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Nome do Exercício <span style={{color: 'red'}}>*</span></label><input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })} placeholder="Ex: Rotação de Ombros" style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Tipo de Exercício</label><select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: 'white', boxSizing: 'border-box' }}><option value="repeticao">Repetições</option><option value="tempo">Tempo Contínuo</option><option value="isometria">Isometria</option><option value="carga">Com Carga</option><option value="meta">Meta Livre</option></select></div>
+                        <div style={{ flex: 2, minWidth: '250px' }}><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Nome do Exercício <span style={{color: 'red'}}>*</span></label><input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })} placeholder="Ex: Rotação de Ombros" style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: isAcervo ? '1fr' : '1.2fr 1fr', gap: '1.25rem' }}>
-                        <div><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Grupo (Pasta do Treino) <span style={{color: 'red'}}>*</span></label><input type="text" value={form.grupo} onChange={e => setForm({ ...form, grupo: e.target.value })} disabled={!!alvo.grupoPreDefinido} style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: alvo.grupoPreDefinido ? '#f1f5f9' : 'white', cursor: alvo.grupoPreDefinido ? 'not-allowed' : 'text' }} /></div>
-                        {!isAcervo && (<div><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Dias Recomendados: <span style={{color: 'red'}}>*</span></label><div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>{diasOpcoes.map(d => (<button type="button" key={d} onClick={() => toggleDia(d)} style={{ padding: '0.45rem 0.75rem', borderRadius: '6px', border: `1px solid ${form.diasSelecionados.includes(d) ? form.cor : '#cbd5e1'}`, backgroundColor: form.diasSelecionados.includes(d) ? form.cor : 'white', color: form.diasSelecionados.includes(d) ? 'white' : '#4b5563', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer' }}>{d}</button>))}</div></div>)}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Grupo (Pasta do Treino) <span style={{color: 'red'}}>*</span></label><input type="text" value={form.grupo} onChange={e => setForm({ ...form, grupo: e.target.value })} disabled={!!alvo.grupoPreDefinido} style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: alvo.grupoPreDefinido ? '#f1f5f9' : 'white', cursor: alvo.grupoPreDefinido ? 'not-allowed' : 'text', boxSizing: 'border-box' }} /></div>
+                        {!isAcervo && (<div style={{ flex: 1.2, minWidth: '250px' }}><label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Dias Recomendados: <span style={{color: 'red'}}>*</span></label><div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>{diasOpcoes.map(d => (<button type="button" key={d} onClick={() => toggleDia(d)} style={{ padding: '0.45rem 0.75rem', borderRadius: '6px', border: `1px solid ${form.diasSelecionados.includes(d) ? form.cor : '#cbd5e1'}`, backgroundColor: form.diasSelecionados.includes(d) ? form.cor : 'white', color: form.diasSelecionados.includes(d) ? 'white' : '#4b5563', fontSize: '0.85rem', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>{d}</button>))}</div></div>)}
                     </div>
                     
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        {form.tipo === 'tempo' && (<div style={{ flex: 1, minWidth: '160px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Duração (Minutos) <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.duracaoMinutos} onChange={e => handleNumeroChange('duracaoMinutos', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>)}
-                        {['repeticao', 'isometria', 'carga'].includes(form.tipo) && (<div style={{ flex: 1, minWidth: '120px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Séries <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.series} onChange={e => handleNumeroChange('series', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>)}
-                        {['repeticao', 'carga'].includes(form.tipo) && (<div style={{ flex: 1, minWidth: '120px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Repetições <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.repeticoes} onChange={e => handleNumeroChange('repeticoes', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>)}
-                        {form.tipo === 'isometria' && (<div style={{ flex: 1, minWidth: '160px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Sustentação (Seg) <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.duracaoMinutos} onChange={e => handleNumeroChange('duracaoMinutos', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>)}
-                        {form.tipo === 'carga' && (<div style={{ flex: 2, minWidth: '200px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Carga / Equipamento <span style={{color: 'red'}}>*</span></label><input type="text" value={form.carga} onChange={e => setForm({ ...form, carga: e.target.value })} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>)}
-                        {form.tipo === 'meta' && (<div style={{ flex: 2, minWidth: '200px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Meta da Tarefa <span style={{color: 'red'}}>*</span></label><input type="text" value={form.meta} onChange={e => setForm({ ...form, meta: e.target.value })} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1' }} /></div>)}
+                        {form.tipo === 'tempo' && (<div style={{ flex: 1, minWidth: '140px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Duração (Minutos) <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.duracaoMinutos} onChange={e => handleNumeroChange('duracaoMinutos', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>)}
+                        {['repeticao', 'isometria', 'carga'].includes(form.tipo) && (<div style={{ flex: 1, minWidth: '120px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Séries <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.series} onChange={e => handleNumeroChange('series', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>)}
+                        {['repeticao', 'carga'].includes(form.tipo) && (<div style={{ flex: 1, minWidth: '120px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Repetições <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.repeticoes} onChange={e => handleNumeroChange('repeticoes', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>)}
+                        {form.tipo === 'isometria' && (<div style={{ flex: 1, minWidth: '140px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Sustentação (Seg) <span style={{color: 'red'}}>*</span></label><input type="text" inputMode="numeric" value={form.duracaoMinutos} onChange={e => handleNumeroChange('duracaoMinutos', e.target.value)} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>)}
+                        {form.tipo === 'carga' && (<div style={{ flex: 2, minWidth: '200px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Carga / Equipamento <span style={{color: 'red'}}>*</span></label><input type="text" value={form.carga} onChange={e => setForm({ ...form, carga: e.target.value })} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>)}
+                        {form.tipo === 'meta' && (<div style={{ flex: 2, minWidth: '200px' }}><label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Meta da Tarefa <span style={{color: 'red'}}>*</span></label><input type="text" value={form.meta} onChange={e => setForm({ ...form, meta: e.target.value })} style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></div>)}
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.25rem' }}>
-                        <button type="button" onClick={onClose} style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', fontWeight: 'bold', cursor: 'pointer' }}>Cancelar</button>
-                        <button type="submit" disabled={salvando} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem', borderRadius: '8px', border: 'none', backgroundColor: isEdit ? '#2563eb' : form.cor, color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.25rem', flexWrap: 'wrap' }}>
+                        <button type="button" onClick={onClose} style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>Cancelar</button>
+                        <button type="submit" disabled={salvando} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 2rem', borderRadius: '8px', border: 'none', backgroundColor: isEdit ? '#2563eb' : form.cor, color: 'white', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>
                             {isAcervo ? <LibraryBig size={20} /> : null} {salvando ? 'A Processar...' : (isEdit ? 'Salvar Alterações' : 'Salvar Exercício')}
                         </button>
                     </div>

@@ -86,3 +86,24 @@ body.letras-grandes button {
     font-size: 1.3rem;
     padding: 1.1rem 1.4rem;
 }
+
+/* =========================================
+   REPAGINAÇÃO: DESIGN PONTUDO (SQUARE UI)
+   ========================================= */
+
+/* 1. Remove o arredondamento de TODOS os elementos do site (Cartões, Inputs, Modais, Botões, Alertas) */
+* {
+  border-radius: 0 !important;
+}
+
+/* 2. Exceções de UI: Mantém os círculos perfeitos apenas nos locais onde um quadrado "quebraria" a estética 
+      (Avatares de utilizador, Botão de Emergência SOS flutuante e Passos do Cadastro) */
+.aluno-avatar, 
+.profissional-avatar, 
+.prof-avatar-badge, 
+.btn-sos,
+.progress-step,
+.avatar-circulo,
+.atividade-icone {
+  border-radius: 50% !important;
+}
