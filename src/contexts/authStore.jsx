@@ -14,26 +14,31 @@ export function AuthProvider({ children }) {
     });
     const [alertas, setAlertas] = useState([]);
 
-    const login = async (celular, pin) => {
+const login = async (celular, pin) => {
         try {
-            // AQUI ESTÁ O LINK DO SEU BACKEND NO RENDER!
+            // Mostra o que estamos a mandar antes de enviar
+            alert(`Enviando para o Backend:\nCelular: "${celular}"\nPIN: "${pin}"`);
+
             const resposta = await fetch('https://atividade-backend-h5p3.onrender.com/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ celular, pin })
             });
 
+            const dados = await resposta.json();
+
             if (resposta.ok) {
-                const dados = await resposta.json();
                 localStorage.setItem('token', dados.token);
                 localStorage.setItem('usuario', JSON.stringify(dados.usuario));
                 setUsuario(dados.usuario);
                 return true; 
             } else {
+                // MOSTRA NA TELA O MOTIVO REAL DA RECUSA
+                alert(`O Backend recusou com status ${resposta.status}:\n${JSON.stringify(dados)}`);
                 return false; 
             }
         } catch (erro) {
-            console.error("Erro ao comunicar com o servidor:", erro);
+            alert(`Erro ao tentar falar com o Backend:\n${erro.message}`);
             return false;
         }
     };
