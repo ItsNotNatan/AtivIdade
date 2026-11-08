@@ -21,7 +21,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
             const [resP, resH] = await Promise.all([ fetch(`http://localhost:3001/api/prescricoes/${aluno.id}`), fetch(`http://localhost:3001/api/atividades/${aluno.id}`) ]);
             if (resP.ok) {
                 setPrescricoes(await resP.json());
-                setGruposVazios([]); // Limpa ao atualizar
+                setGruposVazios([]); 
             }
             if (resH.ok) setHistorico(await resH.json());
         } catch (err) { console.error(err); }
@@ -50,7 +50,6 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
 
     const condicoesLista = aluno.condicoes ? aluno.condicoes.split(',').map(c => c.trim()).filter(Boolean) : [];
 
-    // Agrupamento Visual dos Exercícios
     const gruposPrescritos = prescricoes.reduce((acc, p) => {
         const nomeGrupo = p.grupo || 'Geral';
         if(!acc[nomeGrupo]) acc[nomeGrupo] = { cor: p.cor || '#059669', dias: p.diasDaSemana || 'Livre', itens: [] };
@@ -67,7 +66,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
                     <h2 style={{ margin: '0 0 0.25rem 0', color: '#0f172a', fontSize: '1.4rem' }}>Ficha de: {aluno.nome}</h2>
-                    <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Idade: {aluno.idade || '?'} anos | Telemóvel: {aluno.telemovel}</span>
+                    <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Idade: {aluno.idade || '?'} anos | Celular: {aluno.celular}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button onClick={() => setAddGrupoAberto(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', padding: '0.65rem 1.25rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}><FolderPlus size={18} /> Criar Grupo</button>
@@ -130,7 +129,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {historico.length > 0 ? historico.slice(0, 5).map(h => (
                             <div key={h.id} style={{ padding: '0.75rem', backgroundColor: '#f8fafc', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div><div style={{ fontWeight: '500', fontSize: '0.9rem' }}>{h.titulo}</div><small style={{ color: '#64748b' }}>{new Date(h.dataCriacao).toLocaleDateString('pt-PT')}</small></div>
+                                <div><div style={{ fontWeight: '500', fontSize: '0.9rem' }}>{h.titulo}</div><small style={{ color: '#64748b' }}>{new Date(h.dataCriacao).toLocaleDateString('pt-BR')}</small></div>
                                 <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '0.2rem 0.5rem', borderRadius: '4px', backgroundColor: h.feedback === 'facil' ? '#dcfce7' : '#fee2e2', color: h.feedback === 'facil' ? '#166534' : '#991b1b' }}>{h.feedback?.toUpperCase()}</span>
                             </div>
                         )) : <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.9rem' }}>Nenhum treino concluído ainda.</p>}

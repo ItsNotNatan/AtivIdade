@@ -12,7 +12,7 @@ export default function Cadastro() {
     const [carregando, setCarregando] = useState(false);
 
     const [dados, setDados] = useState({
-        nome: '', idade: '', telemovel: '', pin: '',
+        nome: '', idade: '', celular: '', pin: '',
         contatoEmergenciaNome: '', contatoEmergenciaTel: '',
         mobilidade: 'Caminho sem ajuda', condicoes: []
     });
@@ -45,7 +45,7 @@ export default function Cadastro() {
             novoValor = novoValor.replace(/\D/g, '');
             if (novoValor !== '' && parseInt(novoValor, 10) > 120) novoValor = '120';
         } 
-        else if (name === 'telemovel' || name === 'contatoEmergenciaTel') novoValor = aplicarMascaraTelefone(novoValor);
+        else if (name === 'celular' || name === 'contatoEmergenciaTel') novoValor = aplicarMascaraTelefone(novoValor);
         else if (name === 'pin') novoValor = novoValor.replace(/\D/g, '').slice(0, 4);
         setDados(prev => ({ ...prev, [name]: novoValor }));
     };
@@ -106,7 +106,7 @@ export default function Cadastro() {
                         <div className="step-content fade-in">
                             <div className="input-group"><label>Como gosta de ser chamado(a)?</label><div className="input-with-icon"><User size={22} className="input-icon" /><input type="text" name="nome" value={dados.nome} onChange={handleChange} placeholder="Seu nome" required className="input-control" /></div></div>
                             <div className="input-group"><label>A sua Idade</label><div className="input-with-icon"><Calendar size={22} className="input-icon" /><input type="text" inputMode="numeric" name="idade" value={dados.idade} onChange={handleChange} placeholder="Ex: 75" required className="input-control" /></div></div>
-                            <div className="input-group"><label>Seu Celular (Será o seu login)</label><div className="input-with-icon"><Phone size={22} className="input-icon" /><input type="tel" inputMode="numeric" name="telemovel" value={dados.telemovel} onChange={handleChange} placeholder="(00) 00000-0000" required className="input-control" /></div></div>
+                            <div className="input-group"><label>Seu Celular (Será o seu login)</label><div className="input-with-icon"><Phone size={22} className="input-icon" /><input type="tel" inputMode="numeric" name="celular" value={dados.celular} onChange={handleChange} placeholder="(00) 00000-0000" required className="input-control" /></div></div>
                             <div className="input-group"><label>Crie um PIN (4 números fáceis)</label><div className="input-with-icon"><Lock size={22} className="input-icon" /><input type="password" inputMode="numeric" maxLength="4" name="pin" value={dados.pin} onChange={handleChange} placeholder="****" required className="input-control" /></div></div>
                         </div>
                     )}
@@ -114,7 +114,7 @@ export default function Cadastro() {
                         <div className="step-content fade-in">
                             <div style={{ backgroundColor: '#fef2f2', padding: '1rem', borderRadius: '1rem', marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                 <AlertCircle color="#ef4444" size={32} />
-                                <p style={{ margin: 0, color: '#991b1b', fontWeight: '500' }}>Isto servirá para o <strong>Botão de SOS</strong> poder avisar alguém de confiança.</p>
+                                <p style={{ margin: 0, color: '#991b1b', fontWeight: '500' }}>Isso servirá para o <strong>Botão de SOS</strong> poder avisar alguém de confiança.</p>
                             </div>
                             <div className="input-group"><label>Nome do Familiar/Amigo</label><input type="text" name="contatoEmergenciaNome" value={dados.contatoEmergenciaNome} onChange={handleChange} placeholder="Ex: João (Filho)" required className="input-control no-icon" /></div>
                             <div className="input-group"><label>Celular do Familiar/Amigo</label><input type="tel" inputMode="numeric" name="contatoEmergenciaTel" value={dados.contatoEmergenciaTel} onChange={handleChange} placeholder="(00) 00000-0000" required className="input-control no-icon" /></div>

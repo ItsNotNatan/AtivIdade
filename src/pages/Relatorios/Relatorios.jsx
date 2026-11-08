@@ -1,48 +1,70 @@
-import React from 'react';
-import { FileText, Printer, HeartPulse } from 'lucide-react';
+// src/pages/Relatorios/Relatorios.jsx
+import React, { useState, useEffect } from 'react';
+import { FileText, Printer, HeartPulse, Activity } from 'lucide-react';
+import { useAuthStore } from '../../contexts/authStore';
 import './Relatorios.css';
 
 export default function Relatorios() {
-    const perfil = {
-        nome: 'Natan',
-        idade: 72,
-        mobilidade: 'Caminho sem ajuda',
-        condicoes: ['Dor nos Joelhos', 'Pressão Alta'],
-        contatoEmergencia: 'João (Filho) - (11) 98888-8888'
-    };
+    const { usuario } = useAuthStore();
+    const [historico, setHistorico] = useState([]);
+    const [carregando, setCarregando] = useState(true);
 
-    const historico = [
-        {
-            id: 1,
-            data: 'Hoje, 09:30',
-            titulo: 'Alongamento Matinal Suave',
-            duracao: '10 min',
-            icone: '🧘‍♀️',
-            feedback: 'Na medida certa',
-            tipoFeedback: 'bom'
-        },
-        {
-            id: 2,
-            data: 'Ontem, 16:00',
-            titulo: 'Exercício Sentado para Braços',
-            duracao: '12 min',
-            icone: '🪑',
-            feedback: 'Foi fácil',
-            tipoFeedback: 'facil'
-        },
-        {
-            id: 3,
-            data: '3 dias atrás, 10:15',
-            titulo: 'Caminhada Leve e Respiração',
-            duracao: '15 min',
-            icone: '🚶',
-            feedback: 'Muito difícil',
-            tipoFeedback: 'dificil'
+    // Busca o histórico real de atividades do banco de dados quando a página carrega
+    useEffect(() => {
+        if (usuario?.id) {
+            buscarHistorico();
         }
-    ];
+    }, [usuario]);
+
+    const buscarHistorico = async () => {
+        setCarregando(true);
+        try {
+            const resposta = await fetch(`http://localhost:3001/api/atividades/${usuario.id}`);
+            if (resposta.ok) {
+                const dados = await resposta.json();
+                setHistorico(dados);
+            }
+        } catch (erro) {
+            console.error("Erro ao buscar histórico de exercícios:", erro);
+        } finally {
+            setCarregando(false);
+        }
+    };
 
     const imprimirRelatorio = () => {
         window.print();
+    };
+
+    // Formata a data e hora retornada pelo SQLite para o padrão brasileiro
+    const formatarData = (dataIso) => {
+        if (!dataIso) return '';
+        const data = new Date(dataIso);
+        return data.toLocaleString('pt-BR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
+
+    // Mapeia o feedback para textos e emojis amigáveis
+    const formatarFeedback = (feedback) => {
+        switch(feedback) {
+            case 'facil': return '😃 Fácil';
+            case 'bom': return '🙂 Na medida';
+            case 'dificil': return '🥵 Muito difícil';
+            default: return '✅ Concluído';
+        }
+    };
+
+    // Prepara os dados do perfil do Idoso a partir da store
+    const perfil = {
+        nome: usuario?.nome || 'Paciente',
+        idade: usuario?.idade || '--',
+        mobilidade: usuario?.mobilidade || 'Não informada',
+        condicoes: usuario?.condicoes ? usuario.condicoes.split(',').map(c => c.trim()).filter(Boolean) : [],
+        contatoEmergencia: `${usuario?.contatoEmergenciaNome || ''} - ${usuario?.contatoEmergenciaTel || ''}`
     };
 
     return (
@@ -55,10 +77,11 @@ export default function Relatorios() {
                     </p>
                 </div>
                 <button onClick={imprimirRelatorio} className="btn-imprimir">
-                    <Printer size={22} /> Imprimir / Guardar em PDF
+                    <Printer size={22} /> Imprimir / PDF
                 </button>
             </header>
 
+            {/* RESUMO CLÍNICO DO PACIENTE */}
             <section className="resumo-medico-card">
                 <div className="resumo-medico-topo">
                     <HeartPulse size={26} strokeWidth={2.5} />
@@ -66,7 +89,7 @@ export default function Relatorios() {
                 </div>
                 
                 <p style={{ margin: '0 0 0.75rem 0', color: '#4b5563', fontSize: '1.05rem' }}>
-                    <strong>Contacto de Emergência:</strong> {perfil.contatoEmergencia}
+                    <strong>Contato de Emergência:</strong> {perfil.contatoEmergencia}
                 </p>
 
                 <div className="resumo-tags">
@@ -77,25 +100,41 @@ export default function Relatorios() {
                 </div>
             </section>
 
-            <h2 className="secao-historico-titulo">Histórico Recente</h2>
+            {/* LISTA DE HISTÓRICO REAL */}
+            <h2 className="secao-historico-titulo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Activity size={24} color="#059669" /> Histórico Recente de Treinos
+            </h2>
+            
             <div className="lista-atividades">
-                {historico.map((item) => (
-                    <article key={item.id} className="atividade-item">
-                        <div className="atividade-info-principal">
-                            <div className="atividade-icone">{item.icone}</div>
-                            <div className="atividade-detalhes">
-                                <h3>{item.titulo}</h3>
-                                <p>{item.data} • {item.duracao}</p>
+                {carregando ? (
+                    <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>Buscando registros...</p>
+                ) : historico.length === 0 ? (
+                    <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '1px dashed #cbd5e1', textAlign: 'center' }}>
+                        <p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>Nenhum exercício registrado ainda. Quando completar um treino, ele aparecerá aqui.</p>
+                    </div>
+                ) : (
+                    historico.map((item) => (
+                        <article key={item.id} className="atividade-item fade-in">
+                            <div className="atividade-info-principal">
+                                <div className="atividade-icone">
+                                    {/* Icone muda com base no tipo de exercício */}
+                                    {item.tipo === 'tempo' || item.tipo === 'isometria' ? '⏳' : 
+                                     item.tipo === 'carga' ? '🏋️' : '🔄'}
+                                </div>
+                                <div className="atividade-detalhes">
+                                    <h3>{item.titulo}</h3>
+                                    <p>{formatarData(item.dataCriacao)} • {item.grupo || 'Exercício'}</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="atividade-status">
-                            <span className={`badge-feedback badge-${item.tipoFeedback}`}>
-                                {item.feedback}
-                            </span>
-                        </div>
-                    </article>
-                ))}
+                            <div className="atividade-status">
+                                <span className={`badge-feedback badge-${item.feedback}`}>
+                                    {formatarFeedback(item.feedback)}
+                                </span>
+                            </div>
+                        </article>
+                    ))
+                )}
             </div>
         </div>
     );

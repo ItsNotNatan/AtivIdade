@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../../components/AlertContext/AlertContext';
-import { PlayCircle, ThumbsUp, AlertTriangle, ClipboardList, CalendarDays, RefreshCw } from 'lucide-react';
+import { PlayCircle, AlertTriangle, ClipboardList, CalendarDays, RefreshCw } from 'lucide-react';
 import { traduzirMusculo } from '../../components/MapaMuscular/MapaMuscular';
 import './Dashboard.css';
 
@@ -79,6 +79,9 @@ export default function Dashboard() {
     }, {});
 
     const gruposDesteDia = Object.entries(todosOsGrupos).filter(([_, dados]) => dados.dias.includes(diaSelecionado) || dados.dias === '');
+    
+    // Identifica todos os dias que possuem exercícios para colocar a bolinha verde
+    const diasComTreino = Object.values(todosOsGrupos).flatMap(g => g.dias.split(',').map(d => d.trim()));
 
     if (!usuario) return null;
 
@@ -96,12 +99,29 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: 'white', padding: '0.5rem', borderRadius: '12px', border: '1px solid #cbd5e1', marginBottom: '1.5rem', overflowX: 'auto' }}>
                 {diasDaSemanaOpcoes.map(dia => {
                     const ativo = dia === diaSelecionado;
-                    return <button key={dia} onClick={() => setDiaSelecionado(dia)} style={{ flex: 1, minWidth: '60px', padding: '0.75rem 0.5rem', border: 'none', borderRadius: '8px', backgroundColor: ativo ? '#059669' : 'transparent', color: ativo ? 'white' : '#4b5563', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>{dia}</button>;
+                    const temTreino = diasComTreino.includes(dia) || diasComTreino.includes(''); // '' = Todos os dias
+                    
+                    return (
+                        <button key={dia} onClick={() => setDiaSelecionado(dia)} style={{ flex: 1, minWidth: '60px', padding: '0.75rem 0.5rem', border: 'none', borderRadius: '8px', backgroundColor: ativo ? '#059669' : 'transparent', color: ativo ? 'white' : '#4b5563', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                            {dia}
+                            {/* Bolinha indicadora de treino */}
+                            {temTreino && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: ativo ? 'white' : '#10b981' }} />}
+                        </button>
+                    );
                 })}
             </div>
             
             {gruposDesteDia.length === 0 ? (
-                <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '12px', border: '1px dashed #cbd5e1', textAlign: 'center', marginBottom: '2rem' }}><p style={{ color: '#64748b', fontSize: '1.1rem', margin: 0 }}>Parabéns! Você não tem exercícios agendados para <strong>{diaSelecionado === diaAtualCurto ? 'hoje' : 'este dia'}</strong>. Descanse!</p></div>
+                <div style={{ backgroundColor: 'white', padding: '2.5rem 1.5rem', borderRadius: '12px', border: '1px dashed #cbd5e1', textAlign: 'center', marginBottom: '2rem' }}>
+                    <p style={{ color: '#64748b', fontSize: '1.15rem', margin: '0 0 1rem 0' }}>
+                        Parabéns! Você não tem exercícios agendados para <strong>{diaSelecionado === diaAtualCurto ? 'hoje' : 'este dia'}</strong>.
+                    </p>
+                    {diasComTreino.filter(d => d !== '').length > 0 && (
+                        <div style={{ display: 'inline-block', backgroundColor: '#f0fdf4', padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid #bbf7d0', color: '#15803d', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            💡 Clique nas bolinhas verdes acima! Você tem treinos em: {Array.from(new Set(diasComTreino.filter(d => d !== ''))).join(', ')}
+                        </div>
+                    )}
+                </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2.5rem' }}>
                     {gruposDesteDia.map(([nomeGrupo, dadosGrupo]) => (

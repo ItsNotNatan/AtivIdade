@@ -11,12 +11,11 @@ export default function Equipa() {
     const [modalAberto, setModalAberto] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
-    // Adicionados campos novos
-    const [form, setForm] = useState({ nome: '', especialidade: '', registoProfissional: '', biografia: '', telemovel: '', pin: '' });
+    const [form, setForm] = useState({ nome: '', especialidade: '', registroProfissional: '', biografia: '', celular: '', pin: '' });
 
-    useEffect(() => { carregarEquipa(); }, []);
+    useEffect(() => { carregarEquipe(); }, []);
 
-    const carregarEquipa = async () => {
+    const carregarEquipe = async () => {
         try {
             const res = await fetch('http://localhost:3001/api/profissionais');
             if (res.ok) setProfissionais(await res.json());
@@ -34,8 +33,8 @@ export default function Equipa() {
             if (res.ok) {
                 showAlert('Profissional adicionado à equipe com sucesso!', 'sucesso');
                 setModalAberto(false);
-                setForm({ nome: '', especialidade: '', registoProfissional: '', biografia: '', telemovel: '', pin: '' });
-                carregarEquipa();
+                setForm({ nome: '', especialidade: '', registroProfissional: '', biografia: '', celular: '', pin: '' });
+                carregarEquipe();
             } else {
                 const erro = await res.json();
                 showAlert(erro.erro || 'Falha ao registrar profissional.', 'erro');
@@ -51,7 +50,7 @@ export default function Equipa() {
             const res = await fetch(`http://localhost:3001/api/profissionais/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 showAlert('Profissional removido com sucesso!', 'sucesso');
-                carregarEquipa();
+                carregarEquipe();
             }
         } catch (error) { console.error(error); }
     };
@@ -61,7 +60,7 @@ export default function Equipa() {
             <header className="equipa-header">
                 <div>
                     <h1 className="equipa-title">Corpo Clínico & Instrutores</h1>
-                    <p className="equipa-subtitle">Faça a gestão dos profissionais com acesso ao sistema.</p>
+                    <p className="equipa-subtitle">Gerencie os profissionais com acesso ao sistema.</p>
                 </div>
                 <button onClick={() => setModalAberto(true)} className="btn-adicionar">
                     <UserPlus size={20} /> Registrar Profissional
@@ -76,11 +75,10 @@ export default function Equipa() {
                                 <div className="profissional-avatar">{prof.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0)}</div>
                                 <div className="profissional-info">
                                     <h3>{prof.nome}</h3>
-                                    <p>{prof.especialidade || 'Fisioterapeuta'} {prof.registoProfissional ? `| ${prof.registoProfissional}` : ''}</p>
+                                    <p>{prof.especialidade || 'Fisioterapeuta'} {prof.registroProfissional ? `| ${prof.registroProfissional}` : ''}</p>
                                 </div>
                             </div>
                             
-                            {/* Nova secção de biografia no Cartão */}
                             {prof.biografia && (
                                 <div className="profissional-bio">
                                     "{prof.biografia}"
@@ -89,7 +87,7 @@ export default function Equipa() {
 
                             <div className="profissional-detalhes">
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Briefcase size={16} color="#059669" /><span>Conta Ativa no Sistema</span></div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Phone size={16} color="#6b7280" /><span>{prof.telemovel}</span></div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Phone size={16} color="#6b7280" /><span>{prof.celular}</span></div>
                             </div>
                         </div>
                         <div className="profissional-acoes">
@@ -123,7 +121,7 @@ export default function Equipa() {
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                 <div style={{ flex: 1, minWidth: '200px' }}>
                                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}><BadgeInfo size={16} color="#059669"/> Registro (CREFITO)</label>
-                                    <input type="text" value={form.registoProfissional} onChange={e => setForm({...form, registoProfissional: e.target.value})} placeholder="Ex: CREFITO 12345-F" required style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                                    <input type="text" value={form.registroProfissional} onChange={e => setForm({...form, registroProfissional: e.target.value})} placeholder="Ex: CREFITO-3/123456-F" required style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
                                 </div>
                             </div>
 
@@ -137,7 +135,7 @@ export default function Equipa() {
                             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                                 <div style={{ flex: 1, minWidth: '200px' }}>
                                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>Celular (Login)</label>
-                                    <input type="tel" inputMode="numeric" value={form.telemovel} onChange={(e) => setForm({ ...form, telemovel: formatarTelefone(e.target.value) })} placeholder="(00) 00000-0000" required style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
+                                    <input type="tel" inputMode="numeric" value={form.celular} onChange={(e) => setForm({ ...form, celular: formatarTelefone(e.target.value) })} placeholder="(00) 00000-0000" required style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }} />
                                 </div>
                                 <div style={{ flex: 1, minWidth: '150px' }}>
                                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.35rem' }}>PIN de Acesso</label>

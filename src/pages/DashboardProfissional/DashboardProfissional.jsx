@@ -27,8 +27,11 @@ export default function DashboardProfissional() {
     const [modalAcervoAberto, setModalAcervoAberto] = useState(false);
 
     useEffect(() => {
-        if (!usuario || usuario.tipo !== 'profissional') navigate('/login');
-        else carregarDados();
+        if (!usuario || usuario.tipo !== 'profissional') {
+            navigate('/login');
+        } else {
+            carregarDados();
+        }
     }, [usuario, navigate]);
 
     const carregarDados = async () => {
@@ -76,7 +79,7 @@ export default function DashboardProfissional() {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuarioId: idAluno }) 
             });
             if (res.ok) {
-                showAlert('Aluno adicionado à turma!', 'sucesso');
+                showAlert('Paciente adicionado à turma!', 'sucesso');
                 carregarDados();
             }
         } catch (err) { showAlert('Erro ao adicionar.', 'erro'); }
@@ -87,10 +90,10 @@ export default function DashboardProfissional() {
         try {
             const res = await fetch(`http://localhost:3001/api/turmas/${turmaSelecionada.id}/alunos/${idAluno}`, { method: 'DELETE' });
             if (res.ok) {
-                showAlert('Aluno removido da turma.', 'sucesso');
+                showAlert('Paciente removido da turma.', 'sucesso');
                 carregarDados();
             }
-        } catch (err) { showAlert('Erro ao remover aluno.', 'erro'); }
+        } catch (err) { showAlert('Erro ao remover paciente.', 'erro'); }
     };
 
     const resolverAlerta = async (id) => {
@@ -107,25 +110,38 @@ export default function DashboardProfissional() {
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
             <div style={{ marginBottom: '2rem', backgroundColor: '#eff6ff', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                <div><h1 style={{ margin: '0 0 0.5rem 0', color: '#1e3a8a', fontSize: '2rem' }}>Olá, {usuario.nome}</h1><p style={{ margin: 0, color: '#1d4ed8', fontSize: '1.1rem' }}>Gestão de Turmas e Prescrição</p></div>
-                <button onClick={() => setModalAcervoAberto(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'white', color: '#059669', border: '2px solid #059669', padding: '0.75rem 1.25rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}><Library size={20} /> O Meu Acervo</button>
+                <div>
+                    <h1 style={{ margin: '0 0 0.5rem 0', color: '#1e3a8a', fontSize: '2rem' }}>Olá, {usuario.nome}</h1>
+                    <p style={{ margin: 0, color: '#1d4ed8', fontSize: '1.1rem' }}>Gestão de Turmas e Prescrição</p>
+                </div>
+                <button onClick={() => setModalAcervoAberto(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'white', color: '#059669', border: '2px solid #059669', padding: '0.75rem 1.25rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>
+                    <Library size={20} /> Meu Acervo
+                </button>
             </div>
 
             {alertas.length > 0 && (
                 <div style={{ backgroundColor: '#fef2f2', border: '2px solid #ef4444', padding: '1.25rem', borderRadius: '12px', marginBottom: '2rem' }}>
-                    <h3 style={{ marginTop: 0, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><AlertTriangle size={22} /> Alertas ({alertas.length})</h3>
+                    <h3 style={{ marginTop: 0, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><AlertTriangle size={22} /> Alertas de Pacientes ({alertas.length})</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {alertas.map(alerta => (
                             <div key={alerta.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '0.85rem', borderRadius: '8px' }}>
                                 <div><strong style={{ color: '#b91c1c' }}>{alerta.utenteNome}</strong><p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem' }}>{alerta.mensagem}</p></div>
-                                <button onClick={() => resolverAlerta(alerta.id)} style={{ padding: '0.5rem 1rem', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}><CheckCircle size={16} /> Feito</button>
+                                <button onClick={() => resolverAlerta(alerta.id)} style={{ padding: '0.5rem 1rem', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <CheckCircle size={16} /> Feito
+                                </button>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
 
-            <CardsTurmas turmas={turmas} turmaSelecionada={turmaSelecionada} onSelecionarTurma={(t) => { setTurmaSelecionada(t); setAlunoSelecionado(null); }} onCriarTurma={handleCriarTurma} onDeletarTurma={handleDeletarTurma} />
+            <CardsTurmas 
+                turmas={turmas} 
+                turmaSelecionada={turmaSelecionada} 
+                onSelecionarTurma={(t) => { setTurmaSelecionada(t); setAlunoSelecionado(null); }} 
+                onCriarTurma={handleCriarTurma} 
+                onDeletarTurma={handleDeletarTurma} 
+            />
 
             {turmaSelecionada && (
                 <ListaAlunosTurma 
@@ -147,9 +163,21 @@ export default function DashboardProfissional() {
                 />
             )}
 
-            {modalAcervoAberto && <ModalAcervo alvoPrescricao={modalAcervoAberto} onClose={() => { setModalAcervoAberto(false); carregarDados(); }} />}
+            {/* MODAL DO ACERVO */}
+            {modalAcervoAberto && (
+                <ModalAcervo 
+                    alvoPrescricao={modalAcervoAberto} 
+                    onClose={() => { 
+                        setModalAcervoAberto(false); 
+                        carregarDados(); 
+                        if (alunoSelecionado) {
+                            setAlunoSelecionado({ ...alunoSelecionado });
+                        }
+                    }} 
+                />
+            )}
             
-            {/* O SEGREDO ESTÁ AQUI: FORÇAR A ATUALIZAÇÃO DO ALUNO APÓS SALVAR */}
+            {/* MODAL DE PRESCRIÇÃO INDIVIDUAL / CRIAÇÃO DE EXERCÍCIO */}
             {modalAlvo && (
                 <FormPrescricaoModal 
                     alvo={modalAlvo} 
@@ -163,18 +191,19 @@ export default function DashboardProfissional() {
                 />
             )}
             
+            {/* MODAL DE ADICIONAR PACIENTE À TURMA */}
             {modalAddAlunoAberto && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
                     <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '14px', width: '100%', maxWidth: '500px', padding: '2rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b' }}>Adicionar Utente à Turma</h2>
+                            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b' }}>Adicionar Paciente à Turma</h2>
                             <button onClick={() => setModalAddAlunoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={24} /></button>
                         </div>
-                        <p style={{ color: '#4b5563', marginBottom: '1rem', fontSize: '0.95rem' }}>Estes utentes não estão na turma <strong>{turmaSelecionada.nome}</strong>. Se os adicionar, eles farão parte de múltiplas turmas em simultâneo.</p>
+                        <p style={{ color: '#4b5563', marginBottom: '1rem', fontSize: '0.95rem' }}>Estes pacientes não estão na turma <strong>{turmaSelecionada.nome}</strong>. Se os adicionar, eles farão parte de múltiplas turmas simultaneamente.</p>
                         
                         <div style={{ maxHeight: '350px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingRight: '0.5rem' }}>
                             {utentesDisponiveis.length === 0 ? (
-                                <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '2rem 0' }}>Não há outros utentes disponíveis no sistema.</p>
+                                <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '2rem 0' }}>Não há outros pacientes disponíveis no sistema.</p>
                             ) : (
                                 utentesDisponiveis.map(u => (
                                     <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#f8fafc' }}>

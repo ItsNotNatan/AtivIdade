@@ -1,10 +1,9 @@
 // src/contexts/authStore.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    // 1. Recupera o utilizador do armazenamento local ao recarregar a página
     const [usuario, setUsuario] = useState(() => {
         try {
             const usuarioSalvo = localStorage.getItem('usuario');
@@ -13,21 +12,18 @@ export function AuthProvider({ children }) {
             return null;
         }
     });
-
     const [alertas, setAlertas] = useState([]);
 
-    const login = async (telemovel, pin) => {
+    const login = async (celular, pin) => {
         try {
             const resposta = await fetch('http://localhost:3001/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ telemovel, pin })
+                body: JSON.stringify({ celular, pin })
             });
 
             if (resposta.ok) {
                 const dados = await resposta.json();
-                
-                // 2. Guarda o token e o perfil completo no navegador
                 localStorage.setItem('token', dados.token);
                 localStorage.setItem('usuario', JSON.stringify(dados.usuario));
                 setUsuario(dados.usuario);

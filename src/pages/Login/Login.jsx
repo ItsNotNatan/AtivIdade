@@ -7,7 +7,7 @@ import { formatarTelefone } from '../../utils/formatadores';
 import './Login.css';
 
 export default function Login() {
-    const [telemovel, setTelemovel] = useState('');
+    const [celular, setCelular] = useState('');
     const [pin, setPin] = useState('');
     const [erro, setErro] = useState('');
     const [carregando, setCarregando] = useState(false);
@@ -16,7 +16,7 @@ export default function Login() {
     const { login } = useAuthStore();
 
     const handleTelefoneChange = (e) => {
-        setTelemovel(formatarTelefone(e.target.value));
+        setCelular(formatarTelefone(e.target.value));
     };
 
     const handlePinChange = (e) => {
@@ -30,23 +30,12 @@ export default function Login() {
         setCarregando(true);
 
         try {
-            const resposta = await fetch('http://localhost:3001/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ telemovel, pin })
-            });
-
-            if (resposta.ok) {
-                const dados = await resposta.json();
-                await login(telemovel, pin);
-
-                if (dados.usuario.tipo === 'profissional') {
-                    navigate('/dashboard-profissional');
-                } else if (dados.usuario.tipo === 'gestor') {
-                    navigate('/dashboard-gestor');
-                } else {
-                    navigate('/dashboard'); 
-                }
+            const sucesso = await login(celular, pin);
+            if (sucesso) {
+                const tipo = JSON.parse(localStorage.getItem('usuario')).tipo;
+                if (tipo === 'profissional') navigate('/dashboard-profissional');
+                else if (tipo === 'gestor') navigate('/dashboard-gestor');
+                else navigate('/dashboard'); 
             } else {
                 setErro('Credenciais inválidas. Verifique os dados digitados.');
             }
@@ -83,7 +72,7 @@ export default function Login() {
                             <input 
                                 type="tel" 
                                 inputMode="numeric"
-                                value={telemovel} 
+                                value={celular} 
                                 onChange={handleTelefoneChange} 
                                 placeholder="(00) 00000-0000" 
                                 required 

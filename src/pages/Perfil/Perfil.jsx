@@ -15,10 +15,10 @@ export default function Perfil() {
     const { usuario, atualizarUsuario } = useAuthStore();
     const navigate = useNavigate();
     const { showAlert } = useAlert();
-    const [isEditing, setIsEditing] = useState(false);
+    
+    const [modalEditarAberto, setModalEditarAberto] = useState(false);
     const [carregando, setCarregando] = useState(false);
 
-    // Se não houver utilizador autenticado, redireciona para a autenticação
     useEffect(() => {
         if (!usuario) {
             navigate('/login');
@@ -36,7 +36,7 @@ export default function Perfil() {
         celular: '',
         email: '',
         especialidade: '',
-        registoProfissional: '',
+        registroProfissional: '',
         formacao: '',
         biografia: '',
         pin: '',
@@ -63,10 +63,10 @@ export default function Perfil() {
         if (usuario) {
             setForm({
                 nome: usuario.nome || '',
-                celular: usuario.telemovel || '',
+                celular: usuario.celular || '',
                 email: usuario.email || '',
                 especialidade: usuario.especialidade || '',
-                registoProfissional: usuario.registoProfissional || '',
+                registroProfissional: usuario.registroProfissional || '',
                 formacao: usuario.formacao || '',
                 biografia: usuario.biografia || '',
                 pin: '',
@@ -110,7 +110,7 @@ export default function Perfil() {
                 totalAcervo: acervoCount
             });
         } catch (error) {
-            console.error("Erro ao carregar métricas:", error);
+            console.error("Erro ao carregar métricas do profissional:", error);
         }
     };
 
@@ -138,10 +138,10 @@ export default function Perfil() {
         try {
             const payload = {
                 nome: form.nome.trim(),
-                telemovel: form.celular.trim(),
+                celular: form.celular.trim(),
                 email: form.email.trim(),
                 especialidade: form.especialidade.trim(),
-                registoProfissional: form.registoProfissional.trim(),
+                registroProfissional: form.registroProfissional.trim(),
                 formacao: form.formacao.trim(),
                 biografia: form.biografia.trim(),
                 pin: form.pin ? form.pin : undefined,
@@ -158,8 +158,8 @@ export default function Perfil() {
             if (res.ok) {
                 const data = await res.json();
                 atualizarUsuario(data.usuario);
-                showAlert('Perfil atualizado com sucesso!', 'sucesso');
-                setIsEditing(false);
+                showAlert('Informações profissionais atualizadas com sucesso!', 'sucesso');
+                setModalEditarAberto(false);
             } else {
                 const err = await res.json();
                 showAlert(err.erro || 'Erro ao atualizar dados.', 'erro');
@@ -171,9 +171,7 @@ export default function Perfil() {
         }
     };
 
-    if (!usuario) {
-        return null;
-    }
+    if (!usuario) return null;
 
     const isProf = usuario.tipo === 'profissional';
 
@@ -181,6 +179,7 @@ export default function Perfil() {
         <div className="perfil-layout fade-in">
             {isProf ? (
                 <div className="perfil-prof-container">
+                    
                     <div className="prof-hero-card">
                         <div className="prof-avatar-badge">
                             {form.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0) || 'F'}
@@ -189,20 +188,20 @@ export default function Perfil() {
                             <div className="prof-title-row">
                                 <h1>{form.nome || 'Fisioterapeuta'}</h1>
                                 <span className="badge-registro">
-                                    <BadgeCheck size={18} /> {form.registoProfissional || 'CREFITO Não informado'}
+                                    <BadgeCheck size={18} /> {form.registroProfissional || 'CREFITO Pendente'}
                                 </span>
                             </div>
                             <p className="prof-especialidade-sub">
-                                <Stethoscope size={18} color="#2563eb" /> {form.especialidade || 'Fisioterapia Geriátrica'}
+                                <Stethoscope size={18} color="#2563eb" /> {form.especialidade || 'Fisioterapia Geriátrica e Gerontologia'}
                             </p>
                             <div className="prof-contact-pills">
                                 <span><Phone size={15} /> {form.celular}</span>
                                 {form.email && <span><Mail size={15} /> {form.email}</span>}
                             </div>
                         </div>
-                        <button onClick={() => setIsEditing(!isEditing)} className="btn-edit-toggle">
-                            {isEditing ? <X size={20} /> : <Edit3 size={20} />}
-                            {isEditing ? 'Cancelar' : 'Editar Ficha'}
+
+                        <button onClick={() => setModalEditarAberto(true)} className="btn-edit-toggle">
+                            <Edit3 size={18} /> Editar Ficha Profissional
                         </button>
                     </div>
 
@@ -213,7 +212,7 @@ export default function Perfil() {
                             </div>
                             <div>
                                 <h3>{statsProfissional.totalAlunos}</h3>
-                                <p>Idosos Acompanhados</p>
+                                <p>Idosos Sob Seus Cuidados</p>
                             </div>
                         </div>
 
@@ -223,7 +222,7 @@ export default function Perfil() {
                             </div>
                             <div>
                                 <h3>{statsProfissional.totalTurmas}</h3>
-                                <p>Turmas Sob Gestão</p>
+                                <p>Turmas Ativas</p>
                             </div>
                         </div>
 
@@ -233,90 +232,159 @@ export default function Perfil() {
                             </div>
                             <div>
                                 <h3>{statsProfissional.totalAcervo}</h3>
-                                <p>Exercícios no Acervo</p>
+                                <p>Modelos no Acervo</p>
                             </div>
                         </div>
                     </div>
 
-                    {!isEditing ? (
-                        <div className="prof-details-view fade-in">
-                            <div className="prof-section-card">
-                                <h2><GraduationCap size={22} color="#2563eb" /> Formação & Titulações</h2>
-                                <p className="section-content-text">
-                                    {form.formacao || 'Nenhuma formação detalhada registada. Clique em "Editar Ficha" para adicionar.'}
-                                </p>
-                            </div>
+                    <div className="prof-details-view fade-in">
+                        <div className="prof-section-card">
+                            <h2><GraduationCap size={22} color="#2563eb" /> Formação Acadêmica & Titulações</h2>
+                            <p className="section-content-text">
+                                {form.formacao || 'Nenhuma formação registrada. Clique no botão de edição acima para adicionar suas titulações e cursos.'}
+                            </p>
+                        </div>
 
-                            <div className="prof-section-card">
-                                <h2><FileText size={22} color="#2563eb" /> Apresentação & Abordagem Terapêutica</h2>
-                                <p className="section-content-text">
-                                    {form.biografia || 'Sem biografia registada no momento.'}
-                                </p>
-                            </div>
+                        <div className="prof-section-card">
+                            <h2><FileText size={22} color="#2563eb" /> Abordagem Terapêutica & Especialidades</h2>
+                            <p className="section-content-text">
+                                {form.biografia || 'Nenhuma descrição adicionada. Informe seu método de tratamento focado na terceira idade para que a equipe e famílias conheçam sua prática.'}
+                            </p>
+                        </div>
 
-                            <div className="prof-section-card">
-                                <h2><Lock size={22} color="#2563eb" /> Segurança da Conta</h2>
-                                <p className="section-content-text" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <CheckCircle2 size={18} color="#059669" /> PIN de segurança ativo. Celular registado: <strong>{form.celular}</strong>
-                                </p>
+                        <div className="prof-section-card">
+                            <h2><Lock size={22} color="#2563eb" /> Acesso & Segurança</h2>
+                            <p className="section-content-text" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <CheckCircle2 size={18} color="#059669" /> Acesso autenticado via Celular (<strong>{form.celular}</strong>) e PIN pessoal de 4 dígitos.
+                            </p>
+                        </div>
+                    </div>
+
+                    {modalEditarAberto && (
+                        <div className="modal-backdrop">
+                            <div className="modal-content-card fade-in">
+                                
+                                <div className="modal-header">
+                                    <div>
+                                        <h2>Editar Ficha do Profissional</h2>
+                                        <p>Atualize suas credenciais, contatos e informações clínicas de atendimento.</p>
+                                    </div>
+                                    <button onClick={() => setModalEditarAberto(false)} className="btn-modal-close">
+                                        <X size={22} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleSubmit} className="modal-form-body">
+                                    <div className="form-grid-2">
+                                        <div className="form-group">
+                                            <label>Nome Completo (Identificação Clínica)</label>
+                                            <input 
+                                                type="text" 
+                                                name="nome" 
+                                                value={form.nome} 
+                                                onChange={handleChange} 
+                                                required 
+                                                placeholder="Ex: Dra. Camila Rocha"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Celular de Acesso</label>
+                                            <input 
+                                                type="tel" 
+                                                inputMode="numeric" 
+                                                name="celular" 
+                                                value={form.celular} 
+                                                onChange={handleChange} 
+                                                required 
+                                                placeholder="(00) 00000-0000"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid-2">
+                                        <div className="form-group">
+                                            <label>Especialidade Principal</label>
+                                            <input 
+                                                type="text" 
+                                                name="especialidade" 
+                                                value={form.especialidade} 
+                                                onChange={handleChange} 
+                                                required 
+                                                placeholder="Ex: Fisioterapia Geriátrica"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Registro Profissional (CREFITO)</label>
+                                            <input 
+                                                type="text" 
+                                                name="registroProfissional" 
+                                                value={form.registroProfissional} 
+                                                onChange={handleChange} 
+                                                required 
+                                                placeholder="Ex: CREFITO-3/123456-F"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid-2">
+                                        <div className="form-group">
+                                            <label>E-mail Institucional / Contato</label>
+                                            <input 
+                                                type="email" 
+                                                name="email" 
+                                                value={form.email} 
+                                                onChange={handleChange} 
+                                                placeholder="profissional@instituicao.com.br"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Novo PIN de 4 Dígitos (Opcional)</label>
+                                            <input 
+                                                type="password" 
+                                                inputMode="numeric" 
+                                                maxLength="4" 
+                                                name="pin" 
+                                                value={form.pin} 
+                                                onChange={handleChange} 
+                                                placeholder="Deixe em branco para manter"
+                                                style={{ letterSpacing: '0.25rem' }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Formação Acadêmica, Pós e Cursos de Extensão</label>
+                                        <textarea 
+                                            name="formacao" 
+                                            rows="2" 
+                                            value={form.formacao} 
+                                            onChange={handleChange} 
+                                            placeholder="Ex: Graduação em Fisioterapia (USP), Especialização em Gerontologia..."
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Apresentação / Abordagem Terapêutica com Idosos</label>
+                                        <textarea 
+                                            name="biografia" 
+                                            rows="3" 
+                                            value={form.biografia} 
+                                            onChange={handleChange} 
+                                            placeholder="Descreva seu método de trabalho: foco em prevenção de quedas..."
+                                        />
+                                    </div>
+
+                                    <div className="modal-actions-footer">
+                                        <button type="button" onClick={() => setModalEditarAberto(false)} className="btn-modal-cancel">
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" disabled={carregando} className="btn-modal-save">
+                                            <Save size={18} /> {carregando ? 'Salvando...' : 'Salvar Alterações'}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    ) : (
-                        <form onSubmit={handleSubmit} className="prof-edit-form fade-in">
-                            <h2>Editar Dados do Fisioterapeuta</h2>
-
-                            <div className="form-grid-2">
-                                <div className="form-group">
-                                    <label>Nome Completo</label>
-                                    <input type="text" name="nome" value={form.nome} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label>Celular de Acesso</label>
-                                    <input type="tel" inputMode="numeric" name="celular" value={form.celular} onChange={handleChange} required />
-                                </div>
-                            </div>
-
-                            <div className="form-grid-2">
-                                <div className="form-group">
-                                    <label>Especialidade Clínica</label>
-                                    <input type="text" name="especialidade" value={form.especialidade} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label>Registo Profissional (CREFITO)</label>
-                                    <input type="text" name="registoProfissional" value={form.registoProfissional} onChange={handleChange} required />
-                                </div>
-                            </div>
-
-                            <div className="form-grid-2">
-                                <div className="form-group">
-                                    <label>E-mail Profissional</label>
-                                    <input type="email" name="email" value={form.email} onChange={handleChange} />
-                                </div>
-                                <div className="form-group">
-                                    <label>Novo PIN (opcional, 4 dígitos)</label>
-                                    <input type="password" inputMode="numeric" maxLength="4" name="pin" placeholder="****" value={form.pin} onChange={handleChange} />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Formação Académica</label>
-                                <textarea name="formacao" rows="2" value={form.formacao} onChange={handleChange}></textarea>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Biografia & Abordagem com Idosos</label>
-                                <textarea name="biografia" rows="3" value={form.biografia} onChange={handleChange}></textarea>
-                            </div>
-
-                            <div className="form-actions-bar">
-                                <button type="button" onClick={() => setIsEditing(false)} className="btn-cancel">
-                                    Cancelar
-                                </button>
-                                <button type="submit" disabled={carregando} className="btn-save">
-                                    <Save size={20} /> {carregando ? 'A guardar...' : 'Guardar Alterações'}
-                                </button>
-                            </div>
-                        </form>
                     )}
                 </div>
             ) : (
@@ -336,7 +404,7 @@ export default function Perfil() {
 
                         <div style={{ marginBottom: '1.5rem' }}>
                             <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', margin: '0 0 0.5rem 0' }}>
-                                <HeartHandshake size={18} /> Condições de Saúde:
+                                <HeartHandshake size={18} /> Condições de Saúde Cadastradas:
                             </h4>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                                 {form.condicoes.length > 0 ? (
@@ -346,7 +414,7 @@ export default function Perfil() {
                                         </span>
                                     ))
                                 ) : (
-                                    <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Nenhuma restrição registada.</span>
+                                    <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Nenhuma restrição registrada.</span>
                                 )}
                             </div>
                         </div>
