@@ -1,5 +1,6 @@
 // src/contexts/authStore.jsx
 import React, { createContext, useContext, useState } from 'react';
+import { supabase } from '../services/supabase';
 
 const AuthContext = createContext();
 
@@ -16,30 +17,32 @@ export function AuthProvider({ children }) {
 
     const login = async (celular, pin) => {
         try {
-            const resposta = await fetch('http://localhost:3001/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ celular, pin })
-            });
+            // Consulta direta ao Supabase
+            const { data, error } = await supabase
+                .from('User')
+                .select('*')
+                .eq('celular', celular)
+                .eq('pin', pin)
+                .single();
 
-            if (resposta.ok) {
-                const dados = await resposta.json();
-                localStorage.setItem('token', dados.token);
-                localStorage.setItem('usuario', JSON.stringify(dados.usuario));
-                setUsuario(dados.usuario);
-                return true; 
-            } else {
+            if (error || !data) {
+                console.error("Erro no login:", error);
                 return false; 
             }
+
+            // Login com sucesso
+            localStorage.setItem('usuario', JSON.stringify(data));
+            setUsuario(data);
+            return true; 
+            
         } catch (erro) {
-            console.error("Erro ao comunicar com o servidor:", erro);
+            console.error("Erro inesperado:", erro);
             return false;
         }
     };
 
     const logout = () => {
         setUsuario(null);
-        localStorage.removeItem('token');
         localStorage.removeItem('usuario');
     };
 
@@ -51,24 +54,8 @@ export function AuthProvider({ children }) {
         });
     };
 
-    const adicionarAlerta = (tipo, mensagem) => {
-        const novo = {
-            id: Date.now(),
-            alunoNome: usuario?.nome || 'Utilizador',
-            tipo,
-            mensagem,
-            hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            contatoTel: '11988888888'
-        };
-        setAlertas(prev => [novo, ...prev]);
-    };
-
-    const resolverAlerta = (id) => {
-        setAlertas(prev => prev.filter(alerta => alerta.id !== id));
-    };
-
     return (
-        <AuthContext.Provider value={{ usuario, login, logout, atualizarUsuario, alertas, adicionarAlerta, resolverAlerta }}>
+        <AuthContext.Provider value={{ usuario, login, logout, atualizarUsuario, alertas }}>
             {children}
         </AuthContext.Provider>
     );
