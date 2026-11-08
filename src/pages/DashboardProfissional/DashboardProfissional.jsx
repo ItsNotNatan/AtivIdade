@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../contexts/authStore';
 import { AlertTriangle, CheckCircle, X, UserPlus, Library } from 'lucide-react';
 import { useAlert } from '../../components/AlertContext/AlertContext';
+import { API_URL } from '../../config'; // <-- ADICIONADO AQUI
 
 import CardsTurmas from '../../components/Profissional/CardsTurmas';
 import ListaAlunosTurma from '../../components/Profissional/ListaAlunosTurma';
@@ -37,9 +38,9 @@ export default function DashboardProfissional() {
     const carregarDados = async () => {
         try {
             const [resTurmas, resAlertas, resUtentes] = await Promise.all([
-                fetch('http://localhost:3001/api/turmas'),
-                fetch('http://localhost:3001/api/alertas/pendentes'),
-                fetch('http://localhost:3001/api/utentes')
+                fetch(`${API_URL}/api/turmas`), // <-- CORRIGIDO AQUI
+                fetch(`${API_URL}/api/alertas/pendentes`), // <-- CORRIGIDO AQUI
+                fetch(`${API_URL}/api/utentes`) // <-- CORRIGIDO AQUI
             ]);
             
             if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
@@ -56,7 +57,11 @@ export default function DashboardProfissional() {
 
     const handleCriarTurma = async (novaTurma) => {
         try {
-            const res = await fetch('http://localhost:3001/api/turmas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(novaTurma) });
+            const res = await fetch(`${API_URL}/api/turmas`, { // <-- CORRIGIDO AQUI
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(novaTurma) 
+            });
             if (res.ok) { showAlert('Turma criada com sucesso!', 'sucesso'); carregarDados(); }
         } catch (err) { showAlert('Erro de comunicação.', 'erro'); }
     };
@@ -64,7 +69,7 @@ export default function DashboardProfissional() {
     const handleDeletarTurma = async (idTurma, nomeTurma) => {
         if (!await showConfirm(`Apagar a turma "${nomeTurma}"? Os alunos não serão apagados.`)) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/turmas/${idTurma}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/api/turmas/${idTurma}`, { method: 'DELETE' }); // <-- CORRIGIDO AQUI
             if (res.ok) {
                 if (turmaSelecionada?.id === idTurma) setTurmaSelecionada(null);
                 showAlert('Turma apagada.', 'info');
@@ -75,8 +80,10 @@ export default function DashboardProfissional() {
 
     const handleAdicionarAlunoTurma = async (idAluno) => {
         try {
-            const res = await fetch(`http://localhost:3001/api/turmas/${turmaSelecionada.id}/alunos`, { 
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuarioId: idAluno }) 
+            const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos`, { // <-- CORRIGIDO AQUI
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ usuarioId: idAluno }) 
             });
             if (res.ok) {
                 showAlert('Paciente adicionado à turma!', 'sucesso');
@@ -88,7 +95,7 @@ export default function DashboardProfissional() {
     const handleRemoverAlunoTurma = async (idAluno, nomeAluno) => {
         if (!await showConfirm(`Remover ${nomeAluno} da turma ${turmaSelecionada.nome}?`)) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/turmas/${turmaSelecionada.id}/alunos/${idAluno}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos/${idAluno}`, { method: 'DELETE' }); // <-- CORRIGIDO AQUI
             if (res.ok) {
                 showAlert('Paciente removido da turma.', 'sucesso');
                 carregarDados();
@@ -98,7 +105,7 @@ export default function DashboardProfissional() {
 
     const resolverAlerta = async (id) => {
         try {
-            const res = await fetch(`http://localhost:3001/api/alertas/${id}/resolver`, { method: 'PUT' });
+            const res = await fetch(`${API_URL}/api/alertas/${id}/resolver`, { method: 'PUT' }); // <-- CORRIGIDO AQUI
             if (res.ok) { showAlert('Alerta resolvido!', 'sucesso'); carregarDados(); }
         } catch (err) { console.error(err); }
     };
@@ -163,7 +170,6 @@ export default function DashboardProfissional() {
                 />
             )}
 
-            {/* MODAL DO ACERVO */}
             {modalAcervoAberto && (
                 <ModalAcervo 
                     alvoPrescricao={modalAcervoAberto} 
@@ -177,7 +183,6 @@ export default function DashboardProfissional() {
                 />
             )}
             
-            {/* MODAL DE PRESCRIÇÃO INDIVIDUAL / CRIAÇÃO DE EXERCÍCIO */}
             {modalAlvo && (
                 <FormPrescricaoModal 
                     alvo={modalAlvo} 
@@ -191,7 +196,6 @@ export default function DashboardProfissional() {
                 />
             )}
             
-            {/* MODAL DE ADICIONAR PACIENTE À TURMA */}
             {modalAddAlunoAberto && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
                     <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '14px', width: '100%', maxWidth: '500px', padding: '2rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>
