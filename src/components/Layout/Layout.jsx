@@ -2,15 +2,19 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../NavBar/Navbar';
+import AlertaTelaPequena from '../AlertaTelaPequena/AlertaTelaPequena';
 import './Layout.css';
 
 export default function Layout() {
     return (
         <div className="app-layout">
-            {/* 1. A Navbar fica fixa no topo */}
+            {/* Monitor de largura para casos extremos */}
+            <AlertaTelaPequena />
+
+            {/* 1. Navbar fixa */}
             <Navbar />
 
-            {/* 2. O conteúdo dinâmico muda aqui dentro */}
+            {/* 2. Conteúdo com suporte a rolagem responsiva */}
             <main className="main-content">
                 <Outlet />
             </main>

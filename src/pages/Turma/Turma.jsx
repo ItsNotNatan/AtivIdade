@@ -76,7 +76,6 @@ export default function Turma() {
                                 style={{
                                     backgroundColor: alerta.tipo === 'sos' ? '#fef2f2' : '#fffbeb',
                                     border: `2px solid ${alerta.tipo === 'sos' ? '#f87171' : '#fcd34d'}`,
-                                    borderRadius: '1rem',
                                     padding: '1.25rem',
                                     display: 'flex',
                                     justifyContent: 'space-between',
@@ -90,7 +89,6 @@ export default function Turma() {
                                         fontWeight: '800', 
                                         fontSize: '0.85rem', 
                                         padding: '0.2rem 0.6rem', 
-                                        borderRadius: '0.4rem', 
                                         backgroundColor: alerta.tipo === 'sos' ? '#dc2626' : '#d97706',
                                         color: 'white',
                                         marginRight: '0.5rem'
@@ -98,7 +96,9 @@ export default function Turma() {
                                         {alerta.tipo === 'sos' ? 'EMERGÊNCIA SOS' : 'QUEIXA DE ESFORÇO'}
                                     </span>
                                     <strong style={{ fontSize: '1.1rem', color: '#1f2937' }}>{alerta.alunoNome}</strong>
-                                    <span style={{ fontSize: '0.9rem', color: '#6b7280', marginLeft: '0.5rem' }}>às {alerta.hora}</span>
+                                    <span style={{ fontSize: '0.9rem', color: '#6b7280', marginLeft: '0.5rem' }}>
+                                        às {new Date(alerta.dataCriacao).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                                    </span>
                                     <p style={{ margin: '0.4rem 0 0 0', color: '#374151', fontSize: '1rem' }}>{alerta.mensagem}</p>
                                 </div>
 
@@ -108,7 +108,7 @@ export default function Turma() {
                                         style={{
                                             display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                                             backgroundColor: '#ffffff', color: '#1f2937', padding: '0.6rem 1rem',
-                                            borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontWeight: 'bold',
+                                            border: '1px solid #cbd5e1', fontWeight: 'bold',
                                             textDecoration: 'none', fontSize: '0.95rem'
                                         }}
                                     >
@@ -119,7 +119,7 @@ export default function Turma() {
                                         style={{
                                             display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                                             backgroundColor: '#059669', color: 'white', padding: '0.6rem 1rem',
-                                            borderRadius: '0.5rem', border: 'none', fontWeight: 'bold',
+                                            border: 'none', fontWeight: 'bold',
                                             cursor: 'pointer', fontSize: '0.95rem'
                                         }}
                                     >

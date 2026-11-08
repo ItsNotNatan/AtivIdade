@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../contexts/authStore';
-import { AlertTriangle, CheckCircle, X, UserPlus, Library } from 'lucide-react';
+import { Users, Bell, Library } from 'lucide-react';
 import { useAlert } from '../../components/AlertContext/AlertContext';
 import { API_URL } from '../../config';
 
-import CardsTurmas from '../../components/Profissional/CardsTurmas';
-import ListaAlunosTurma from '../../components/Profissional/ListaAlunosTurma';
-import FichaIndividualAluno from '../../components/Profissional/FichaIndividualAluno';
+// Subcomponentes modulares
+import AbaTurmas from '../../components/Profissional/AbaTurmas';
+import AbaAlertas from '../../components/Profissional/AbaAlertas';
+import AbaAcervo from '../../components/Profissional/AbaAcervo';
+import ModalAdicionarAluno from '../../components/Profissional/ModalAdicionarAluno';
 import FormPrescricaoModal from '../../components/Profissional/FormPrescricaoModal';
 import ModalAcervo from '../../components/Profissional/ModalAcervo';
 
@@ -17,15 +19,18 @@ export default function DashboardProfissional() {
     const navigate = useNavigate();
     const { showAlert, showConfirm } = useAlert(); 
 
+    const [abaAtiva, setAbaAtiva] = useState('turmas');
+
     const [turmas, setTurmas] = useState([]);
     const [utentesTotais, setUtentesTotais] = useState([]);
     const [turmaSelecionada, setTurmaSelecionada] = useState(null);
     const [alunoSelecionado, setAlunoSelecionado] = useState(null);
     const [alertas, setAlertas] = useState([]);
+    const [acervo, setAcervo] = useState([]);
 
     const [modalAlvo, setModalAlvo] = useState(null); 
     const [modalAddAlunoAberto, setModalAddAlunoAberto] = useState(false); 
-    const [modalAcervoAberto, setModalAcervoAberto] = useState(false);
+    const [modalAcervoParaPaciente, setModalAcervoParaPaciente] = useState(null);
 
     useEffect(() => {
         if (!usuario || usuario.tipo !== 'profissional') {
@@ -35,36 +40,31 @@ export default function DashboardProfissional() {
         }
     }, [usuario, navigate]);
 
-const carregarDados = async () => {
-    try {
-        const [resTurmas, resAlertas, resUtentes] = await Promise.all([
-            fetch(`${API_URL}/api/turmas`), 
-            fetch(`${API_URL}/api/alertas/pendentes`), 
-            fetch(`${API_URL}/api/utentes`) 
-        ]);
-
-        if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
-        if (resAlertas.ok) setAlertas(await resAlertas.json());
-
-        if (resTurmas.ok) {
-            const dados = await resTurmas.json();
-
-            // ATENÇÃO AQUI: As turmas estão a chegar perfeitamente.
-            // Como há turmas, o if vai entrar e setar a turma selecionada.
-            setTurmas(dados);
-
-            if (dados.length > 0 && !turmaSelecionada) {
-                setTurmaSelecionada(dados[0]);
-            } else if (turmaSelecionada) {
-                setTurmaSelecionada(dados.find(t => t.id === turmaSelecionada.id) || dados[0]);
+    const carregarDados = async () => {
+        try {
+            const [resTurmas, resAlertas, resUtentes, resAcervo] = await Promise.all([
+                fetch(`${API_URL}/api/turmas`), 
+                fetch(`${API_URL}/api/alertas/pendentes`), 
+                fetch(`${API_URL}/api/utentes`),
+                fetch(`${API_URL}/api/acervo/${usuario.id}`)
+            ]);
+            
+            if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
+            if (resAlertas.ok) setAlertas(await resAlertas.json());
+            if (resAcervo.ok) setAcervo(await resAcervo.json());
+            
+            if (resTurmas.ok) {
+                const dados = await resTurmas.json();
+                setTurmas(dados);
+                if (dados.length > 0 && !turmaSelecionada) setTurmaSelecionada(dados[0]);
+                else if (turmaSelecionada) setTurmaSelecionada(dados.find(t => t.id === turmaSelecionada.id) || dados[0]);
             }
-        }
-    } catch (err) { console.error(err); }
-};
+        } catch (err) { console.error(err); }
+    };
 
     const handleCriarTurma = async (novaTurma) => {
         try {
-            const payload = { ...novaTurma, profissionalId: usuario.id }; // <-- INCLUI O ID DO PROFISSIONAL
+            const payload = { ...novaTurma, profissionalId: usuario.id }; 
             const res = await fetch(`${API_URL}/api/turmas`, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
@@ -95,6 +95,7 @@ const carregarDados = async () => {
             });
             if (res.ok) {
                 showAlert('Paciente adicionado à turma!', 'sucesso');
+                setModalAddAlunoAberto(false);
                 carregarDados();
             }
         } catch (err) { showAlert('Erro ao adicionar.', 'erro'); }
@@ -118,75 +119,134 @@ const carregarDados = async () => {
         } catch (err) { console.error(err); }
     };
 
+    const deletarItemAcervo = async (id) => {
+        if (!await showConfirm("Remover este exercício do acervo?")) return;
+        try {
+            const res = await fetch(`${API_URL}/api/acervo/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                showAlert('Removido do acervo.', 'sucesso');
+                carregarDados();
+            }
+        } catch (error) { showAlert('Erro ao remover.', 'erro'); }
+    };
+
     const utentesDisponiveis = utentesTotais.filter(u => !u.turmasIds?.includes(turmaSelecionada?.id));
 
     if (!usuario) return null;
 
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
-            <div style={{ marginBottom: '2rem', backgroundColor: '#eff6ff', padding: '1.5rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            
+            {/* CABEÇALHO */}
+            <header style={{ marginBottom: '1.5rem', backgroundColor: '#eff6ff', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', border: '1px solid #bfdbfe' }}>
                 <div>
-                    <h1 style={{ margin: '0 0 0.5rem 0', color: '#1e3a8a', fontSize: '2rem' }}>Olá, {usuario.nome}</h1>
-                    <p style={{ margin: 0, color: '#1d4ed8', fontSize: '1.1rem' }}>Gestão de Turmas e Prescrição</p>
+                    <h1 style={{ margin: '0 0 0.25rem 0', color: '#1e3a8a', fontSize: '1.75rem' }}>Olá, {usuario.nome}</h1>
+                    <p style={{ margin: 0, color: '#1d4ed8', fontSize: '0.95rem' }}>Ambiente Integrado de Fisioterapia & Gerontologia</p>
                 </div>
-                <button onClick={() => setModalAcervoAberto(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'white', color: '#059669', border: '2px solid #059669', padding: '0.75rem 1.25rem', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>
-                    <Library size={20} /> Meu Acervo
+            </header>
+
+            {/* ABAS DE NAVEGAÇÃO */}
+            <nav style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid #e2e8f0', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <button
+                    onClick={() => setAbaAtiva('turmas')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.85rem 1.5rem', border: 'none', cursor: 'pointer',
+                        fontWeight: 'bold', fontSize: '1rem',
+                        backgroundColor: abaAtiva === 'turmas' ? '#2563eb' : '#f8fafc',
+                        color: abaAtiva === 'turmas' ? 'white' : '#475569',
+                        transition: 'all 0.15s ease'
+                    }}
+                >
+                    <Users size={18} /> Gestão de Turmas & Alunos
                 </button>
-            </div>
 
-            {alertas.length > 0 && (
-                <div style={{ backgroundColor: '#fef2f2', border: '2px solid #ef4444', padding: '1.25rem', borderRadius: '12px', marginBottom: '2rem' }}>
-                    <h3 style={{ marginTop: 0, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><AlertTriangle size={22} /> Alertas de Pacientes ({alertas.length})</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {alertas.map(alerta => (
-                            <div key={alerta.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '0.85rem', borderRadius: '8px' }}>
-                                <div><strong style={{ color: '#b91c1c' }}>{alerta.utenteNome}</strong><p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem' }}>{alerta.mensagem}</p></div>
-                                <button onClick={() => resolverAlerta(alerta.id)} style={{ padding: '0.5rem 1rem', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <CheckCircle size={16} /> Feito
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                <button
+                    onClick={() => setAbaAtiva('alertas')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.85rem 1.5rem', border: 'none', cursor: 'pointer',
+                        fontWeight: 'bold', fontSize: '1rem',
+                        backgroundColor: abaAtiva === 'alertas' ? '#dc2626' : '#f8fafc',
+                        color: abaAtiva === 'alertas' ? 'white' : '#475569',
+                        transition: 'all 0.15s ease'
+                    }}
+                >
+                    <Bell size={18} /> Alertas de Utentes
+                    {alertas.length > 0 && (
+                        <span style={{ backgroundColor: abaAtiva === 'alertas' ? 'white' : '#dc2626', color: abaAtiva === 'alertas' ? '#dc2626' : 'white', fontSize: '0.75rem', padding: '0.15rem 0.5rem', fontWeight: 'bold' }}>
+                            {alertas.length}
+                        </span>
+                    )}
+                </button>
 
-            <CardsTurmas 
-                turmas={turmas} 
-                turmaSelecionada={turmaSelecionada} 
-                onSelecionarTurma={(t) => { setTurmaSelecionada(t); setAlunoSelecionado(null); }} 
-                onCriarTurma={handleCriarTurma} 
-                onDeletarTurma={handleDeletarTurma} 
-            />
+                <button
+                    onClick={() => setAbaAtiva('acervo')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.85rem 1.5rem', border: 'none', cursor: 'pointer',
+                        fontWeight: 'bold', fontSize: '1rem',
+                        backgroundColor: abaAtiva === 'acervo' ? '#059669' : '#f8fafc',
+                        color: abaAtiva === 'acervo' ? 'white' : '#475569',
+                        transition: 'all 0.15s ease'
+                    }}
+                >
+                    <Library size={18} /> Banco de Exercícios (Acervo)
+                </button>
+            </nav>
 
-            {turmaSelecionada && (
-                <ListaAlunosTurma 
-                    turma={turmaSelecionada} 
-                    alunoSelecionado={alunoSelecionado} 
-                    onSelecionarAluno={setAlunoSelecionado} 
-                    onPrescreverTurma={() => setModalAlvo({ tipo: 'turma', dados: turmaSelecionada })} 
-                    onRemoverAlunoDaTurma={handleRemoverAlunoTurma} 
-                    onAbrirAdicionarAluno={() => setModalAddAlunoAberto(true)} 
-                />
-            )}
-
-            {alunoSelecionado && (
-                <FichaIndividualAluno 
-                    aluno={alunoSelecionado} 
-                    onAbrirPrescricaoIndividual={(nomeGrupo) => setModalAlvo({ tipo: 'paciente', dados: alunoSelecionado, grupoPreDefinido: typeof nomeGrupo === 'string' ? nomeGrupo : '' })} 
-                    onAbrirAcervoParaAluno={() => setModalAcervoAberto({ tipo: 'paciente', dados: alunoSelecionado })} 
+            {/* ABA 1: TURMAS E ALUNOS */}
+            {abaAtiva === 'turmas' && (
+                <AbaTurmas 
+                    turmas={turmas}
+                    turmaSelecionada={turmaSelecionada}
+                    onSelecionarTurma={(t) => { setTurmaSelecionada(t); setAlunoSelecionado(null); }}
+                    onCriarTurma={handleCriarTurma}
+                    onDeletarTurma={handleDeletarTurma}
+                    alunoSelecionado={alunoSelecionado}
+                    onSelecionarAluno={setAlunoSelecionado}
+                    onPrescreverTurma={() => setModalAlvo({ tipo: 'turma', dados: turmaSelecionada })}
+                    onRemoverAlunoDaTurma={handleRemoverAlunoTurma}
+                    onAbrirAdicionarAluno={() => setModalAddAlunoAberto(true)}
+                    onAbrirPrescricaoIndividual={(nomeGrupo) => setModalAlvo({ tipo: 'paciente', dados: alunoSelecionado, grupoPreDefinido: typeof nomeGrupo === 'string' ? nomeGrupo : '' })}
+                    onAbrirAcervoParaAluno={() => setModalAcervoParaPaciente({ tipo: 'paciente', dados: alunoSelecionado })}
                     onEditarPrescricao={(treino) => setModalAlvo({ tipo: 'paciente', dados: alunoSelecionado, treinoEditando: treino })}
                 />
             )}
 
-            {modalAcervoAberto && (
+            {/* ABA 2: ALERTAS */}
+            {abaAtiva === 'alertas' && (
+                <AbaAlertas 
+                    alertas={alertas} 
+                    onResolverAlerta={resolverAlerta} 
+                />
+            )}
+
+            {/* ABA 3: ACERVO */}
+            {abaAtiva === 'acervo' && (
+                <AbaAcervo 
+                    acervo={acervo}
+                    onNovoExercicio={(nomeGrupo, cor) => setModalAlvo({ tipo: 'acervo', dados: { nome: 'Meu Acervo' }, grupoPreDefinido: nomeGrupo, corPreDefinida: cor })}
+                    onEditarExercicio={(treino, nomeGrupo) => setModalAlvo({ tipo: 'acervo', dados: { nome: 'Meu Acervo' }, grupoPreDefinido: nomeGrupo, treinoEditando: treino })}
+                    onDeletarItem={deletarItemAcervo}
+                />
+            )}
+
+            {/* MODAIS GLOBAIS DO PROFISSIONAL */}
+            <ModalAdicionarAluno 
+                isOpen={modalAddAlunoAberto}
+                onClose={() => setModalAddAlunoAberto(false)}
+                turma={turmaSelecionada}
+                utentesDisponiveis={utentesDisponiveis}
+                onAdicionarAluno={handleAdicionarAlunoTurma}
+            />
+
+            {modalAcervoParaPaciente && (
                 <ModalAcervo 
-                    alvoPrescricao={modalAcervoAberto} 
+                    alvoPrescricao={modalAcervoParaPaciente} 
                     onClose={() => { 
-                        setModalAcervoAberto(false); 
+                        setModalAcervoParaPaciente(null); 
                         carregarDados(); 
-                        if (alunoSelecionado) {
-                            setAlunoSelecionado({ ...alunoSelecionado });
-                        }
                     }} 
                 />
             )}
@@ -202,38 +262,6 @@ const carregarDados = async () => {
                         }
                     }} 
                 />
-            )}
-            
-            {modalAddAlunoAberto && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
-                    <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '14px', width: '100%', maxWidth: '500px', padding: '2rem', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b' }}>Adicionar Paciente à Turma</h2>
-                            <button onClick={() => setModalAddAlunoAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={24} /></button>
-                        </div>
-                        <p style={{ color: '#4b5563', marginBottom: '1rem', fontSize: '0.95rem' }}>Estes pacientes não estão na turma <strong>{turmaSelecionada.nome}</strong>. Se os adicionar, eles farão parte de múltiplas turmas simultaneamente.</p>
-                        
-                        <div style={{ maxHeight: '350px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingRight: '0.5rem' }}>
-                            {utentesDisponiveis.length === 0 ? (
-                                <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '2rem 0' }}>Não há outros pacientes disponíveis no sistema.</p>
-                            ) : (
-                                utentesDisponiveis.map(u => (
-                                    <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#f8fafc' }}>
-                                        <div>
-                                            <strong style={{ display: 'block', color: '#1e293b', fontSize: '1rem' }}>{u.nome}</strong>
-                                            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                                                {u.turmasIds?.length > 0 ? `Inscrito em ${u.turmasIds.length} turma(s)` : 'Sem nenhuma turma'}
-                                            </span>
-                                        </div>
-                                        <button onClick={() => handleAdicionarAlunoTurma(u.id)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '0.5rem 0.85rem', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}>
-                                            <UserPlus size={16} /> Adicionar
-                                        </button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                </div>
             )}
         </div>
     );
