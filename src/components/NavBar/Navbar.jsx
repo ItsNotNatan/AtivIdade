@@ -44,13 +44,16 @@ export default function Navbar() {
                             <img src={usuario.fotoPerfil} alt={usuario.nome} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #cbd5e1' }} />
                         ) : (
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#059669', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                {usuario.nome.charAt(0).toUpperCase()}
+                                {usuario.nome.replace(/^(Dr\.|Dra\.)\s+/i, '').charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <span style={{ fontWeight: 'bold', color: '#1e293b', fontSize: '0.9rem' }}>{usuario.nome.split(' ')[0]}</span>
+                        {/* AQUI ESTAVA O ERRO: Removi o .split(' ')[0] para mostrar o nome inteiro */}
+                        <span style={{ fontWeight: 'bold', color: '#1e293b', fontSize: '0.9rem' }}>
+                            {usuario.nome}
+                        </span>
                     </div>
 
-                    <button onClick={handleSair} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#fee2e2', color: '#dc2626', border: 'none', padding: '0.4rem 0.75rem', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem', flexShrink: 0 }}>
+                    <button onClick={handleSair} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#fee2e2', color: '#dc2626', border: 'none', padding: '0.4rem 0.75rem', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem', flexShrink: 0, borderRadius: '6px' }}>
                         <LogOut size={16} /> Sair
                     </button>
                 </div>

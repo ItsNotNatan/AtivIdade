@@ -137,11 +137,10 @@ export default function DashboardProfissional() {
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
             
-            {/* CABEÇALHO */}
-            <header style={{ marginBottom: '1.5rem', backgroundColor: '#eff6ff', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', border: '1px solid #bfdbfe' }}>
+            {/* CABEÇALHO (MUDANÇA AQUI) */}
+            <header style={{ marginBottom: '1.5rem', backgroundColor: '#eff6ff', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', border: '1px solid #bfdbfe', borderRadius: '12px' }}>
                 <div>
-                    <h1 style={{ margin: '0 0 0.25rem 0', color: '#1e3a8a', fontSize: '1.75rem' }}>Olá, {usuario.nome}</h1>
-                    <p style={{ margin: 0, color: '#1d4ed8', fontSize: '0.95rem' }}>Ambiente Integrado de Fisioterapia & Gerontologia</p>
+                    <h1 style={{ margin: 0, color: '#1e3a8a', fontSize: '1.75rem' }}>Olá, {usuario.nome}</h1>
                 </div>
             </header>
 
