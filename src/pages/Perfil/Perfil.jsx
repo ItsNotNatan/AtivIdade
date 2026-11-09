@@ -10,6 +10,7 @@ import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../../components/AlertContext/AlertContext';
 import { formatarTelefone } from '../../utils/formatadores';
 import { API_URL } from '../../config';
+import UploadFotoPerfil from '../../components/UploadFotoPerfil/UploadFotoPerfil';
 import './Perfil.css';
 
 export default function Perfil() {
@@ -36,6 +37,7 @@ export default function Perfil() {
         nome: '',
         celular: '',
         email: '',
+        fotoPerfil: '',
         especialidade: '',
         registroProfissional: '',
         formacao: '',
@@ -66,6 +68,7 @@ export default function Perfil() {
                 nome: usuario.nome || '',
                 celular: usuario.celular || '',
                 email: usuario.email || '',
+                fotoPerfil: usuario.fotoPerfil || '',
                 especialidade: usuario.especialidade || '',
                 registroProfissional: usuario.registroProfissional || '',
                 formacao: usuario.formacao || '',
@@ -132,6 +135,10 @@ export default function Perfil() {
         setForm(prev => ({ ...prev, [name]: v }));
     };
 
+    const setFotoPerfil = (novaFoto) => {
+        setForm(prev => ({ ...prev, fotoPerfil: novaFoto }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setCarregando(true);
@@ -141,6 +148,7 @@ export default function Perfil() {
                 nome: form.nome.trim(),
                 celular: form.celular.trim(),
                 email: form.email.trim(),
+                fotoPerfil: form.fotoPerfil,
                 especialidade: form.especialidade.trim(),
                 registroProfissional: form.registroProfissional.trim(),
                 formacao: form.formacao.trim(),
@@ -159,7 +167,7 @@ export default function Perfil() {
             if (res.ok) {
                 const data = await res.json();
                 atualizarUsuario(data.usuario);
-                showAlert('Informações profissionais atualizadas com sucesso!', 'sucesso');
+                showAlert('Informações atualizadas com sucesso!', 'sucesso');
                 setModalEditarAberto(false);
             } else {
                 const err = await res.json();
@@ -182,8 +190,12 @@ export default function Perfil() {
                 <div className="perfil-prof-container">
                     
                     <div className="prof-hero-card">
-                        <div className="prof-avatar-badge">
-                            {form.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0) || 'F'}
+                        <div className="prof-avatar-badge" style={{ overflow: 'hidden', padding: 0 }}>
+                            {form.fotoPerfil ? (
+                                <img src={form.fotoPerfil} alt={form.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                form.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0) || 'F'
+                            )}
                         </div>
                         <div className="prof-hero-info">
                             <div className="prof-title-row">
@@ -276,6 +288,8 @@ export default function Perfil() {
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="modal-form-body">
+                                    <UploadFotoPerfil foto={form.fotoPerfil} setFoto={setFotoPerfil} tamanho={100} />
+                                    
                                     <div className="form-grid-2">
                                         <div className="form-group">
                                             <label>Nome Completo (Identificação Clínica)</label>
@@ -391,9 +405,8 @@ export default function Perfil() {
             ) : (
                 <div className="perfil-idoso-container">
                     <div className="idoso-card">
-                        <div className="avatar-circulo" style={{ margin: '0 auto 1.5rem', width: '90px', height: '90px', borderRadius: '50%', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <User size={48} color="#059669" />
-                        </div>
+                        <UploadFotoPerfil foto={form.fotoPerfil} setFoto={setFotoPerfil} tamanho={120} />
+                        
                         <h2 style={{ textAlign: 'center', margin: '0 0 0.5rem 0' }}>{form.nome}</h2>
                         <p style={{ textAlign: 'center', color: '#64748b', margin: '0 0 1.5rem 0' }}>Celular: {form.celular}</p>
 
@@ -420,13 +433,22 @@ export default function Perfil() {
                             </div>
                         </div>
 
-                        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
+                        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', marginBottom: '1.5rem' }}>
                             <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Acessibilidade</h3>
                             <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                                 <span>Modo de Letras Grandes</span>
                                 <input type="checkbox" checked={letrasGrandes} onChange={alternarLetrasGrandes} style={{ width: '20px', height: '20px' }} />
                             </label>
                         </div>
+
+                        {/* Botão simples para salvar caso o idoso troque a foto */}
+                        <button 
+                            onClick={handleSubmit} 
+                            disabled={carregando}
+                            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '1rem', backgroundColor: '#059669', color: 'white', fontWeight: 'bold', border: 'none', cursor: 'pointer', borderRadius: '8px' }}
+                        >
+                            <Save size={20} /> {carregando ? 'A Gravar...' : 'Gravar Alterações'}
+                        </button>
                     </div>
                 </div>
             )}
