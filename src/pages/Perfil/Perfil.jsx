@@ -64,7 +64,8 @@ export default function Perfil() {
 
     useEffect(() => {
         if (usuario) {
-            setForm({
+            setForm(prev => ({
+                ...prev,
                 nome: usuario.nome || '',
                 celular: usuario.celular || '',
                 email: usuario.email || '',
@@ -78,7 +79,7 @@ export default function Perfil() {
                 peso: usuario.peso ? String(usuario.peso) : '70',
                 altura: usuario.altura ? String(usuario.altura) : '165',
                 condicoes: usuario.condicoes ? usuario.condicoes.split(',').map(c => c.trim()).filter(Boolean) : []
-            });
+            }));
 
             if (usuario.tipo === 'profissional') {
                 carregarMetricasProfissional(usuario.id);
@@ -190,11 +191,11 @@ export default function Perfil() {
                 <div className="perfil-prof-container">
                     
                     <div className="prof-hero-card">
-                        <div className="prof-avatar-badge" style={{ overflow: 'hidden', padding: 0 }}>
-                            {form.fotoPerfil ? (
-                                <img src={form.fotoPerfil} alt={form.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div className="prof-avatar-badge" style={{ overflow: 'hidden', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {usuario.fotoPerfil ? (
+                                <img src={usuario.fotoPerfil} alt={usuario.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                                form.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0) || 'F'
+                                <span>{usuario.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0) || 'F'}</span>
                             )}
                         </div>
                         <div className="prof-hero-info">
@@ -441,7 +442,6 @@ export default function Perfil() {
                             </label>
                         </div>
 
-                        {/* Botão simples para salvar caso o idoso troque a foto */}
                         <button 
                             onClick={handleSubmit} 
                             disabled={carregando}
