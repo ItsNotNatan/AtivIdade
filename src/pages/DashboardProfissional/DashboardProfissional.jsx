@@ -172,7 +172,7 @@ export default function DashboardProfissional() {
                         transition: 'all 0.15s ease'
                     }}
                 >
-                    <Bell size={18} /> Alertas de Utentes
+                    <Bell size={18} /> Alertas de Pacientes
                     {alertas.length > 0 && (
                         <span style={{ backgroundColor: abaAtiva === 'alertas' ? 'white' : '#dc2626', color: abaAtiva === 'alertas' ? '#dc2626' : 'white', fontSize: '0.75rem', padding: '0.15rem 0.5rem', fontWeight: 'bold' }}>
                             {alertas.length}

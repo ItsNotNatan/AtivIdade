@@ -18,8 +18,8 @@ export default function AbaAlertas({ alertas, onResolverAlerta }) {
             {alertas.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem 1rem', backgroundColor: 'white', border: '1px dashed #cbd5e1' }}>
                     <CheckCircle size={48} color="#059669" style={{ margin: '0 auto 1rem' }} />
-                    <h3 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>Tudo sob controlo</h3>
-                    <p style={{ margin: 0, color: '#64748b' }}>Nenhum utente registou queixas ou pedidos de emergência nas últimas sessões.</p>
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>Tudo sob controle</h3>
+                    <p style={{ margin: 0, color: '#64748b' }}>Nenhum paciente registrou queixas ou pedidos de emergência nas últimas sessões.</p>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -47,7 +47,7 @@ export default function AbaAlertas({ alertas, onResolverAlerta }) {
                             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                                 {alerta.utenteTel && (
                                     <a href={`tel:${alerta.utenteTel}`} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.65rem 1rem', backgroundColor: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                        <Phone size={16} /> Contactar
+                                        <Phone size={16} /> Contatar
                                     </a>
                                 )}
                                 <button onClick={() => onResolverAlerta(alerta.id)} style={{ padding: '0.65rem 1.25rem', backgroundColor: '#059669', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem' }}>

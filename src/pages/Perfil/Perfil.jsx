@@ -447,7 +447,7 @@ export default function Perfil() {
                             disabled={carregando}
                             style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '1rem', backgroundColor: '#059669', color: 'white', fontWeight: 'bold', border: 'none', cursor: 'pointer', borderRadius: '8px' }}
                         >
-                            <Save size={20} /> {carregando ? 'A Gravar...' : 'Gravar Alterações'}
+                            <Save size={20} /> {carregando ? 'Salvando...' : 'Salvar Alterações'}
                         </button>
                     </div>
                 </div>
