@@ -6,7 +6,7 @@ import ListaAlunosTurma from './ListaAlunosTurma';
 import FichaIndividualAluno from './FichaIndividualAluno';
 
 export default function AbaTurmas({
-    turmas,
+    turmas = [], // <-- Proteção caso os dados demorem a carregar
     turmaSelecionada,
     onSelecionarTurma,
     onCriarTurma,

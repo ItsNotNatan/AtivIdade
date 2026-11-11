@@ -32,36 +32,90 @@ export default function DashboardProfissional() {
     const [modalAddAlunoAberto, setModalAddAlunoAberto] = useState(false); 
     const [modalAcervoParaPaciente, setModalAcervoParaPaciente] = useState(null);
 
+    // ==========================================
+    // INICIALIZAÇÃO E POLLING DOS ALERTAS
+    // ==========================================
     useEffect(() => {
         if (!usuario || usuario.tipo !== 'profissional') {
             navigate('/login');
         } else {
-            carregarDados();
+            carregarDadosGerais();
+            carregarAlertas(false);
+
+            // POLLING: Verifica novos alertas SOS a cada 5 segundos
+            const intervaloDeVerificacao = setInterval(() => {
+                carregarAlertas(true); // true = modo silencioso em background
+            }, 5000);
+
+            return () => clearInterval(intervaloDeVerificacao);
         }
     }, [usuario, navigate]);
 
-    const carregarDados = async () => {
+    // ==========================================
+    // FUNÇÕES DE CARREGAMENTO
+    // ==========================================
+    const carregarDadosGerais = async () => {
         try {
-            const [resTurmas, resAlertas, resUtentes, resAcervo] = await Promise.all([
+            const [resTurmas, resUsuarios, resAcervo] = await Promise.all([
                 fetch(`${API_URL}/api/turmas`), 
-                fetch(`${API_URL}/api/alertas/pendentes`), 
-                fetch(`${API_URL}/api/utentes`),
+                fetch(`${API_URL}/api/usuarios`), // <-- Busca a lista geral de usuários
                 fetch(`${API_URL}/api/acervo/${usuario.id}`)
             ]);
             
-            if (resUtentes.ok) setUtentesTotais(await resUtentes.json());
-            if (resAlertas.ok) setAlertas(await resAlertas.json());
+            if (resUsuarios.ok) {
+                const todosUsuarios = await resUsuarios.json();
+                // Filtra os usuários para mostrar apenas pacientes no modal de adicionar à turma
+                const apenasPacientes = todosUsuarios.filter(u => u.tipo === 'idoso' || !u.tipo || u.tipo === 'paciente');
+                setUtentesTotais(apenasPacientes); 
+            }
+
             if (resAcervo.ok) setAcervo(await resAcervo.json());
             
             if (resTurmas.ok) {
                 const dados = await resTurmas.json();
                 setTurmas(dados);
-                if (dados.length > 0 && !turmaSelecionada) setTurmaSelecionada(dados[0]);
-                else if (turmaSelecionada) setTurmaSelecionada(dados.find(t => t.id === turmaSelecionada.id) || dados[0]);
+                if (dados.length > 0 && !turmaSelecionada) {
+                    setTurmaSelecionada(dados[0]);
+                } else if (turmaSelecionada) {
+                    setTurmaSelecionada(dados.find(t => t.id === turmaSelecionada.id) || dados[0]);
+                }
             }
-        } catch (err) { console.error(err); }
+        } catch (err) { 
+            console.error("Erro ao carregar dados gerais:", err); 
+        }
     };
 
+    const carregarAlertas = async (isVerificacaoEmBackground = false) => {
+        try {
+            const resAlertas = await fetch(`${API_URL}/api/alertas/pendentes`);
+            if (resAlertas.ok) {
+                const pendentes = await resAlertas.json();
+                
+                // ATUALIZAÇÃO SEGURA: Compara novos alertas com os antigos para disparar o Pop-up
+                setAlertas(alertasAntigos => {
+                    if (isVerificacaoEmBackground) {
+                        const novosSos = pendentes.filter(p => p.tipo === 'sos' && !alertasAntigos.some(antigo => antigo.id === p.id));
+                        
+                        if (novosSos.length > 0) {
+                            novosSos.forEach(sos => {
+                                // DISPARA O POP-UP GIGANTE E AVISA O INSTRUTOR
+                                showConfirm(`🚨 EMERGÊNCIA SOS ACIONADA! 🚨\n\nO paciente ${sos.utenteNome || 'Desconhecido'} acabou de pedir ajuda urgente durante o treino "${sos.treino}".\n\nVá até ele imediatamente!`);
+                            });
+                            // Muda automaticamente para a aba de alertas para o instrutor ver detalhes
+                            setAbaAtiva('alertas');
+                        }
+                    }
+                    return pendentes;
+                });
+            }
+        } catch (err) {
+            console.error("Erro ao carregar alertas:", err);
+        }
+    };
+
+    // ==========================================
+    // AÇÕES DE TURMA E ALUNOS
+    // ==========================================
     const handleCriarTurma = async (novaTurma) => {
         try {
             const payload = { ...novaTurma, profissionalId: usuario.id }; 
@@ -70,7 +124,10 @@ export default function DashboardProfissional() {
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(payload) 
             });
-            if (res.ok) { showAlert('Turma criada com sucesso!', 'sucesso'); carregarDados(); }
+            if (res.ok) { 
+                showAlert('Turma criada com sucesso!', 'sucesso'); 
+                carregarDadosGerais(); 
+            }
         } catch (err) { showAlert('Erro de comunicação.', 'erro'); }
     };
 
@@ -81,7 +138,7 @@ export default function DashboardProfissional() {
             if (res.ok) {
                 if (turmaSelecionada?.id === idTurma) setTurmaSelecionada(null);
                 showAlert('Turma apagada.', 'info');
-                carregarDados();
+                carregarDadosGerais();
             }
         } catch (err) { showAlert('Erro ao apagar turma.', 'erro'); }
     };
@@ -96,7 +153,7 @@ export default function DashboardProfissional() {
             if (res.ok) {
                 showAlert('Paciente adicionado à turma!', 'sucesso');
                 setModalAddAlunoAberto(false);
-                carregarDados();
+                carregarDadosGerais();
             }
         } catch (err) { showAlert('Erro ao adicionar.', 'erro'); }
     };
@@ -107,15 +164,21 @@ export default function DashboardProfissional() {
             const res = await fetch(`${API_URL}/api/turmas/${turmaSelecionada.id}/alunos/${idAluno}`, { method: 'DELETE' }); 
             if (res.ok) {
                 showAlert('Paciente removido da turma.', 'sucesso');
-                carregarDados();
+                carregarDadosGerais();
             }
         } catch (err) { showAlert('Erro ao remover paciente.', 'erro'); }
     };
 
+    // ==========================================
+    // AÇÕES DE ALERTAS E ACERVO
+    // ==========================================
     const resolverAlerta = async (id) => {
         try {
             const res = await fetch(`${API_URL}/api/alertas/${id}/resolver`, { method: 'PUT' }); 
-            if (res.ok) { showAlert('Alerta resolvido!', 'sucesso'); carregarDados(); }
+            if (res.ok) { 
+                showAlert('Alerta resolvido!', 'sucesso'); 
+                carregarAlertas(); 
+            }
         } catch (err) { console.error(err); }
     };
 
@@ -125,7 +188,7 @@ export default function DashboardProfissional() {
             const res = await fetch(`${API_URL}/api/acervo/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 showAlert('Removido do acervo.', 'sucesso');
-                carregarDados();
+                carregarDadosGerais();
             }
         } catch (error) { showAlert('Erro ao remover.', 'erro'); }
     };
@@ -137,7 +200,7 @@ export default function DashboardProfissional() {
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
             
-            {/* CABEÇALHO (MUDANÇA AQUI) */}
+            {/* CABEÇALHO */}
             <header style={{ marginBottom: '1.5rem', backgroundColor: '#eff6ff', padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', border: '1px solid #bfdbfe', borderRadius: '12px' }}>
                 <div>
                     <h1 style={{ margin: 0, color: '#1e3a8a', fontSize: '1.75rem' }}>Olá, {usuario.nome}</h1>
@@ -173,7 +236,7 @@ export default function DashboardProfissional() {
                 >
                     <Bell size={18} /> Alertas de Pacientes
                     {alertas.length > 0 && (
-                        <span style={{ backgroundColor: abaAtiva === 'alertas' ? 'white' : '#dc2626', color: abaAtiva === 'alertas' ? '#dc2626' : 'white', fontSize: '0.75rem', padding: '0.15rem 0.5rem', fontWeight: 'bold' }}>
+                        <span style={{ backgroundColor: abaAtiva === 'alertas' ? 'white' : '#dc2626', color: abaAtiva === 'alertas' ? '#dc2626' : 'white', fontSize: '0.75rem', padding: '0.15rem 0.5rem', fontWeight: 'bold', borderRadius: '4px' }}>
                             {alertas.length}
                         </span>
                     )}
@@ -245,7 +308,7 @@ export default function DashboardProfissional() {
                     alvoPrescricao={modalAcervoParaPaciente} 
                     onClose={() => { 
                         setModalAcervoParaPaciente(null); 
-                        carregarDados(); 
+                        carregarDadosGerais(); 
                     }} 
                 />
             )}
@@ -255,7 +318,7 @@ export default function DashboardProfissional() {
                     alvo={modalAlvo} 
                     onClose={() => setModalAlvo(null)} 
                     onSucesso={() => {
-                        carregarDados();
+                        carregarDadosGerais();
                         if (alunoSelecionado) {
                             setAlunoSelecionado({ ...alunoSelecionado });
                         }
