@@ -41,7 +41,6 @@ export default function Perfil() {
     const [carregando, setCarregando] = useState(false);
     
     const [meusAlunos, setMeusAlunos] = useState([]);
-    const [equipaClinica, setEquipaClinica] = useState([]);
 
     const [statsProfissional, setStatsProfissional] = useState({
         totalTurmas: 0,
@@ -160,7 +159,6 @@ export default function Perfil() {
             if (resProf.ok) {
                 const profs = await resProf.json();
                 stats.totalProfissionais = profs.length;
-                setEquipaClinica(profs);
             }
             if (resTurmas.ok) {
                 const turmas = await resTurmas.json();
@@ -286,34 +284,6 @@ export default function Perfil() {
                                 <p>Turmas em Andamento</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="prof-section-card fade-in">
-                        <h2><Stethoscope size={22} color="#7c3aed" /> Corpo Clínico da Instituição ({equipaClinica.length})</h2>
-                        {equipaClinica.length > 0 ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem', marginTop: '1.25rem' }}>
-                                {equipaClinica.map(prof => (
-                                    <div key={prof.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
-                                        {prof.fotoPerfil ? (
-                                            <img src={prof.fotoPerfil} alt={prof.nome} style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #cbd5e1' }} />
-                                        ) : (
-                                            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#e0e7ff', color: '#4338ca', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                                                {prof.nome.replace('Dr. ', '').replace('Dra. ', '').charAt(0)}
-                                            </div>
-                                        )}
-                                        <div>
-                                            <strong style={{ display: 'block', color: '#1e293b', fontSize: '1.05rem', marginBottom: '0.2rem' }}>{prof.nome}</strong>
-                                            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{prof.especialidade || 'Fisioterapeuta'}</span>
-                                            <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                                <Phone size={12} /> {prof.celular}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="section-content-text">Não há profissionais vinculados à clínica atualmente.</p>
-                        )}
                     </div>
                 </div>
 
