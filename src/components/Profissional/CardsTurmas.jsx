@@ -155,7 +155,8 @@ export default function CardsTurmas({ turmas, turmaSelecionada, onSelecionarTurm
                                     <CalendarDays size={16} color={t.cor} /> {t.dias}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.25rem', fontWeight: 'bold', color: '#0f172a' }}>
-                                    <Users size={16} color={t.cor} /> {t.alunos?.length || 0} Utentes Registados
+                                    {/* AQUI FOI FEITA A ALTERAÇÃO: Utentes Registados -> Pacientes Registrados */}
+                                    <Users size={16} color={t.cor} /> {t.alunos?.length || 0} Pacientes Registrados
                                 </div>
                             </div>
                         </div>

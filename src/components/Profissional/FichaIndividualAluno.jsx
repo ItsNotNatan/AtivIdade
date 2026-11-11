@@ -4,7 +4,7 @@ import {
     HeartHandshake, PlusCircle, Trash2, Edit2, Activity, 
     ClipboardList, Library, FolderPlus, CalendarDays, 
     Calendar as CalendarIcon, ChevronLeft, ChevronRight, 
-    CheckCircle2, Users, Clock 
+    CheckCircle2, Users, Clock, Edit3, X, Save
 } from 'lucide-react';
 import { useAlert } from '../AlertContext/AlertContext';
 import { API_URL } from '../../config';
@@ -17,10 +17,18 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
     const [historico, setHistorico] = useState([]);
     const [turmasAluno, setTurmasAluno] = useState([]);
     
+    // Estado local para manter as condições sincronizadas após edição
+    const [condicoesAluno, setCondicoesAluno] = useState('');
+    
     // Gestão de Grupos
     const [gruposVazios, setGruposVazios] = useState([]);
     const [addGrupoAberto, setAddGrupoAberto] = useState(false);
     const [novoGrupoNome, setNovoGrupoNome] = useState('');
+
+    // Modal de Edição de Condições
+    const [modalCondicoesAberto, setModalCondicoesAberto] = useState(false);
+    const [condicoesEditando, setCondicoesEditando] = useState('');
+    const [salvandoCondicoes, setSalvandoCondicoes] = useState(false);
 
     // Controlos do Calendário
     const hoje = new Date();
@@ -28,7 +36,10 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
     const [diaSelecionadoStr, setDiaSelecionadoStr] = useState(hoje.toISOString().split('T')[0]);
 
     useEffect(() => {
-        if (aluno?.id) carregarDadosCompletos();
+        if (aluno?.id) {
+            setCondicoesAluno(aluno.condicoes || '');
+            carregarDadosCompletos();
+        }
     }, [aluno]);
 
     const carregarDadosCompletos = async () => {
@@ -50,7 +61,6 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
 
             if (resT.ok) {
                 const todasTurmas = await resT.json();
-                // Filtra as turmas onde este aluno está matriculado
                 const turmasDele = todasTurmas.filter(t => (t.alunos || []).some(a => a.id === aluno.id));
                 setTurmasAluno(turmasDele);
             }
@@ -58,7 +68,39 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
     };
 
     // ======================================================
-    // LÓGICA DO CALENDÁRIO MENSAL
+    // SALVAR CONDIÇÕES CLÍNICAS
+    // ======================================================
+    const abrirModalCondicoes = () => {
+        setCondicoesEditando(condicoesAluno);
+        setModalCondicoesAberto(true);
+    };
+
+    const handleSalvarCondicoes = async (e) => {
+        e.preventDefault();
+        setSalvandoCondicoes(true);
+        try {
+            const res = await fetch(`${API_URL}/api/usuarios/${aluno.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ condicoes: condicoesEditando.trim() })
+            });
+
+            if (res.ok) {
+                setCondicoesAluno(condicoesEditando.trim());
+                setModalCondicoesAberto(false);
+                showAlert('Condições atualizadas com sucesso!', 'sucesso');
+            } else {
+                showAlert('Erro ao atualizar condições.', 'erro');
+            }
+        } catch (err) {
+            showAlert('Falha na comunicação com o servidor.', 'erro');
+        } finally {
+            setSalvandoCondicoes(false);
+        }
+    };
+
+    // ======================================================
+    // LÓGICA DO CALENDÁRIO MENSAL E HISTÓRICO
     // ======================================================
     const mudarMes = (incremento) => {
         setDataReferencia(prev => {
@@ -71,11 +113,10 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
     const anoRef = dataReferencia.getFullYear();
     const mesRef = dataReferencia.getMonth();
     const diasNoMes = new Date(anoRef, mesRef + 1, 0).getDate();
-    const primeiroDiaSemana = new Date(anoRef, mesRef, 1).getDay(); // 0 = Dom, 1 = Seg...
+    const primeiroDiaSemana = new Date(anoRef, mesRef, 1).getDay();
 
     const nomeMes = dataReferencia.toLocaleString('pt-BR', { month: 'long' });
 
-    // Mapear histórico por dia (YYYY-MM-DD)
     const historicoPorDia = (historico || []).reduce((acc, ativ) => {
         if (!ativ.dataCriacao) return acc;
         const dataStr = new Date(ativ.dataCriacao).toISOString().split('T')[0];
@@ -84,7 +125,6 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
         return acc;
     }, {});
 
-    // Detalhes do dia selecionado
     const atividadesDoDiaSelecionado = historicoPorDia[diaSelecionadoStr] || [];
 
     // ======================================================
@@ -103,7 +143,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
     });
 
     // ======================================================
-    // GESTÃO DE PRESCRIÇÕES (ORIGINAL MELHORADA)
+    // GESTÃO DE PRESCRIÇÕES
     // ======================================================
     const deletarPrescricao = async (id) => {
         if (!await showConfirm('Excluir exercício da agenda do aluno?')) return;
@@ -137,7 +177,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
         if(!gruposPrescritos[gv.nome]) gruposPrescritos[gv.nome] = { cor: gv.cor, dias: 'Livre', itens: [] };
     });
 
-    const condicoesLista = aluno.condicoes ? aluno.condicoes.split(',').map(c => c.trim()).filter(Boolean) : [];
+    const condicoesLista = condicoesAluno ? condicoesAluno.split(',').map(c => c.trim()).filter(Boolean) : [];
 
     return (
         <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -152,10 +192,20 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-                    <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '1rem' }}>
-                        <h4 style={{ margin: '0 0 0.5rem 0', color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem' }}>
-                            <HeartHandshake size={18} /> Condições & Limitações
-                        </h4>
+                    
+                    {/* BLOCO DE CONDIÇÕES COM BOTÃO DE EDIÇÃO */}
+                    <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '1rem', position: 'relative' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <h4 style={{ margin: 0, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem' }}>
+                                <HeartHandshake size={18} /> Condições & Limitações
+                            </h4>
+                            <button 
+                                onClick={abrirModalCondicoes}
+                                style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.8rem', fontWeight: 'bold' }}
+                            >
+                                <Edit3 size={14} /> Editar
+                            </button>
+                        </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                             {condicoesLista.length > 0 ? condicoesLista.map((c, i) => <span key={i} style={{ backgroundColor: 'white', border: '1px solid #f87171', color: '#b91c1c', fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '1rem', fontWeight: '500' }}>{c}</span>) : <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Nenhuma limitação declarada.</span>}
                         </div>
@@ -224,7 +274,6 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
                             {Array.from({ length: diasNoMes }).map((_, i) => {
                                 const dia = i + 1;
                                 const dataAtual = new Date(anoRef, mesRef, dia);
-                                // Ajuste de fuso para string YYYY-MM-DD local
                                 const strData = new Date(dataAtual.getTime() - (dataAtual.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
                                 
                                 const temTreino = historicoPorDia[strData] && historicoPorDia[strData].length > 0;
@@ -295,7 +344,7 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
                 </div>
             </div>
 
-            {/* 4. GESTÃO DE PRESCRIÇÕES (ÁREA DE EDIÇÃO DOS EXERCÍCIOS) */}
+            {/* 4. GESTÃO DE PRESCRIÇÕES */}
             <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', color: '#1e293b' }}>
@@ -346,6 +395,42 @@ export default function FichaIndividualAluno({ aluno, onAbrirPrescricaoIndividua
                     )) : <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.95rem' }}>Nenhum exercício agendado para este paciente.</p>}
                 </div>
             </div>
+
+            {/* 5. MODAL DE EDIÇÃO DAS CONDIÇÕES CLÍNICAS */}
+            {modalCondicoesAberto && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '1rem' }}>
+                    <div className="fade-in" style={{ backgroundColor: 'white', borderRadius: '12px', width: '100%', maxWidth: '500px', padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h3 style={{ margin: 0, color: '#991b1b', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem' }}>
+                                <HeartHandshake size={20} /> Atualizar Condições Clínicas
+                            </h3>
+                            <button onClick={() => setModalCondicoesAberto(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
+                        </div>
+                        
+                        <form onSubmit={handleSalvarCondicoes}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#334155', fontWeight: 'bold' }}>
+                                Adicione as restrições ou alertas de saúde do paciente, separadas por vírgula:
+                            </label>
+                            <textarea 
+                                value={condicoesEditando}
+                                onChange={(e) => setCondicoesEditando(e.target.value)}
+                                placeholder="Ex: Hipertensão, Artrose no joelho direito, Risco de Queda..."
+                                rows="3"
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical' }}
+                            />
+                            
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+                                <button type="button" onClick={() => setModalCondicoesAberto(false)} style={{ padding: '0.65rem 1.25rem', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', fontWeight: 'bold', color: '#475569', cursor: 'pointer' }}>
+                                    Cancelar
+                                </button>
+                                <button type="submit" disabled={salvandoCondicoes} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.65rem 1.25rem', backgroundColor: '#dc2626', border: 'none', borderRadius: '6px', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>
+                                    <Save size={16} /> {salvandoCondicoes ? 'Salvando...' : 'Salvar Ficha'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
