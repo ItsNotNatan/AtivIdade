@@ -13,6 +13,26 @@ import { API_URL } from '../../config';
 import UploadFotoPerfil from '../../components/UploadFotoPerfil/UploadFotoPerfil';
 import './Perfil.css';
 
+// LISTA COMPLETA DE ESPECIALIDADES
+const especialidadesOpcoes = [
+    "Fisioterapia Acupuntura",
+    "Fisioterapia Aquática (Hidroterapia)",
+    "Fisioterapia Cardiovascular",
+    "Fisioterapia Dermatofuncional (focada em estética, queimaduras e cicatrização)",
+    "Fisioterapia do Trabalho (ergonomia e saúde ocupacional)",
+    "Fisioterapia em Gerontologia (saúde do idoso)",
+    "Fisioterapia em Oncologia (reabilitação de pacientes com câncer)",
+    "Fisioterapia em Osteopatia",
+    "Fisioterapia em Quiropraxia",
+    "Fisioterapia em Saúde da Mulher (inclui uroginecológica e obstétrica)",
+    "Fisioterapia em Terapia Intensiva (UTI)",
+    "Fisioterapia Esportiva",
+    "Fisioterapia Neurofuncional (adulto e pediátrica)",
+    "Fisioterapia Ortopédica e Traumatológica",
+    "Fisioterapia Pediátrica e Neonatal",
+    "Fisioterapia Respiratória"
+];
+
 export default function Perfil() {
     const { usuario, atualizarUsuario } = useAuthStore();
     const navigate = useNavigate();
@@ -20,6 +40,8 @@ export default function Perfil() {
     
     const [modalEditarAberto, setModalEditarAberto] = useState(false);
     const [carregando, setCarregando] = useState(false);
+    
+    const [meusAlunos, setMeusAlunos] = useState([]);
 
     useEffect(() => {
         if (!usuario) {
@@ -97,11 +119,27 @@ export default function Perfil() {
             let turmasCount = 0;
             let alunosCount = 0;
             let acervoCount = 0;
+            let listaUnicaAlunos = [];
 
             if (resTurmas.ok) {
-                const turmas = await resTurmas.json();
-                turmasCount = turmas.length;
-                alunosCount = turmas.reduce((total, t) => total + (t.alunos?.length || 0), 0);
+                const todasTurmas = await resTurmas.json();
+                
+                const minhasTurmas = todasTurmas.filter(t => t.profissionalId === idProf);
+                turmasCount = minhasTurmas.length;
+                
+                const mapaDeAlunos = new Map();
+                minhasTurmas.forEach(t => {
+                    if (t.alunos) {
+                        t.alunos.forEach(aluno => {
+                            if (!mapaDeAlunos.has(aluno.id)) {
+                                mapaDeAlunos.set(aluno.id, aluno);
+                            }
+                        });
+                    }
+                });
+                
+                listaUnicaAlunos = Array.from(mapaDeAlunos.values());
+                alunosCount = listaUnicaAlunos.length;
             }
 
             if (resAcervo.ok) {
@@ -114,6 +152,8 @@ export default function Perfil() {
                 totalAlunos: alunosCount,
                 totalAcervo: acervoCount
             });
+            setMeusAlunos(listaUnicaAlunos);
+
         } catch (error) {
             console.error("Erro ao carregar métricas do profissional:", error);
         }
@@ -251,6 +291,36 @@ export default function Perfil() {
                         </div>
                     </div>
 
+                    <div className="prof-section-card fade-in">
+                        <h2><Users size={22} color="#2563eb" /> Seus Pacientes ({meusAlunos.length})</h2>
+                        {meusAlunos.length > 0 ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem', marginTop: '1.25rem' }}>
+                                {meusAlunos.map(aluno => (
+                                    <div key={aluno.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+                                        {aluno.fotoPerfil ? (
+                                            <img src={aluno.fotoPerfil} alt={aluno.nome} style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #cbd5e1' }} />
+                                        ) : (
+                                            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#d1fae5', color: '#059669', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                                                {aluno.nome.charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <strong style={{ display: 'block', color: '#1e293b', fontSize: '1.05rem', marginBottom: '0.2rem' }}>{aluno.nome}</strong>
+                                            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{aluno.idade ? `${aluno.idade} anos` : 'Idade não informada'}</span>
+                                            <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                <Phone size={12} /> {aluno.celular}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="section-content-text">
+                                Você ainda não possui pacientes vinculados. Vá ao Painel Principal, crie uma Turma e adicione os pacientes para que eles apareçam na sua lista de cuidados.
+                            </p>
+                        )}
+                    </div>
+
                     <div className="prof-details-view fade-in">
                         <div className="prof-section-card">
                             <h2><GraduationCap size={22} color="#2563eb" /> Formação Acadêmica & Titulações</h2>
@@ -318,16 +388,21 @@ export default function Perfil() {
                                     </div>
 
                                     <div className="form-grid-2">
+                                        {/* NOVO CAMPO: DROPDOWN DE ESPECIALIDADES */}
                                         <div className="form-group">
                                             <label>Especialidade Principal</label>
-                                            <input 
-                                                type="text" 
+                                            <select 
                                                 name="especialidade" 
                                                 value={form.especialidade} 
                                                 onChange={handleChange} 
-                                                required 
-                                                placeholder="Ex: Fisioterapia Geriátrica"
-                                            />
+                                                required
+                                                style={{ width: '100%', padding: '0.75rem 0.85rem', border: '1.5px solid #cbd5e1', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box', outline: 'none', backgroundColor: 'white', fontFamily: 'inherit' }}
+                                            >
+                                                <option value="" disabled>-- Selecione uma especialidade --</option>
+                                                {especialidadesOpcoes.map((esp) => (
+                                                    <option key={esp} value={esp}>{esp}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div className="form-group">
                                             <label>Registro Profissional (CREFITO)</label>
