@@ -30,12 +30,8 @@ export default function Exercicio() {
     const [notaEsforco, setNotaEsforco] = useState(null);
     const [observacao, setObservacao] = useState('');
     
-    // Novo estado para controlar se o paciente fez apenas uma parte do treino
     const [sessaoEncerradaCedo, setSessaoEncerradaCedo] = useState(false);
 
-    const contatoEmergenciaTel = "11988888888";
-
-    // Reinicia tudo ao avançar para o próximo exercício
     useEffect(() => {
         setTempo(treinoPrescrito.duracaoMinutos ? treinoPrescrito.duracaoMinutos * 60 : 0);
         setSerieAtual(1);
@@ -71,12 +67,8 @@ export default function Exercicio() {
         }
     };
 
-    // =========================================================================
-    // 1. DESISTÊNCIA TOTAL (BOTÃO VOLTAR AO INÍCIO)
-    // =========================================================================
     const handleDesistir = async () => {
         const confirmou = await showConfirm('Tem certeza que deseja abandonar o treino? Ficará registrado na sua ficha que você desistiu desta sessão.');
-        
         if (confirmou) {
             const payload = {
                 usuarioId: usuario.id,
@@ -86,20 +78,11 @@ export default function Exercicio() {
                 duracaoSegundos: 0,
                 feedback: 'Status: Abortou / Desistiu do exercício.'
             };
-            
-            fetch(`${API_URL}/api/atividades`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).catch(console.error);
-
+            fetch(`${API_URL}/api/atividades`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(console.error);
             navigate(-1);
         }
     };
 
-    // =========================================================================
-    // 2. FINALIZAR SESSÃO INCOMPLETA (ENCERRAR ANTECIPADAMENTE)
-    // =========================================================================
     const handleFinalizarCedo = async () => {
         const exerciciosFeitos = indiceAtual + 1;
         const total = filaTreinos.length;
@@ -115,19 +98,38 @@ export default function Exercicio() {
         }
     };
 
-    const lidarComSos = () => {
+    // =========================================================================
+    // NOVO BOTÃO DE SOS CORRIGIDO (Envia o alerta para o Profissional)
+    // =========================================================================
+    const lidarComSos = async (e) => {
+        e.preventDefault(); // Impede o navegador de tentar fazer chamadas ou abrir apps
+        
         if (usuario) {
-            fetch(`${API_URL}/api/alertas`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    usuarioId: usuario.id, 
-                    tipo: 'sos', 
-                    mensagem: 'O paciente acionou o botão de emergência durante o exercício!',
-                    treino: treinoPrescrito.titulo, 
-                    grupo: nomeGrupo                
-                })
-            }).catch(console.error);
+            const confirmou = await showConfirm('Pedir ajuda ao instrutor agora? Um alerta de emergência será enviado imediatamente para o painel dele.');
+            if (!confirmou) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/alertas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        usuarioId: usuario.id, 
+                        tipo: 'sos', 
+                        mensagem: 'O paciente acionou o botão de emergência durante o exercício!',
+                        treino: treinoPrescrito.titulo, 
+                        grupo: nomeGrupo                
+                    })
+                });
+                
+                if (res.ok) {
+                    showAlert('Alerta enviado! O instrutor foi notificado e virá ajudar.', 'sucesso');
+                } else {
+                    showAlert('Erro ao enviar alerta. Tente chamar alguém próximo.', 'erro');
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro de conexão ao enviar o alerta.', 'erro');
+            }
         }
     };
 
@@ -185,9 +187,11 @@ export default function Exercicio() {
 
     return (
         <div className="exercicio-layout fade-in">
-            <a href={`tel:${contatoEmergenciaTel}`} onClick={lidarComSos} className="btn-sos" aria-label="Ligar para emergência">
+            
+            {/* O BOTÃO SOS AGORA É UM <button> E NÃO UM <a href> */}
+            <button onClick={lidarComSos} className="btn-sos" aria-label="Pedir Ajuda ao Instrutor">
                 <PhoneCall size={32} className="icone-telefone" />
-            </a>
+            </button>
 
             <div className="exercicio-card">
                 {fase < 3 && (
