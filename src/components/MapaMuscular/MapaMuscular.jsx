@@ -7,9 +7,9 @@ export const traduzirMusculo = (musculoIngles) => {
     const dicionario = {
         'trapezius': 'Trapézio', 'upper-back': 'Costas Superiores', 'lower-back': 'Lombar',
         'chest': 'Peito', 'biceps': 'Bíceps', 'triceps': 'Tríceps', 'forearm': 'Antebraço',
-        'back-deltoids': 'Ombros (Trás)', 'front-deltoids': 'Ombros (Frente)', 'abs': 'Abdómen',
+        'back-deltoids': 'Ombros (Trás)', 'front-deltoids': 'Ombros (Frente)', 'abs': 'Abdômen',
         'obliques': 'Oblíquos', 'adductor': 'Adutores', 'hamstring': 'Posterior da Coxa',
-        'quadriceps': 'Quadríceps', 'abductors': 'Abdutores', 'calves': 'Gémeos / Panturrilhas',
+        'quadriceps': 'Quadríceps', 'abductors': 'Abdutores', 'calves': 'Panturrilhas / Gêmeos',
         'gluteal': 'Glúteos', 'head': 'Cabeça', 'neck': 'Pescoço'
     };
 
@@ -31,9 +31,9 @@ export default function MapaMuscular({ musculoAtivo, onSelecionarMusculo }) {
     const atalhosMusculares = [
         { id: 'quadriceps', nome: 'Quadríceps (Coxa)' },
         { id: 'hamstring', nome: 'Posterior da Coxa' },
-        { id: 'calves', nome: 'Gémeos (Panturrilha)' },
+        { id: 'calves', nome: 'Panturrilha (Gêmeos)' },
         { id: 'gluteal', nome: 'Glúteos' },
-        { id: 'abs', nome: 'Abdómen' },
+        { id: 'abs', nome: 'Abdômen' },
         { id: 'lower-back', nome: 'Lombar' },
         { id: 'biceps', nome: 'Bíceps' },
         { id: 'triceps', nome: 'Tríceps' },
@@ -41,10 +41,19 @@ export default function MapaMuscular({ musculoAtivo, onSelecionarMusculo }) {
         { id: 'front-deltoids', nome: 'Ombros' }
     ];
 
+    // FILTRO DE SEGURANÇA: Só passa para a biblioteca termos que ela conhece
+    const musculosValidosDaBiblioteca = [
+        'trapezius', 'upper-back', 'lower-back', 'chest', 'biceps', 'triceps', 'forearm',
+        'back-deltoids', 'front-deltoids', 'abs', 'obliques', 'adductor', 'hamstring',
+        'quadriceps', 'abductors', 'calves', 'gluteal', 'head', 'neck'
+    ];
+    const musculosParaDesenharNoBoneco = listaMusculos.filter(m => musculosValidosDaBiblioteca.includes(m));
+
     const dados = [
         {
             name: 'Músculos Selecionados',
-            muscles: listaMusculos
+            muscles: musculosParaDesenharNoBoneco,
+            exercises: [] // Evita erro interno da biblioteca
         }
     ];
 
@@ -76,10 +85,10 @@ export default function MapaMuscular({ musculoAtivo, onSelecionarMusculo }) {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: '#f8fafc', borderRadius: '14px', padding: '1.5rem', border: '1px solid #cbd5e1', width: '100%', boxSizing: 'border-box' }}>
             
             <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.85rem', color: '#64748b', textAlign: 'center' }}>
-                Clique diretamente nas áreas anatómicas ou utilize os atalhos abaixo (seleção múltipla ativa):
+                Clique diretamente nas áreas anatômicas ou utilize os atalhos abaixo (seleção múltipla ativa):
             </p>
 
-            {/* Modelos Anatómicos Amplos e Afastados Horizontalmente */}
+            {/* Modelos Anatômicos Amplos e Afastados Horizontalmente */}
             <div style={{ display: 'flex', gap: '3.5rem', justifyContent: 'center', alignItems: 'center', width: '100%', maxWidth: '720px', marginBottom: '1.5rem' }}>
                 
                 {/* Frente */}

@@ -64,7 +64,7 @@ export default function AbaAcervo({ acervo, onNovoExercicio, onEditarExercicio, 
                 <div style={{ textAlign: 'center', padding: '4rem 1rem', backgroundColor: 'white', border: '1px dashed #cbd5e1' }}>
                     <FolderKanban size={48} color="#94a3b8" style={{ margin: '0 auto 1rem' }} />
                     <h3 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>O seu acervo está vazio</h3>
-                    <p style={{ margin: 0, color: '#64748b' }}>Cadastre exercícios-modelo para agilizar as prescrições de rotina dos seus utentes.</p>
+                    <p style={{ margin: 0, color: '#64748b' }}>Cadastre exercícios-modelo para agilizar as prescrições de rotina dos seus alunos.</p>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -82,18 +82,36 @@ export default function AbaAcervo({ acervo, onNovoExercicio, onEditarExercicio, 
 
                             <div style={{ padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                                 {dados.itens.map(treino => (
-                                    <div key={treino.id} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '1rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', minHeight: '110px' }}>
-                                        <div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                                <strong style={{ color: '#0f172a', fontSize: '1rem' }}>{treino.titulo}</strong>
-                                                <div style={{ display: 'flex', gap: '0.25rem' }}>
-                                                    <button onClick={() => onEditarExercicio(treino, nomeGrupo)} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: '0.2rem' }} title="Editar"><Edit2 size={16} /></button>
-                                                    <button onClick={() => onDeletarItem(treino.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem' }} title="Remover"><Trash2 size={16} /></button>
-                                                </div>
+                                    <div key={treino.id} style={{ display: 'flex', gap: '0.75rem', padding: '1rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', minHeight: '90px' }}>
+                                        
+                                        {/* MINIATURA DA IMAGEM/GIF */}
+                                        {treino.gifUrl ? (
+                                            <div style={{ width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: 'white', border: '1px solid #cbd5e1' }}>
+                                                {treino.gifUrl.match(/\.(mp4|webm)$/i) || treino.gifUrl.startsWith('data:video') ? (
+                                                    <video src={treino.gifUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted playsInline />
+                                                ) : (
+                                                    <img src={treino.gifUrl} alt={treino.titulo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                                                )}
                                             </div>
-                                            <span style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 'bold' }}>
-                                                Tipo: {treino.tipo} {treino.focoMuscular ? `• ${treino.focoMuscular}` : ''}
-                                            </span>
+                                        ) : (
+                                            <div style={{ width: '60px', height: '60px', borderRadius: '8px', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0 }}>
+                                                🏋️
+                                            </div>
+                                        )}
+
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                                            <div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                                                    <strong style={{ color: '#0f172a', fontSize: '1rem', lineHeight: '1.2' }}>{treino.titulo}</strong>
+                                                    <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
+                                                        <button onClick={() => onEditarExercicio(treino, nomeGrupo)} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: '0.2rem' }} title="Editar"><Edit2 size={16} /></button>
+                                                        <button onClick={() => onDeletarItem(treino.id)} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: '0.2rem' }} title="Remover"><Trash2 size={16} /></button>
+                                                    </div>
+                                                </div>
+                                                <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                    Tipo: {treino.tipo} {treino.focoMuscular ? `• ${treino.focoMuscular}` : ''}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
