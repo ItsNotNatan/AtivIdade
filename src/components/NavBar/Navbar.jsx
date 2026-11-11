@@ -17,6 +17,13 @@ export default function Navbar() {
         navigate('/login');
     };
 
+    // Função para direcionar cada tipo de usuário para o seu painel correto
+    const getRotaDashboard = () => {
+        if (usuario.tipo === 'gestor') return '/dashboard-gestor';
+        if (usuario.tipo === 'profissional') return '/dashboard-profissional';
+        return '/dashboard'; // Rota padrão do idoso/paciente
+    };
+
     return (
         <header className="app-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
@@ -30,11 +37,20 @@ export default function Navbar() {
             </button>
 
             <nav className={`nav-links ${menuAberto ? 'aberto' : ''}`} style={{ flex: 1, justifyContent: 'flex-end' }}>
-                <NavLink to={usuario.tipo === 'profissional' ? "/dashboard-profissional" : "/dashboard"} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={() => setMenuAberto(false)}>
+                
+                <NavLink 
+                    to={getRotaDashboard()} 
+                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} 
+                    onClick={() => setMenuAberto(false)}
+                >
                     <LayoutDashboard size={18} /> Painel Principal
                 </NavLink>
 
-                <NavLink to="/perfil" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={() => setMenuAberto(false)}>
+                <NavLink 
+                    to="/perfil" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} 
+                    onClick={() => setMenuAberto(false)}
+                >
                     <Settings size={18} /> Minha Conta
                 </NavLink>
                 
@@ -44,10 +60,10 @@ export default function Navbar() {
                             <img src={usuario.fotoPerfil} alt={usuario.nome} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #cbd5e1' }} />
                         ) : (
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#059669', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                {usuario.nome.replace(/^(Dr\.|Dra\.)\s+/i, '').charAt(0).toUpperCase()}
+                                {/* Remove prefixos para pegar a primeira letra do nome real da pessoa */}
+                                {usuario.nome.replace(/^(Dr\.|Dra\.|Diretor\s)/i, '').trim().charAt(0).toUpperCase()}
                             </div>
                         )}
-                        {/* AQUI ESTAVA O ERRO: Removi o .split(' ')[0] para mostrar o nome inteiro */}
                         <span style={{ fontWeight: 'bold', color: '#1e293b', fontSize: '0.9rem' }}>
                             {usuario.nome}
                         </span>
