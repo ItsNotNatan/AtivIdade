@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, PhoneCall, PlayCircle, CheckCircle2, PauseCircle, CheckSquare, Send } from 'lucide-react';
 import { useAuthStore } from '../../contexts/authStore';
+import { useAlert } from '../../components/AlertContext/AlertContext'; 
 import { API_URL } from '../../config';
 import './Exercicio.css';
 
@@ -10,6 +11,7 @@ export default function Exercicio() {
     const navigate = useNavigate();
     const location = useLocation();
     const { usuario } = useAuthStore();
+    const { showAlert, showConfirm } = useAlert();
     
     const filaTreinos = location.state?.filaTreinos || [ location.state?.treino || { titulo: 'Movimento Livre', tipo: 'tempo', duracaoMinutos: 5 } ];
     const nomeGrupo = location.state?.nomeGrupo || 'Meu Treino';
@@ -24,9 +26,12 @@ export default function Exercicio() {
     const [pausado, setPausado] = useState(false);
     const [serieAtual, setSerieAtual] = useState(1);
 
-    // Novos estados para a Escala de Dor/Esforço (0 a 10) e Caixa de Texto
+    // Escala de Dor/Esforço (0 a 10) e Caixa de Texto
     const [notaEsforco, setNotaEsforco] = useState(null);
     const [observacao, setObservacao] = useState('');
+    
+    // Novo estado para controlar se o paciente fez apenas uma parte do treino
+    const [sessaoEncerradaCedo, setSessaoEncerradaCedo] = useState(false);
 
     const contatoEmergenciaTel = "11988888888";
 
@@ -66,6 +71,50 @@ export default function Exercicio() {
         }
     };
 
+    // =========================================================================
+    // 1. DESISTÊNCIA TOTAL (BOTÃO VOLTAR AO INÍCIO)
+    // =========================================================================
+    const handleDesistir = async () => {
+        const confirmou = await showConfirm('Tem certeza que deseja abandonar o treino? Ficará registrado na sua ficha que você desistiu desta sessão.');
+        
+        if (confirmou) {
+            const payload = {
+                usuarioId: usuario.id,
+                titulo: treinoPrescrito.titulo,
+                grupo: nomeGrupo,
+                tipo: treinoPrescrito.tipo,
+                duracaoSegundos: 0,
+                feedback: 'Status: Abortou / Desistiu do exercício.'
+            };
+            
+            fetch(`${API_URL}/api/atividades`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(console.error);
+
+            navigate(-1);
+        }
+    };
+
+    // =========================================================================
+    // 2. FINALIZAR SESSÃO INCOMPLETA (ENCERRAR ANTECIPADAMENTE)
+    // =========================================================================
+    const handleFinalizarCedo = async () => {
+        const exerciciosFeitos = indiceAtual + 1;
+        const total = filaTreinos.length;
+        
+        if (exerciciosFeitos < total) {
+            const confirmou = await showConfirm(`Você está encerrando antes de completar todos os exercícios (${exerciciosFeitos} de ${total}). Deseja finalizar a sessão e salvar o progresso atual?`);
+            if (confirmou) {
+                setSessaoEncerradaCedo(true);
+                setFase(2); 
+            }
+        } else {
+            setFase(2); 
+        }
+    };
+
     const lidarComSos = () => {
         if (usuario) {
             fetch(`${API_URL}/api/alertas`, {
@@ -84,7 +133,6 @@ export default function Exercicio() {
 
     const enviarFeedback = () => {
         if (usuario) {
-            // Regra Clínica: Se a dor for >= 7 ou se houver observação escrita, soa o alarme.
             const precisaDeAlerta = notaEsforco >= 7 || observacao.trim().length > 0;
 
             if (precisaDeAlerta) {
@@ -101,11 +149,13 @@ export default function Exercicio() {
                 }).catch(console.error);
             }
             
+            const textoIncompleto = sessaoEncerradaCedo ? ` [Sessão Incompleta: Fez ${indiceAtual + 1} de ${filaTreinos.length}]` : '';
+            
             const payload = { 
                 ...treinoPrescrito, 
                 usuarioId: usuario.id,
                 duracaoSegundos: (treinoPrescrito.duracaoMinutos || 0) * 60,
-                feedback: `Esforço: ${notaEsforco}/10. ${observacao.trim()}` 
+                feedback: `Esforço: ${notaEsforco}/10. ${observacao.trim()}${textoIncompleto}` 
             };
             
             fetch(`${API_URL}/api/atividades`, {
@@ -119,18 +169,18 @@ export default function Exercicio() {
             }
         }
 
-        if (indiceAtual < filaTreinos.length - 1) {
+        if (sessaoEncerradaCedo || indiceAtual >= filaTreinos.length - 1) {
+            setFase(3); 
+        } else {
             setIndiceAtual(prev => prev + 1);
             setFase(0); 
-        } else {
-            setFase(3); 
         }
     };
 
     const getCorEscala = (nota) => {
-        if (nota <= 3) return '#22c55e'; // Verde (Fácil)
-        if (nota <= 6) return '#f59e0b'; // Amarelo/Laranja (Médio)
-        return '#ef4444'; // Vermelho (Difícil/Dor)
+        if (nota <= 3) return '#22c55e'; 
+        if (nota <= 6) return '#f59e0b'; 
+        return '#ef4444'; 
     };
 
     return (
@@ -141,7 +191,7 @@ export default function Exercicio() {
 
             <div className="exercicio-card">
                 {fase < 3 && (
-                    <button onClick={() => navigate(-1)} className="btn-voltar">
+                    <button onClick={handleDesistir} className="btn-voltar">
                         <ArrowLeft size={24} /> Voltar ao Início
                     </button>
                 )}
@@ -234,8 +284,8 @@ export default function Exercicio() {
                         )}
 
                         {treinoPrescrito.tipo !== 'meta' && (
-                            <button onClick={() => setFase(2)} className="btn-voltar" style={{ width: '100%', justifyContent: 'center' }}>
-                                Finalizar Exercício Agora
+                            <button onClick={handleFinalizarCedo} className="btn-voltar" style={{ width: '100%', justifyContent: 'center' }}>
+                                {indiceAtual < filaTreinos.length - 1 ? 'Encerrar Sessão Antecipadamente' : 'Finalizar Exercício Agora'}
                             </button>
                         )}
                     </div>
@@ -297,9 +347,18 @@ export default function Exercicio() {
                 {/* FASE 3: CONCLUSÃO */}
                 {fase === 3 && (
                     <div className="text-center fade-in">
-                        <div className="icone-sucesso"><CheckCircle2 size={64} color="#059669" /></div>
-                        <h1 className="exercicio-titulo">Treino Completo!</h1>
-                        <p className="exercicio-sub">Completou todos os exercícios de "{nomeGrupo}". Excelente trabalho!</p>
+                        <div className="icone-sucesso">
+                            <CheckCircle2 size={64} color={sessaoEncerradaCedo ? "#f59e0b" : "#059669"} />
+                        </div>
+                        <h1 className="exercicio-titulo">
+                            {sessaoEncerradaCedo ? 'Sessão Concluída Parcialmente!' : 'Treino Completo!'}
+                        </h1>
+                        <p className="exercicio-sub">
+                            {sessaoEncerradaCedo 
+                                ? `Você registrou ${indiceAtual + 1} de ${filaTreinos.length} exercícios em "${nomeGrupo}". O importante é respeitar os seus limites!`
+                                : `Completou todos os exercícios de "${nomeGrupo}". Excelente trabalho!`
+                            }
+                        </p>
                         <button onClick={() => navigate('/dashboard')} className="btn-gigante btn-verde" style={{ marginTop: '2rem' }}>
                             Voltar ao Painel Principal
                         </button>
