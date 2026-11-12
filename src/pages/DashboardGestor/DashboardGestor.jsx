@@ -164,7 +164,7 @@ export default function DashboardGestor() {
                             <Users size={36} color="#3b82f6" />
                         </div>
                         <div>
-                            <p style={{ margin: '0 0 0.25rem 0', color: '#64748b', fontWeight: 'bold', fontSize: '0.95rem', textTransform: 'uppercase' }}>Utentes Ativos</p>
+                            <p style={{ margin: '0 0 0.25rem 0', color: '#64748b', fontWeight: 'bold', fontSize: '0.95rem', textTransform: 'uppercase' }}>Pacientes Ativos</p>
                             <h3 style={{ margin: 0, fontSize: '2.5rem', fontWeight: '800', color: '#1e293b' }}>{estatisticas.idosos}</h3>
                         </div>
                     </div>
