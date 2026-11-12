@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     User, Phone, Mail, Stethoscope, BadgeCheck, GraduationCap, 
     FileText, Lock, Save, X, Edit3, Users, FolderKanban, Library, 
-    HeartHandshake, CheckCircle2, ShieldCheck, Building2
+    HeartHandshake, CheckCircle2, ShieldCheck
 } from 'lucide-react';
 import { useAuthStore } from '../../contexts/authStore';
 import { useAlert } from '../../components/AlertContext/AlertContext';
@@ -13,20 +13,21 @@ import { API_URL } from '../../config';
 import UploadFotoPerfil from '../../components/UploadFotoPerfil/UploadFotoPerfil';
 import './Perfil.css';
 
+// LISTA COMPLETA DE ESPECIALIDADES (Usada pelo Profissional)
 const especialidadesOpcoes = [
     "Fisioterapia Acupuntura",
     "Fisioterapia Aquática (Hidroterapia)",
     "Fisioterapia Cardiovascular",
-    "Fisioterapia Dermatofuncional",
-    "Fisioterapia do Trabalho",
+    "Fisioterapia Dermatofuncional (focada em estética, queimaduras e cicatrização)",
+    "Fisioterapia do Trabalho (ergonomia e saúde ocupacional)",
     "Fisioterapia em Gerontologia (saúde do idoso)",
-    "Fisioterapia em Oncologia",
+    "Fisioterapia em Oncologia (reabilitação de pacientes com câncer)",
     "Fisioterapia em Osteopatia",
     "Fisioterapia em Quiropraxia",
-    "Fisioterapia em Saúde da Mulher",
+    "Fisioterapia em Saúde da Mulher (inclui uroginecológica e obstétrica)",
     "Fisioterapia em Terapia Intensiva (UTI)",
     "Fisioterapia Esportiva",
-    "Fisioterapia Neurofuncional",
+    "Fisioterapia Neurofuncional (adulto e pediátrica)",
     "Fisioterapia Ortopédica e Traumatológica",
     "Fisioterapia Pediátrica e Neonatal",
     "Fisioterapia Respiratória"
@@ -42,31 +43,16 @@ export default function Perfil() {
     
     const [meusAlunos, setMeusAlunos] = useState([]);
 
-    const [statsProfissional, setStatsProfissional] = useState({
-        totalTurmas: 0,
-        totalAlunos: 0,
-        totalAcervo: 0
-    });
-
-    const [statsGestor, setStatsGestor] = useState({
-        totalProfissionais: 0,
-        totalPacientes: 0,
-        totalTurmas: 0
-    });
+    const [statsProfissional, setStatsProfissional] = useState({ totalTurmas: 0, totalAlunos: 0, totalAcervo: 0 });
+    const [statsGestor, setStatsGestor] = useState({ idosos: 0, profissionais: 0, turmas: 0 });
 
     const [form, setForm] = useState({
-        nome: '', celular: '', email: '', fotoPerfil: '',
-        especialidade: '', registroProfissional: '', formacao: '', biografia: '',
-        pin: '', idade: '', peso: '', altura: '', condicoes: []
+        nome: '', celular: '', email: '', fotoPerfil: '', especialidade: '', 
+        registroProfissional: '', formacao: '', biografia: '', pin: '', 
+        idade: '', peso: '', altura: '', condicoes: []
     });
 
     const [letrasGrandes, setLetrasGrandes] = useState(() => localStorage.getItem('letrasGrandes') === 'true');
-
-    useEffect(() => {
-        if (!usuario) {
-            navigate('/login');
-        }
-    }, [usuario, navigate]);
 
     useEffect(() => {
         if (letrasGrandes) document.body.classList.add('letras-grandes');
@@ -80,35 +66,36 @@ export default function Perfil() {
     };
 
     useEffect(() => {
-        if (usuario) {
-            setForm(prev => ({
-                ...prev,
-                nome: usuario.nome || '',
-                celular: usuario.celular || '',
-                email: usuario.email || '',
-                fotoPerfil: usuario.fotoPerfil || '',
-                especialidade: usuario.especialidade || '',
-                registroProfissional: usuario.registroProfissional || '',
-                formacao: usuario.formacao || '',
-                biografia: usuario.biografia || '',
-                pin: '',
-                idade: usuario.idade ? String(usuario.idade) : '',
-                peso: usuario.peso ? String(usuario.peso) : '70',
-                altura: usuario.altura ? String(usuario.altura) : '165',
-                condicoes: usuario.condicoes ? usuario.condicoes.split(',').map(c => c.trim()).filter(Boolean) : []
-            }));
-
-            if (usuario.tipo === 'profissional') {
-                carregarMetricasProfissional(usuario.id);
-            } else if (usuario.tipo === 'gestor') {
-                carregarDadosGestor();
-            }
+        if (!usuario) {
+            navigate('/login');
+            return;
         }
-    }, [usuario]);
 
-    // ===============================================
-    // CARREGAMENTOS DE DADOS E MÁSCARAS
-    // ===============================================
+        setForm(prev => ({
+            ...prev,
+            nome: usuario.nome || '',
+            celular: usuario.celular || '',
+            email: usuario.email || '',
+            fotoPerfil: usuario.fotoPerfil || '',
+            especialidade: usuario.especialidade || '',
+            registroProfissional: usuario.registroProfissional || '',
+            formacao: usuario.formacao || '',
+            biografia: usuario.biografia || '',
+            pin: '',
+            idade: usuario.idade ? String(usuario.idade) : '',
+            peso: usuario.peso ? String(usuario.peso) : '70',
+            altura: usuario.altura ? String(usuario.altura) : '165',
+            condicoes: usuario.condicoes ? usuario.condicoes.split(',').map(c => c.trim()).filter(Boolean) : []
+        }));
+
+        if (usuario.tipo === 'profissional') {
+            carregarMetricasProfissional(usuario.id);
+        } else if (usuario.tipo === 'gestor') {
+            carregarMetricasGestor();
+        }
+
+    }, [usuario, navigate]);
+
     const carregarMetricasProfissional = async (idProf) => {
         try {
             const [resTurmas, resAcervo] = await Promise.all([
@@ -116,7 +103,10 @@ export default function Perfil() {
                 fetch(`${API_URL}/api/acervo/${idProf}`)
             ]);
 
-            let turmasCount = 0; let alunosCount = 0; let acervoCount = 0; let listaUnicaAlunos = [];
+            let turmasCount = 0;
+            let alunosCount = 0;
+            let acervoCount = 0;
+            let listaUnicaAlunos = [];
 
             if (resTurmas.ok) {
                 const todasTurmas = await resTurmas.json();
@@ -125,7 +115,13 @@ export default function Perfil() {
                 
                 const mapaDeAlunos = new Map();
                 minhasTurmas.forEach(t => {
-                    if (t.alunos) { t.alunos.forEach(a => { if (!mapaDeAlunos.has(a.id)) mapaDeAlunos.set(a.id, a); }); }
+                    if (t.alunos) {
+                        t.alunos.forEach(aluno => {
+                            if (!mapaDeAlunos.has(aluno.id)) {
+                                mapaDeAlunos.set(aluno.id, aluno);
+                            }
+                        });
+                    }
                 });
                 
                 listaUnicaAlunos = Array.from(mapaDeAlunos.values());
@@ -139,43 +135,31 @@ export default function Perfil() {
 
             setStatsProfissional({ totalTurmas: turmasCount, totalAlunos: alunosCount, totalAcervo: acervoCount });
             setMeusAlunos(listaUnicaAlunos);
-        } catch (error) { console.error("Erro:", error); }
+
+        } catch (error) { console.error("Erro ao carregar métricas do profissional:", error); }
     };
 
-    const carregarDadosGestor = async () => {
+    const carregarMetricasGestor = async () => {
         try {
-            const [resEstat, resProf, resTurmas] = await Promise.all([
-                fetch(`${API_URL}/api/estatisticas`),
-                fetch(`${API_URL}/api/profissionais`),
-                fetch(`${API_URL}/api/turmas`)
-            ]);
-            
-            let stats = { totalProfissionais: 0, totalPacientes: 0, totalTurmas: 0 };
-            
-            if (resEstat.ok) {
-                const dados = await resEstat.json();
-                stats.totalPacientes = dados.idosos || 0;
-            }
-            if (resProf.ok) {
-                const profs = await resProf.json();
-                stats.totalProfissionais = profs.length;
-            }
-            if (resTurmas.ok) {
-                const turmas = await resTurmas.json();
-                stats.totalTurmas = turmas.length;
-            }
-            
-            setStatsGestor(stats);
-        } catch (err) { console.error(err); }
+            const res = await fetch(`${API_URL}/api/estatisticas`);
+            if (res.ok) setStatsGestor(await res.json());
+        } catch (error) { console.error("Erro ao carregar métricas do gestor:", error); }
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         let v = value;
-        if (name === 'nome') v = v.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]/g, '');
-        else if (name === 'celular') v = formatarTelefone(v);
-        else if (name === 'pin') v = v.replace(/\D/g, '').slice(0, 4);
-        else if (name === 'idade' || name === 'peso' || name === 'altura') v = v.replace(/\D/g, '');
+
+        if (name === 'nome') {
+            v = v.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]/g, '');
+        } else if (name === 'celular') {
+            v = formatarTelefone(v);
+        } else if (name === 'pin') {
+            v = v.replace(/\D/g, '').slice(0, 4);
+        } else if (name === 'idade' || name === 'peso' || name === 'altura') {
+            v = v.replace(/\D/g, '');
+        }
+
         setForm(prev => ({ ...prev, [name]: v }));
     };
 
@@ -184,12 +168,17 @@ export default function Perfil() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setCarregando(true);
+
         try {
             const payload = {
-                nome: form.nome.trim(), celular: form.celular.trim(), email: form.email.trim(),
-                fotoPerfil: form.fotoPerfil, 
-                especialidade: form.especialidade.trim(), registroProfissional: form.registroProfissional.trim(),
-                formacao: form.formacao.trim(), biografia: form.biografia.trim(),
+                nome: form.nome.trim(),
+                celular: form.celular.trim(),
+                email: form.email.trim(),
+                fotoPerfil: form.fotoPerfil,
+                especialidade: form.especialidade.trim(),
+                registroProfissional: form.registroProfissional.trim(),
+                formacao: form.formacao.trim(),
+                biografia: form.biografia.trim(),
                 pin: form.pin ? form.pin : undefined,
                 idade: form.idade ? Number(form.idade) : null,
                 condicoes: form.condicoes.join(', ')
@@ -219,29 +208,28 @@ export default function Perfil() {
 
     return (
         <div className="perfil-layout fade-in">
-            {isGestor ? (
-                // ===============================================
-                // PERFIL DO DIRETOR (GESTOR)
-                // ===============================================
+            {/* ========================================================= */}
+            {/* PERFIL DO DIRETOR / GESTOR */}
+            {/* ========================================================= */}
+            {isGestor && (
                 <div className="perfil-prof-container">
-                    
                     <div className="prof-hero-card">
-                        <div className="prof-avatar-badge" style={{ overflow: 'hidden', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)', boxShadow: '0 10px 15px -3px rgba(124, 58, 237, 0.3)' }}>
+                        <div className="prof-avatar-badge" style={{ overflow: 'hidden', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1e3a8a', color: 'white', border: 'none' }}>
                             {usuario.fotoPerfil ? (
                                 <img src={usuario.fotoPerfil} alt={usuario.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                                <span>{usuario.nome.replace('Diretor ', '').charAt(0) || 'G'}</span>
+                                <span>{usuario.nome.replace(/^(Diretor\s*|Diretora\s*)/i, '').charAt(0) || 'G'}</span>
                             )}
                         </div>
                         <div className="prof-hero-info">
                             <div className="prof-title-row">
                                 <h1>{form.nome || 'Diretor'}</h1>
-                                <span className="badge-registro" style={{ color: '#4c1d95', backgroundColor: '#f5f3ff', borderColor: '#ddd6fe' }}>
-                                    <ShieldCheck size={18} /> Administração
+                                <span className="badge-registro" style={{ backgroundColor: '#1e3a8a', color: 'white', border: 'none' }}>
+                                    <ShieldCheck size={18} /> Gestor da Instituição
                                 </span>
                             </div>
-                            <p className="prof-especialidade-sub">
-                                <Building2 size={18} color="#7c3aed" /> Direção Clínica e Institucional
+                            <p className="prof-especialidade-sub" style={{ color: '#475569' }}>
+                                Painel de Administração Central
                             </p>
                             <div className="prof-contact-pills">
                                 <span><Phone size={15} /> {form.celular}</span>
@@ -249,7 +237,7 @@ export default function Perfil() {
                             </div>
                         </div>
 
-                        <button onClick={() => setModalEditarAberto(true)} className="btn-edit-toggle" style={{ backgroundColor: '#7c3aed', boxShadow: '0 4px 6px -1px rgba(124, 58, 237, 0.25)' }}>
+                        <button onClick={() => setModalEditarAberto(true)} className="btn-edit-toggle">
                             <Edit3 size={18} /> Editar Perfil
                         </button>
                     </div>
@@ -257,21 +245,21 @@ export default function Perfil() {
                     <div className="prof-stats-grid">
                         <div className="stat-box">
                             <div className="stat-icon-wrap" style={{ backgroundColor: '#eff6ff', color: '#2563eb' }}>
-                                <Stethoscope size={24} />
+                                <Users size={24} />
                             </div>
                             <div>
-                                <h3>{statsGestor.totalProfissionais}</h3>
-                                <p>Profissionais na Equipe</p>
+                                <h3>{statsGestor.idosos}</h3>
+                                <p>Pacientes na Clínica</p>
                             </div>
                         </div>
 
                         <div className="stat-box">
                             <div className="stat-icon-wrap" style={{ backgroundColor: '#ecfdf5', color: '#059669' }}>
-                                <Users size={24} />
+                                <Stethoscope size={24} />
                             </div>
                             <div>
-                                <h3>{statsGestor.totalPacientes}</h3>
-                                <p>Utentes Ativos</p>
+                                <h3>{statsGestor.profissionais}</h3>
+                                <p>Fisioterapeutas</p>
                             </div>
                         </div>
 
@@ -280,17 +268,65 @@ export default function Perfil() {
                                 <FolderKanban size={24} />
                             </div>
                             <div>
-                                <h3>{statsGestor.totalTurmas}</h3>
-                                <p>Turmas em Andamento</p>
+                                <h3>{statsGestor.turmas}</h3>
+                                <p>Turmas Ativas Globais</p>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            ) : isProf ? (
-                // ===============================================
-                // PERFIL DO PROFISSIONAL (FISIOTERAPEUTA)
-                // ===============================================
+                    <div className="prof-section-card" style={{ marginTop: '2rem' }}>
+                        <h2><Lock size={22} color="#1e3a8a" /> Acesso & Segurança (Administração)</h2>
+                        <p className="section-content-text" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <CheckCircle2 size={18} color="#059669" /> Esta conta possui privilégios de gestão total para cadastrar e remover membros do corpo clínico.
+                        </p>
+                    </div>
+
+                    {/* MODAL DE EDIÇÃO DO GESTOR */}
+                    {modalEditarAberto && (
+                        <div className="modal-backdrop">
+                            <div className="modal-content-card fade-in" style={{ maxWidth: '500px' }}>
+                                <div className="modal-header">
+                                    <div>
+                                        <h2>Editar Perfil da Direção</h2>
+                                        <p>Atualize os seus dados de contacto e acesso.</p>
+                                    </div>
+                                    <button onClick={() => setModalEditarAberto(false)} className="btn-modal-close"><X size={22} /></button>
+                                </div>
+                                <form onSubmit={handleSubmit} className="modal-form-body">
+                                    <UploadFotoPerfil foto={form.fotoPerfil} setFoto={setFotoPerfil} tamanho={100} />
+                                    <div className="form-group">
+                                        <label>Nome Completo</label>
+                                        <input type="text" name="nome" value={form.nome} onChange={handleChange} required placeholder="Ex: Diretor Carlos" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Celular (Login)</label>
+                                        <input type="tel" inputMode="numeric" name="celular" value={form.celular} onChange={handleChange} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>E-mail Institucional</label>
+                                        <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="diretoria@clinica.com" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Novo PIN de 4 Dígitos (Opcional)</label>
+                                        <input type="password" inputMode="numeric" maxLength="4" name="pin" value={form.pin} onChange={handleChange} placeholder="Deixe em branco para manter" style={{ letterSpacing: '0.25rem' }} />
+                                    </div>
+                                    <div className="modal-actions-footer">
+                                        <button type="button" onClick={() => setModalEditarAberto(false)} className="btn-modal-cancel">Cancelar</button>
+                                        <button type="submit" disabled={carregando} className="btn-modal-save" style={{ backgroundColor: '#1e3a8a' }}>
+                                            <Save size={18} /> {carregando ? 'Salvando...' : 'Salvar Alterações'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ========================================================= */}
+            {/* PERFIL DO FISIOTERAPEUTA (PROFISSIONAL) */}
+            {/* ========================================================= */}
+            {isProf && (
                 <div className="perfil-prof-container">
                     
                     <div className="prof-hero-card">
@@ -406,11 +442,94 @@ export default function Perfil() {
                             </p>
                         </div>
                     </div>
+
+                    {/* MODAL DE EDIÇÃO DO FISIOTERAPEUTA */}
+                    {modalEditarAberto && (
+                        <div className="modal-backdrop">
+                            <div className="modal-content-card fade-in">
+                                
+                                <div className="modal-header">
+                                    <div>
+                                        <h2>Editar Ficha do Profissional</h2>
+                                        <p>Atualize suas credenciais, contatos e informações clínicas de atendimento.</p>
+                                    </div>
+                                    <button onClick={() => setModalEditarAberto(false)} className="btn-modal-close"><X size={22} /></button>
+                                </div>
+
+                                <form onSubmit={handleSubmit} className="modal-form-body">
+                                    <UploadFotoPerfil foto={form.fotoPerfil} setFoto={setFotoPerfil} tamanho={100} />
+                                    
+                                    <div className="form-grid-2">
+                                        <div className="form-group">
+                                            <label>Nome Completo (Identificação Clínica)</label>
+                                            <input type="text" name="nome" value={form.nome} onChange={handleChange} required placeholder="Ex: Dra. Camila Rocha" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Celular de Acesso</label>
+                                            <input type="tel" inputMode="numeric" name="celular" value={form.celular} onChange={handleChange} required placeholder="(00) 00000-0000" />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid-2">
+                                        <div className="form-group">
+                                            <label>Especialidade Principal</label>
+                                            <select 
+                                                name="especialidade" 
+                                                value={form.especialidade} 
+                                                onChange={handleChange} 
+                                                required
+                                                style={{ width: '100%', padding: '0.75rem 0.85rem', border: '1.5px solid #cbd5e1', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box', outline: 'none', backgroundColor: 'white', fontFamily: 'inherit' }}
+                                            >
+                                                <option value="" disabled>-- Selecione uma especialidade --</option>
+                                                {especialidadesOpcoes.map((esp) => (
+                                                    <option key={esp} value={esp}>{esp}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Registro Profissional (CREFITO)</label>
+                                            <input type="text" name="registroProfissional" value={form.registroProfissional} onChange={handleChange} required placeholder="Ex: CREFITO-3/123456-F" />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid-2">
+                                        <div className="form-group">
+                                            <label>E-mail Institucional / Contato</label>
+                                            <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="profissional@instituicao.com.br" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Novo PIN de 4 Dígitos (Opcional)</label>
+                                            <input type="password" inputMode="numeric" maxLength="4" name="pin" value={form.pin} onChange={handleChange} placeholder="Deixe em branco para manter" style={{ letterSpacing: '0.25rem' }} />
+                                        </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Formação Acadêmica, Pós e Cursos de Extensão</label>
+                                        <textarea name="formacao" rows="2" value={form.formacao} onChange={handleChange} placeholder="Ex: Graduação em Fisioterapia (USP), Especialização em Gerontologia..."></textarea>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Apresentação / Abordagem Terapêutica com Idosos</label>
+                                        <textarea name="biografia" rows="3" value={form.biografia} onChange={handleChange} placeholder="Descreva seu método de trabalho: foco em prevenção de quedas..."></textarea>
+                                    </div>
+
+                                    <div className="modal-actions-footer">
+                                        <button type="button" onClick={() => setModalEditarAberto(false)} className="btn-modal-cancel">Cancelar</button>
+                                        <button type="submit" disabled={carregando} className="btn-modal-save">
+                                            <Save size={18} /> {carregando ? 'Salvando...' : 'Salvar Alterações'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            ) : (
-                // ===============================================
-                // PERFIL DO IDOSO (PACIENTE)
-                // ===============================================
+            )}
+
+            {/* ========================================================= */}
+            {/* PERFIL DO PACIENTE (IDOSO) */}
+            {/* ========================================================= */}
+            {!isProf && !isGestor && (
                 <div className="perfil-idoso-container">
                     <div className="idoso-card">
                         <UploadFotoPerfil foto={form.fotoPerfil} setFoto={setFotoPerfil} tamanho={120} />
@@ -456,93 +575,6 @@ export default function Perfil() {
                         >
                             <Save size={20} /> {carregando ? 'Salvando...' : 'Salvar Alterações'}
                         </button>
-                    </div>
-                </div>
-            )}
-
-            {/* MODAL DE EDIÇÃO (COMUM PARA PROFISSIONAIS E GESTORES) */}
-            {modalEditarAberto && (
-                <div className="modal-backdrop">
-                    <div className="modal-content-card fade-in">
-                        
-                        <div className="modal-header">
-                            <div>
-                                <h2>Editar {isGestor ? 'Perfil do Diretor' : 'Ficha do Profissional'}</h2>
-                                <p>Atualize suas credenciais e contatos.</p>
-                            </div>
-                            <button onClick={() => setModalEditarAberto(false)} className="btn-modal-close">
-                                <X size={22} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="modal-form-body">
-                            <UploadFotoPerfil foto={form.fotoPerfil} setFoto={setFotoPerfil} tamanho={100} />
-                            
-                            <div className="form-grid-2">
-                                <div className="form-group">
-                                    <label>Nome Completo</label>
-                                    <input type="text" name="nome" value={form.nome} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label>Celular de Acesso</label>
-                                    <input type="tel" inputMode="numeric" name="celular" value={form.celular} onChange={handleChange} required />
-                                </div>
-                            </div>
-
-                            {/* Só exibe campos clínicos se NÃO for Gestor */}
-                            {!isGestor && (
-                                <div className="form-grid-2">
-                                    <div className="form-group">
-                                        <label>Especialidade Principal</label>
-                                        <select 
-                                            name="especialidade" value={form.especialidade} onChange={handleChange} required
-                                            style={{ width: '100%', padding: '0.75rem 0.85rem', border: '1.5px solid #cbd5e1', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box', outline: 'none', backgroundColor: 'white', fontFamily: 'inherit' }}
-                                        >
-                                            <option value="" disabled>-- Selecione uma especialidade --</option>
-                                            {especialidadesOpcoes.map((esp) => (
-                                                <option key={esp} value={esp}>{esp}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Registro Profissional (CREFITO)</label>
-                                        <input type="text" name="registroProfissional" value={form.registroProfissional} onChange={handleChange} required />
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="form-grid-2">
-                                <div className="form-group">
-                                    <label>E-mail Institucional</label>
-                                    <input type="email" name="email" value={form.email} onChange={handleChange} />
-                                </div>
-                                <div className="form-group">
-                                    <label>Novo PIN de 4 Dígitos (Opcional)</label>
-                                    <input type="password" inputMode="numeric" maxLength="4" name="pin" value={form.pin} onChange={handleChange} placeholder="Deixe em branco para manter" style={{ letterSpacing: '0.25rem' }} />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>{isGestor ? 'Apresentação Institucional (Opcional)' : 'Formação Acadêmica, Pós e Cursos'}</label>
-                                <textarea name="formacao" rows="2" value={form.formacao} onChange={handleChange} />
-                            </div>
-
-                            {!isGestor && (
-                                <div className="form-group">
-                                    <label>Apresentação / Abordagem Terapêutica</label>
-                                    <textarea name="biografia" rows="3" value={form.biografia} onChange={handleChange} />
-                                </div>
-                            )}
-
-                            <div className="modal-actions-footer">
-                                <button type="button" onClick={() => setModalEditarAberto(false)} className="btn-modal-cancel">
-                                    Cancelar
-                                </button>
-                                <button type="submit" disabled={carregando} className="btn-modal-save" style={{ backgroundColor: isGestor ? '#7c3aed' : '#2563eb' }}>
-                                    <Save size={18} /> {carregando ? 'Salvando...' : 'Salvar Alterações'}
-                                </button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             )}
