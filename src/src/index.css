@@ -1,0 +1,116 @@
+/* src/index.css */
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  
+  color-scheme: light; 
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset universal para evitar transbordamento (overflow) */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  letter-spacing: -1.2px;
+  margin: 1.5rem 0;
+}
+
+h2 {
+  font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+  line-height: 120%;
+  letter-spacing: -0.2px;
+  margin: 0 0 8px;
+}
+
+p {
+  margin: 0;
+}
+
+/* Acessibilidade: Modo Letras Grandes */
+body.letras-grandes {
+    font-size: 22px;
+}
+
+body.letras-grandes h1 {
+    font-size: 3rem;
+}
+
+body.letras-grandes h2 {
+    font-size: 2rem;
+}
+
+body.letras-grandes p,
+body.letras-grandes span,
+body.letras-grandes label {
+    font-size: 1.25rem;
+}
+
+body.letras-grandes .input-control,
+body.letras-grandes button {
+    font-size: 1.2rem;
+    padding: 1rem 1.2rem;
+}
+
+/* =========================================
+   REPAGINAÇÃO: DESIGN PONTUDO (SQUARE UI)
+   ========================================= */
+
+* {
+  border-radius: 0 !important;
+}
+
+.aluno-avatar, 
+.profissional-avatar, 
+.prof-avatar-badge, 
+.btn-sos,
+.progress-step,
+.avatar-circulo,
+.atividade-icone {
+  border-radius: 50% !important;
+}

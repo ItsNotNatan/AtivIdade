@@ -1,0 +1,73 @@
+/* src/components/Layout/Layout.css */
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    width: 100%;
+}
+
+.app-header {
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.2rem;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    color: #2563eb;
+}
+
+.nav-item.active {
+    border-bottom: 2px solid #2563eb;
+    font-weight: 700;
+}
+
+.main-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1.25rem;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    .app-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .main-content {
+        padding: 0.75rem;
+    }
+
+    .nav-links {
+        gap: 0.5rem;
+    }
+}

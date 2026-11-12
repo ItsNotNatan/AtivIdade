@@ -1,0 +1,105 @@
+/* src/components/AlertContext/AlertContext.css */
+.custom-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    font-family: system-ui, sans-serif;
+    min-width: 320px;
+}
+
+.toast-sucesso { background-color: #059669; }
+.toast-erro { background-color: #dc2626; }
+.toast-info { background-color: #3b82f6; }
+
+.toast-close {
+    background: none;
+    border: none;
+    color: white;
+    margin-left: auto;
+    cursor: pointer;
+    opacity: 0.8;
+    display: flex;
+}
+.toast-close:hover { opacity: 1; }
+
+/* Overlay escuro do Confirm */
+.custom-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.custom-confirm-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    font-family: system-ui, sans-serif;
+}
+
+.custom-confirm-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.custom-confirm-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.4rem;
+}
+
+.custom-confirm-box p {
+    color: #4b5563;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.custom-confirm-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-confirm-cancel, .btn-confirm-ok {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.btn-confirm-cancel { background: #f1f5f9; color: #4b5563; }
+.btn-confirm-cancel:hover { background: #e2e8f0; }
+.btn-confirm-ok { background: #ef4444; color: white; }
+.btn-confirm-ok:hover { background: #dc2626; }
+
+/* Animações */
+.fade-in-down { animation: fadeInDown 0.3s ease-out forwards; }
+.scale-in { animation: scaleIn 0.25s ease-out forwards; }
+
+@keyframes fadeInDown {
+    from { opacity: 0; top: -20px; }
+    to { opacity: 1; top: 20px; }
+}
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
