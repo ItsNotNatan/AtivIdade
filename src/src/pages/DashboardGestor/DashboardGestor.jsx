@@ -119,7 +119,7 @@ export default function DashboardGestor() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
                 <div style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', textAlign: 'center' }}>
                     <Users size={40} color="#3b82f6" style={{ margin: '0 auto' }} />
-                    <h3 style={{ margin: '1rem 0 0.25rem 0', color: '#64748b', fontSize: '1rem' }}>Pacientes Ativos</h3>
+                    <h3 style={{ margin: '1rem 0 0.25rem 0', color: '#64748b', fontSize: '1rem' }}>Pacientes</h3>
                     <p style={{ margin: 0, fontSize: '2.5rem', fontWeight: 'bold', color: '#1e293b' }}>{estatisticas.idosos}</p>
                 </div>
 
